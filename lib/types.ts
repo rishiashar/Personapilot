@@ -12,6 +12,8 @@ export interface Persona {
   goals: string;
   frustrations: string;
   voiceStyle: string;
+  /** Optional ElevenLabs voice id; falls back to the configured default. */
+  voiceId?: string;
   createdAt: string;
 }
 

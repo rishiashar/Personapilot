@@ -116,8 +116,7 @@ export async function POST(request: Request) {
     const completion = await client.chat.completions.create({
       model: PERSONA_RESPONSE_MODEL,
       messages: chatMessages,
-      temperature: 0.8,
-      max_tokens: 320,
+      max_completion_tokens: 320,
     });
 
     const response = completion.choices[0]?.message?.content?.trim();

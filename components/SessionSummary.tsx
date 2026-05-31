@@ -57,7 +57,7 @@ function ListSection({
     tone === "positive"
       ? "bg-primary"
       : tone === "warning"
-        ? "bg-amber-500"
+        ? "bg-muted-foreground"
         : "bg-muted-foreground/50";
 
   return (
@@ -178,7 +178,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
                 />
                 <Separator />
                 <ListSection
-                  icon={<TriangleAlert className="size-4 text-amber-500" />}
+                  icon={<TriangleAlert className="size-4 text-muted-foreground" />}
                   title="Weak questions"
                   items={analysis.weakQuestions}
                   tone="warning"

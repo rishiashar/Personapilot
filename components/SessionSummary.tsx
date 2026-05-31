@@ -135,9 +135,12 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       };
       setAnalysis(data.analysis);
       setIsAiGenerated(!data.fallback);
-      saveSessionAnalysis(session.id, data.analysis);
       if (data.fallback) {
+        // Don't persist baseline output, otherwise a reload would restore it
+        // and incorrectly show the "AI analysis" badge.
         setError("AI analysis unavailable — showing baseline feedback.");
+      } else {
+        saveSessionAnalysis(session.id, data.analysis);
       }
     } catch {
       // Network/route failure: keep the placeholder analysis visible.

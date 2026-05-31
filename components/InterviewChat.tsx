@@ -1,21 +1,77 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { SendHorizonal, TriangleAlert } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Loader2,
+  RotateCcw,
+  SendHorizonal,
+  TriangleAlert,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InterviewMessage } from "@/lib/types";
+import { useParticipantVoice, type VoiceState } from "@/lib/useParticipantVoice";
 import { cn, getInitials } from "@/lib/utils";
+
+function VoiceControl({
+  state,
+  onPlay,
+}: {
+  state: VoiceState;
+  onPlay: () => void;
+}) {
+  if (state.status === "loading") {
+    return (
+      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+        <Loader2 className="size-3 animate-spin" />
+        Generating voice…
+      </span>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+        <VolumeX className="size-3" />
+        Voice unavailable, showing text response.
+      </span>
+    );
+  }
+
+  const isReady = state.status === "ready";
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="h-6 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
+      onClick={onPlay}
+    >
+      {isReady ? (
+        <RotateCcw className="size-3" />
+      ) : (
+        <Volume2 className="size-3" />
+      )}
+      {isReady ? "Replay" : "Play"}
+    </Button>
+  );
+}
 
 function MessageBubble({
   message,
   personaInitials,
+  voiceState,
+  onPlayVoice,
 }: {
   message: InterviewMessage;
   personaInitials: string;
+  voiceState?: VoiceState;
+  onPlayVoice?: () => void;
 }) {
   const isResearcher = message.role === "researcher";
 
@@ -35,13 +91,23 @@ function MessageBubble({
       )}
       <div
         className={cn(
-          "max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-          isResearcher
-            ? "rounded-br-md bg-primary text-primary-foreground"
-            : "rounded-bl-md bg-muted text-foreground"
+          "flex max-w-[78%] flex-col gap-1",
+          isResearcher ? "items-end" : "items-start"
         )}
       >
-        {message.text}
+        <div
+          className={cn(
+            "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+            isResearcher
+              ? "rounded-br-md bg-primary text-primary-foreground"
+              : "rounded-bl-md bg-muted text-foreground"
+          )}
+        >
+          {message.text}
+        </div>
+        {!isResearcher && voiceState && onPlayVoice ? (
+          <VoiceControl state={voiceState} onPlay={onPlayVoice} />
+        ) : null}
       </div>
     </div>
   );
@@ -50,6 +116,7 @@ function MessageBubble({
 export function InterviewChat({
   messages,
   personaName,
+  voiceId,
   isGenerating,
   disabled,
   error,
@@ -57,6 +124,7 @@ export function InterviewChat({
 }: {
   messages: InterviewMessage[];
   personaName: string;
+  voiceId?: string;
   isGenerating: boolean;
   disabled: boolean;
   error?: string | null;
@@ -65,6 +133,24 @@ export function InterviewChat({
   const [draft, setDraft] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const personaInitials = getInitials(personaName);
+  const { getState, generateAndPlay } = useParticipantVoice();
+  const autoPlayedRef = useRef<Set<string>>(new Set());
+
+  const playVoice = useCallback(
+    (message: InterviewMessage) => {
+      void generateAndPlay(message.id, message.text, voiceId);
+    },
+    [generateAndPlay, voiceId]
+  );
+
+  // Auto-generate and play voice for each new participant message once.
+  useEffect(() => {
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== "participant") return;
+    if (autoPlayedRef.current.has(last.id)) return;
+    autoPlayedRef.current.add(last.id);
+    void generateAndPlay(last.id, last.text, voiceId);
+  }, [messages, generateAndPlay, voiceId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -93,6 +179,16 @@ export function InterviewChat({
               key={message.id}
               message={message}
               personaInitials={personaInitials}
+              voiceState={
+                message.role === "participant"
+                  ? getState(message.id)
+                  : undefined
+              }
+              onPlayVoice={
+                message.role === "participant"
+                  ? () => playVoice(message)
+                  : undefined
+              }
             />
           ))}
 

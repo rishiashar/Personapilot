@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flag, Target, Sparkles } from "lucide-react";
+import { Flag, Target, Sparkles, Volume2 } from "lucide-react";
 
 import { InterviewChat } from "@/components/InterviewChat";
 import { ParticipantCard } from "@/components/ParticipantCard";
@@ -175,6 +175,10 @@ export function InterviewRoom({
                 <Sparkles className="size-3" />
                 Mock mode
               </Badge>
+              <Badge variant="outline" className="gap-1 font-normal">
+                <Volume2 className="size-3" />
+                Voice enabled
+              </Badge>
               <Badge
                 variant={isCompleted ? "secondary" : "default"}
                 className="font-normal"
@@ -188,6 +192,7 @@ export function InterviewRoom({
           <InterviewChat
             messages={session.messages}
             personaName={persona.name}
+            voiceId={persona.voiceId}
             isGenerating={isGeneratingResponse}
             disabled={isCompleted}
             error={error}

@@ -1,13 +1,16 @@
 "use client";
 
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
   CheckCircle2,
   Lightbulb,
   ListChecks,
+  Loader2,
   MessageCircle,
   RotateCcw,
+  Sparkles,
   TriangleAlert,
 } from "lucide-react";
 
@@ -16,14 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
-import type { InterviewSession } from "@/lib/types";
+import {
+  getSessionAnalysis,
+  saveSessionAnalysis,
+} from "@/lib/localStorage";
+import type { InterviewSession, SessionAnalysis } from "@/lib/types";
 
 function Stat({
   label,
@@ -42,16 +43,22 @@ function Stat({
   );
 }
 
-function ListSection({
+type SectionTone = "positive" | "warning" | "default";
+
+function AnalysisSection({
   icon,
   title,
+  badge,
+  badgeVariant,
   items,
   tone = "default",
 }: {
   icon: React.ReactNode;
   title: string;
+  badge: string;
+  badgeVariant: "default" | "secondary" | "outline";
   items: string[];
-  tone?: "default" | "positive" | "warning";
+  tone?: SectionTone;
 }) {
   const dot =
     tone === "positive"
@@ -61,28 +68,87 @@ function ListSection({
         : "bg-muted-foreground/50";
 
   return (
-    <div className="space-y-3">
-      <h3 className="flex items-center gap-2 text-sm font-semibold">
-        {icon}
-        {title}
-      </h3>
-      <ul className="space-y-2">
-        {items.map((item, index) => (
-          <li
-            key={index}
-            className="flex gap-2.5 text-sm leading-relaxed text-foreground/90"
-          >
-            <span className={`mt-2 size-1.5 shrink-0 rounded-full ${dot}`} />
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Card>
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            {icon}
+            {title}
+          </h3>
+          <Badge variant={badgeVariant}>{badge}</Badge>
+        </div>
+        <Separator />
+        {items.length > 0 ? (
+          <ul className="space-y-2">
+            {items.map((item, index) => (
+              <li
+                key={index}
+                className="flex gap-2.5 text-sm leading-relaxed text-foreground/90"
+              >
+                <span className={`mt-2 size-1.5 shrink-0 rounded-full ${dot}`} />
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nothing flagged here for this session.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
 export function SessionSummary({ session }: { session: InterviewSession }) {
-  const analysis = buildSessionAnalysis(session);
+  // Placeholder analysis is always available and shown first.
+  const placeholder = useMemo(() => buildSessionAnalysis(session), [session]);
+
+  // Restore a previously generated analysis for this exact session, if any,
+  // otherwise start from the placeholder. Lazy initializers read localStorage
+  // once on mount (this component only renders after the store has hydrated).
+  const saved = useMemo(() => getSessionAnalysis(session.id), [session.id]);
+  const [analysis, setAnalysis] = useState<SessionAnalysis>(
+    saved ?? placeholder
+  );
+  const [isAiGenerated, setIsAiGenerated] = useState(saved !== null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const generateAnalysis = useCallback(async () => {
+    setIsAnalyzing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/session-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          persona: session.persona,
+          researchContext: session.researchContext,
+          messages: session.messages,
+        }),
+      });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = (await res.json()) as {
+        analysis: SessionAnalysis;
+        fallback?: boolean;
+      };
+      setAnalysis(data.analysis);
+      setIsAiGenerated(!data.fallback);
+      saveSessionAnalysis(session.id, data.analysis);
+      if (data.fallback) {
+        setError("AI analysis unavailable — showing baseline feedback.");
+      }
+    } catch {
+      // Network/route failure: keep the placeholder analysis visible.
+      setAnalysis(placeholder);
+      setIsAiGenerated(false);
+      setError("Analysis unavailable right now — showing baseline feedback.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [session.id, session.persona, session.researchContext, session.messages, placeholder]);
+
   const researcherCount = session.messages.filter(
     (m) => m.role === "researcher"
   ).length;
@@ -102,16 +168,36 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
             <Badge variant={isActive ? "default" : "secondary"}>
               {isActive ? "Active session" : "Completed session"}
             </Badge>
+            <Badge variant={isAiGenerated ? "default" : "outline"}>
+              {isAiGenerated ? "AI analysis" : "Baseline feedback"}
+            </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Placeholder feedback for{" "}
+            {isAiGenerated
+              ? "AI-generated coaching for "
+              : "Baseline feedback for "}
             <span className="font-medium text-foreground">
               {session.researchContext.projectName || "your rehearsal"}
             </span>
-            . AI-generated analysis will replace this later.
+            {isAiGenerated
+              ? "."
+              : ". Generate AI analysis for transcript-specific coaching."}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button onClick={generateAnalysis} disabled={isAnalyzing}>
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Analyzing interview…
+              </>
+            ) : (
+              <>
+                <Sparkles />
+                {isAiGenerated ? "Regenerate analysis" : "Generate analysis"}
+              </>
+            )}
+          </Button>
           {isActive ? (
             <Button
               variant="outline"
@@ -122,92 +208,74 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
               Back to interview
             </Button>
           ) : null}
-          <Button nativeButton={false} render={<Link href="/setup" />}>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/setup" />}
+          >
             <RotateCcw />
-            Start a new rehearsal
+            New rehearsal
           </Button>
         </div>
       </div>
+
+      {error ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          {error}
+        </p>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Questions asked" value={researcherCount} />
         <Stat label="Participant responses" value={participantCount} />
         <Stat label="Strong questions" value={analysis.strongQuestions.length} />
-        <Stat label="Suggested rewrites" value={analysis.suggestedImprovements.length} />
+        <Stat
+          label="Suggested rewrites"
+          value={analysis.suggestedImprovements.length}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <Card>
-          <CardContent className="pt-2">
-            <Tabs defaultValue="overview">
-              <TabsList className="w-full">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="feedback">Question feedback</TabsTrigger>
-                <TabsTrigger value="next">Next steps</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="pt-5">
-                <div className="space-y-4">
-                  <p className="text-sm leading-relaxed text-foreground/90">
-                    You asked{" "}
-                    <span className="font-medium">{researcherCount}</span>{" "}
-                    {researcherCount === 1 ? "question" : "questions"} and
-                    received{" "}
-                    <span className="font-medium">{participantCount}</span>{" "}
-                    simulated{" "}
-                    {participantCount === 1 ? "response" : "responses"}. Use the
-                    feedback tabs to review question quality and plan your next
-                    rehearsal.
-                  </p>
-                  <Separator />
-                  <ListSection
-                    icon={<CheckCircle2 className="size-4 text-primary" />}
-                    title="What went well"
-                    items={analysis.strongQuestions}
-                    tone="positive"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="feedback" className="space-y-6 pt-5">
-                <ListSection
-                  icon={<CheckCircle2 className="size-4 text-primary" />}
-                  title="Strong questions"
-                  items={analysis.strongQuestions}
-                  tone="positive"
-                />
-                <Separator />
-                <ListSection
-                  icon={<TriangleAlert className="size-4 text-muted-foreground" />}
-                  title="Weak questions"
-                  items={analysis.weakQuestions}
-                  tone="warning"
-                />
-                <Separator />
-                <ListSection
-                  icon={<MessageCircle className="size-4 text-muted-foreground" />}
-                  title="Missed follow-ups"
-                  items={analysis.missedFollowUps}
-                />
-              </TabsContent>
-
-              <TabsContent value="next" className="space-y-6 pt-5">
-                <ListSection
-                  icon={<Lightbulb className="size-4 text-primary" />}
-                  title="Suggested improved questions"
-                  items={analysis.suggestedImprovements}
-                  tone="positive"
-                />
-                <Separator />
-                <ListSection
-                  icon={<ListChecks className="size-4 text-muted-foreground" />}
-                  title="Next interview tips"
-                  items={analysis.nextInterviewTips}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <AnalysisSection
+            icon={<CheckCircle2 className="size-4 text-primary" />}
+            title="Strong questions"
+            badge="Strong"
+            badgeVariant="default"
+            items={analysis.strongQuestions}
+            tone="positive"
+          />
+          <AnalysisSection
+            icon={<TriangleAlert className="size-4 text-muted-foreground" />}
+            title="Weak questions"
+            badge="Needs work"
+            badgeVariant="secondary"
+            items={analysis.weakQuestions}
+            tone="warning"
+          />
+          <AnalysisSection
+            icon={<MessageCircle className="size-4 text-muted-foreground" />}
+            title="Missed follow-ups"
+            badge="Follow-up"
+            badgeVariant="outline"
+            items={analysis.missedFollowUps}
+          />
+          <AnalysisSection
+            icon={<Lightbulb className="size-4 text-primary" />}
+            title="Suggested improvements"
+            badge="Rewrite"
+            badgeVariant="default"
+            items={analysis.suggestedImprovements}
+            tone="positive"
+          />
+          <AnalysisSection
+            icon={<ListChecks className="size-4 text-muted-foreground" />}
+            title="Next interview tips"
+            badge="Next time"
+            badgeVariant="outline"
+            items={analysis.nextInterviewTips}
+          />
+        </div>
 
         <div className="space-y-4">
           <ParticipantCard persona={session.persona} />

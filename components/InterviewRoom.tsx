@@ -28,21 +28,20 @@ export function InterviewRoom({
 }) {
   const router = useRouter();
   const [session, setSession] = useState<InterviewSession>(initialSession);
-  const [isTyping, setIsTyping] = useState(false);
-  const replyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sessionRef = useRef(session);
-  sessionRef.current = session;
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const isCompleted = session.status === "completed";
 
   const persist = (next: InterviewSession) => {
-    sessionRef.current = next;
     setSession(next);
     saveSession(next);
   };
 
-  const handleSend = (text: string) => {
-    if (isCompleted) return;
+  const handleSend = async (text: string) => {
+    if (isCompleted || isGeneratingResponse) return;
+    setError(null);
 
     const researcherMessage: InterviewMessage = {
       id: createId("msg"),
@@ -57,31 +56,69 @@ export function InterviewRoom({
     };
     persist(withQuestion);
 
-    const turn = withQuestion.messages.filter(
+    // Seed for the deterministic mock fallback.
+    const turn = session.messages.filter(
       (m) => m.role === "participant"
     ).length;
 
-    setIsTyping(true);
-    if (replyTimer.current) clearTimeout(replyTimer.current);
-    replyTimer.current = setTimeout(() => {
-      const participantMessage: InterviewMessage = {
-        id: createId("msg"),
-        role: "participant",
-        text: generateMockResponse(text, turn),
-        createdAt: new Date().toISOString(),
-      };
-      const base = sessionRef.current;
-      persist({
-        ...base,
-        messages: [...base.messages, participantMessage],
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setIsGeneratingResponse(true);
+
+    let responseText: string;
+    try {
+      const res = await fetch("/api/persona-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          persona: session.persona,
+          researchContext: session.researchContext,
+          messages: session.messages,
+          latestQuestion: text,
+        }),
       });
-      setIsTyping(false);
-    }, 900);
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data: { response?: string; fallback?: boolean } = await res.json();
+      responseText =
+        typeof data.response === "string" && data.response.trim().length > 0
+          ? data.response
+          : generateMockResponse(text, turn);
+      if (data.fallback) {
+        setError(
+          "Showing a sample response. Add an OpenAI API key for live answers."
+        );
+      }
+    } catch {
+      // Session was ended mid-request: drop the response silently.
+      if (controller.signal.aborted) {
+        setIsGeneratingResponse(false);
+        return;
+      }
+      responseText = generateMockResponse(text, turn);
+      setError(
+        "Couldn't reach the AI participant, so this is a sample response."
+      );
+    } finally {
+      abortRef.current = null;
+    }
+
+    const participantMessage: InterviewMessage = {
+      id: createId("msg"),
+      role: "participant",
+      text: responseText,
+      createdAt: new Date().toISOString(),
+    };
+    persist({
+      ...withQuestion,
+      messages: [...withQuestion.messages, participantMessage],
+    });
+    setIsGeneratingResponse(false);
   };
 
   const handleEndSession = () => {
-    if (replyTimer.current) clearTimeout(replyTimer.current);
-    setIsTyping(false);
+    abortRef.current?.abort();
+    setIsGeneratingResponse(false);
     const ended: InterviewSession = {
       ...session,
       status: "completed",
@@ -151,8 +188,9 @@ export function InterviewRoom({
           <InterviewChat
             messages={session.messages}
             personaName={persona.name}
-            isTyping={isTyping}
+            isGenerating={isGeneratingResponse}
             disabled={isCompleted}
+            error={error}
             onSend={handleSend}
           />
         </CardContent>

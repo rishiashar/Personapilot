@@ -35,8 +35,12 @@ export async function POST(request: Request) {
     );
   }
 
+  // Precedence: per-request voiceId > ELEVENLABS_DEFAULT_VOICE_ID env override
+  // (set on Vercel without a code change) > the centralized config default.
   const voiceId =
-    body.voiceId?.trim() || DEFAULT_ELEVENLABS_VOICE_ID;
+    body.voiceId?.trim() ||
+    process.env.ELEVENLABS_DEFAULT_VOICE_ID?.trim() ||
+    DEFAULT_ELEVENLABS_VOICE_ID;
 
   try {
     const audio = await synthesizeSpeech({ text, voiceId });

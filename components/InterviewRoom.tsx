@@ -30,6 +30,11 @@ export function InterviewRoom({
   const [session, setSession] = useState<InterviewSession>(initialSession);
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Tracks the source of the latest participant reply so the header badge
+  // reflects reality: null until the first reply, then "live" or "mock".
+  const [responseMode, setResponseMode] = useState<"live" | "mock" | null>(
+    null
+  );
   const abortRef = useRef<AbortController | null>(null);
 
   const isCompleted = session.status === "completed";
@@ -80,11 +85,14 @@ export function InterviewRoom({
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const data: { response?: string; fallback?: boolean } = await res.json();
-      responseText =
+      const liveText =
         typeof data.response === "string" && data.response.trim().length > 0
           ? data.response
-          : generateMockResponse(text, turn);
-      if (data.fallback) {
+          : null;
+      responseText = liveText ?? generateMockResponse(text, turn);
+      const usedFallback = Boolean(data.fallback) || liveText === null;
+      setResponseMode(usedFallback ? "mock" : "live");
+      if (usedFallback) {
         setError(
           "Showing a sample response. Add an OpenAI API key for live answers."
         );
@@ -96,6 +104,7 @@ export function InterviewRoom({
         return;
       }
       responseText = generateMockResponse(text, turn);
+      setResponseMode("mock");
       setError(
         "Couldn't reach the AI participant, so this is a sample response."
       );
@@ -173,7 +182,11 @@ export function InterviewRoom({
             <div className="flex items-center gap-1.5">
               <Badge variant="outline" className="gap-1 font-normal">
                 <Sparkles className="size-3" />
-                Mock mode
+                {responseMode === "live"
+                  ? "Live AI"
+                  : responseMode === "mock"
+                    ? "Mock mode"
+                    : "AI participant"}
               </Badge>
               <Badge variant="outline" className="gap-1 font-normal">
                 <Volume2 className="size-3" />

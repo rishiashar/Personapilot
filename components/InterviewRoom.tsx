@@ -30,10 +30,13 @@ export function InterviewRoom({
   const [session, setSession] = useState<InterviewSession>(initialSession);
   const [isTyping, setIsTyping] = useState(false);
   const replyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   const isCompleted = session.status === "completed";
 
   const persist = (next: InterviewSession) => {
+    sessionRef.current = next;
     setSession(next);
     saveSession(next);
   };
@@ -67,13 +70,10 @@ export function InterviewRoom({
         text: generateMockResponse(text, turn),
         createdAt: new Date().toISOString(),
       };
-      setSession((current) => {
-        const next: InterviewSession = {
-          ...current,
-          messages: [...current.messages, participantMessage],
-        };
-        saveSession(next);
-        return next;
+      const base = sessionRef.current;
+      persist({
+        ...base,
+        messages: [...base.messages, participantMessage],
       });
       setIsTyping(false);
     }, 900);

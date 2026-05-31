@@ -48,6 +48,7 @@ export function EmptyState({
             {primaryAction ? (
               <Button
                 size="lg"
+                nativeButton={false}
                 variant={primaryAction.variant ?? "default"}
                 render={<Link href={primaryAction.href} />}
               >
@@ -57,6 +58,7 @@ export function EmptyState({
             {secondaryAction ? (
               <Button
                 size="lg"
+                nativeButton={false}
                 variant={secondaryAction.variant ?? "outline"}
                 render={<Link href={secondaryAction.href} />}
               >

@@ -113,12 +113,16 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         </div>
         <div className="flex flex-wrap gap-2">
           {isActive ? (
-            <Button variant="outline" render={<Link href="/interview" />}>
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/interview" />}
+            >
               <ArrowLeft />
               Back to interview
             </Button>
           ) : null}
-          <Button render={<Link href="/setup" />}>
+          <Button nativeButton={false} render={<Link href="/setup" />}>
             <RotateCcw />
             Start a new rehearsal
           </Button>

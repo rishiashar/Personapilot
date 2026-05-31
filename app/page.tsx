@@ -57,7 +57,11 @@ export default function HomePage() {
               before speaking to real users.
             </p>
             <div className="mt-8 flex items-center justify-center gap-3">
-              <Button size="lg" render={<Link href="/setup" />}>
+              <Button
+                size="lg"
+                nativeButton={false}
+                render={<Link href="/setup" />}
+              >
                 Create rehearsal
                 <ArrowRight />
               </Button>

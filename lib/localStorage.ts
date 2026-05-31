@@ -2,13 +2,22 @@ import type {
   InterviewSession,
   Persona,
   ResearchContext,
+  SessionAnalysis,
 } from "@/lib/types";
 
 const KEYS = {
   persona: "personapilot:currentPersona",
   researchContext: "personapilot:currentResearchContext",
   session: "personapilot:currentSession",
+  analysis: "personapilot:currentSessionAnalysis",
 } as const;
+
+/** Stored alongside the session id so stale analysis isn't shown for a new session. */
+export interface StoredSessionAnalysis {
+  sessionId: string;
+  analysis: SessionAnalysis;
+  createdAt: string;
+}
 
 const isBrowser = () => typeof window !== "undefined";
 
@@ -111,4 +120,28 @@ export function getSession(): InterviewSession | null {
 
 export function clearSession(): void {
   remove(KEYS.session);
+  remove(KEYS.analysis);
+}
+
+export function saveSessionAnalysis(
+  sessionId: string,
+  analysis: SessionAnalysis
+): void {
+  const record: StoredSessionAnalysis = {
+    sessionId,
+    analysis,
+    createdAt: new Date().toISOString(),
+  };
+  write(KEYS.analysis, record);
+}
+
+/** Returns the saved analysis only when it matches the given session id. */
+export function getSessionAnalysis(
+  sessionId: string
+): SessionAnalysis | null {
+  const record = snapshot<StoredSessionAnalysis>(KEYS.analysis);
+  if (record && record.sessionId === sessionId) {
+    return record.analysis;
+  }
+  return null;
 }

@@ -14,6 +14,9 @@ export interface Persona {
   voiceStyle: string;
   /** Optional ElevenLabs voice id; falls back to the configured default. */
   voiceId?: string;
+  voiceName?: string;
+  voiceSelectionReason?: string;
+  voiceSource?: "elevenlabs_search" | "default_fallback";
   createdAt: string;
 }
 

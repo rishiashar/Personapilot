@@ -1,6 +1,7 @@
 import type {
   InterviewSession,
   Persona,
+  ResearchContext,
   SessionAnalysis,
 } from "@/lib/types";
 
@@ -91,6 +92,17 @@ export const SAMPLE_PERSONA: Omit<Persona, "id" | "createdAt"> = {
     "Feels scattered when project info is spread across tools, loses track of invoice dates, sometimes misses client follow-ups because nothing reminds her.",
   voiceStyle:
     "Friendly, direct, occasionally reflective, talks like a creative professional not a corporate manager.",
+};
+
+export const SAMPLE_RESEARCH_CONTEXT: ResearchContext = {
+  projectName: "Freelancer project management study",
+  researchGoal:
+    "Understand how freelance designers and developers manage multiple client projects, and where current tools fall short.",
+  productContext:
+    "A lightweight project management tool designed for solo freelancers who juggle several clients at once.",
+  targetAudience: "Freelance designers and developers with 2+ active clients",
+  keyLearningGoals:
+    "Discover pain points in task tracking, deadline management, and client communication across projects.",
 };
 
 /**

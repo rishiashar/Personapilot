@@ -1,5 +1,6 @@
-import { Target } from "lucide-react";
+import { Target, Wand2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,9 +16,11 @@ import type { ResearchContext } from "@/lib/types";
 export function ResearchContextForm({
   value,
   onChange,
+  onUseSample,
 }: {
   value: ResearchContext;
   onChange: (next: ResearchContext) => void;
+  onUseSample: () => void;
 }) {
   const set = (key: keyof ResearchContext, fieldValue: string) =>
     onChange({ ...value, [key]: fieldValue });
@@ -25,16 +28,27 @@ export function ResearchContextForm({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-            <Target className="size-4" />
-          </span>
-          <div>
-            <CardTitle>Research context</CardTitle>
-            <CardDescription>
-              What you are studying and what you want to learn.
-            </CardDescription>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+              <Target className="size-4" />
+            </span>
+            <div>
+              <CardTitle>Research context</CardTitle>
+              <CardDescription>
+                What you are studying and what you want to learn.
+              </CardDescription>
+            </div>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onUseSample}
+          >
+            <Wand2 />
+            Use sample context
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="grid gap-5">

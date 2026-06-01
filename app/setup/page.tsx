@@ -13,7 +13,7 @@ import {
   saveResearchContext,
   saveSession,
 } from "@/lib/localStorage";
-import { SAMPLE_PERSONA } from "@/lib/mockResponses";
+import { SAMPLE_PERSONA, SAMPLE_RESEARCH_CONTEXT } from "@/lib/mockResponses";
 import type { InterviewSession, Persona, ResearchContext } from "@/lib/types";
 import { createId } from "@/lib/utils";
 
@@ -112,7 +112,11 @@ export default function SetupPage() {
           </div>
 
           <div className="mt-7 space-y-5">
-            <ResearchContextForm value={context} onChange={setContext} />
+            <ResearchContextForm
+              value={context}
+              onChange={setContext}
+              onUseSample={() => setContext(SAMPLE_RESEARCH_CONTEXT)}
+            />
             <PersonaForm
               value={persona}
               onChange={setPersona}

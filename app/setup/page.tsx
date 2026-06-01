@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
@@ -40,13 +40,43 @@ export default function SetupPage() {
   const router = useRouter();
   const [context, setContext] = useState<ResearchContext>(EMPTY_CONTEXT);
   const [persona, setPersona] = useState<PersonaDraft>(EMPTY_PERSONA);
+  const [isStarting, setIsStarting] = useState(false);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+
     const fullPersona: Persona = {
       ...persona,
       id: createId("persona"),
       createdAt: new Date().toISOString(),
     };
+
+    // Auto-select a voice for the persona (non-blocking: falls back on failure).
+    try {
+      const res = await fetch("/api/select-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona: fullPersona, researchContext: context }),
+      });
+      if (res.ok) {
+        const voice = (await res.json()) as {
+          voiceId?: string;
+          voiceName?: string;
+          voiceSelectionReason?: string;
+          voiceSource?: string;
+        };
+        if (voice.voiceId) {
+          fullPersona.voiceId = voice.voiceId;
+          fullPersona.voiceName = voice.voiceName;
+          fullPersona.voiceSelectionReason = voice.voiceSelectionReason;
+          fullPersona.voiceSource =
+            (voice.voiceSource as Persona["voiceSource"]) ?? "elevenlabs_search";
+        }
+      }
+    } catch {
+      // Voice selection is best-effort; continue without it.
+    }
 
     const session: InterviewSession = {
       id: createId("session"),
@@ -96,9 +126,18 @@ export default function SetupPage() {
                 ? "Your context and persona are saved as you go."
                 : "Add a project name and persona name to begin."}
             </p>
-            <Button size="lg" onClick={handleStart} disabled={!canStart}>
-              Start interview session
-              <ArrowRight />
+            <Button size="lg" onClick={handleStart} disabled={!canStart || isStarting}>
+              {isStarting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Selecting voice…
+                </>
+              ) : (
+                <>
+                  Start interview session
+                  <ArrowRight />
+                </>
+              )}
             </Button>
           </div>
         </div>

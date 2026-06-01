@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Volume2 } from "lucide-react";
 
 import {
   Avatar,
@@ -61,6 +61,25 @@ export function ParticipantCard({ persona }: { persona: Persona }) {
         <DetailRow label="Frustrations" value={persona.frustrations} />
         <Separator />
         <DetailRow label="Voice style" value={persona.voiceStyle} />
+        {persona.voiceId && (
+          <div className="space-y-1">
+            <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase flex items-center gap-1">
+              <Volume2 className="size-3" />
+              Voice
+            </p>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              {persona.voiceSource === "elevenlabs_search"
+                ? "Auto-selected"
+                : "Default voice"}
+              {persona.voiceName ? ` \u00b7 ${persona.voiceName}` : ""}
+            </p>
+            {persona.voiceSelectionReason && (
+              <p className="text-xs text-muted-foreground">
+                {persona.voiceSelectionReason}
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

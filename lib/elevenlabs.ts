@@ -37,30 +37,11 @@ export interface ElevenLabsVoiceCandidate {
   preview_url: string | null;
 }
 
-/**
- * Searches the ElevenLabs shared voice library using the given criteria and
- * returns up to `limit` candidate voices.
- */
-export async function searchElevenLabsVoices(
-  criteria: VoiceSearchCriteria,
-  limit = 10
+/** Runs a single shared-voices query and maps the result to candidates. */
+async function fetchSharedVoices(
+  apiKey: string,
+  params: URLSearchParams
 ): Promise<ElevenLabsVoiceCandidate[]> {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) {
-    throw new Error("ELEVENLABS_API_KEY is not configured.");
-  }
-
-  const params = new URLSearchParams();
-  params.set("page_size", String(limit));
-  if (criteria.search) params.set("search", criteria.search);
-  if (criteria.gender) params.set("gender", criteria.gender);
-  if (criteria.age) params.set("age", criteria.age);
-  if (criteria.language) params.set("language", criteria.language);
-  if (criteria.use_cases.length > 0)
-    params.set("use_cases", criteria.use_cases.join(","));
-  if (criteria.descriptives.length > 0)
-    params.set("descriptives", criteria.descriptives.join(","));
-
   const res = await fetch(`${ELEVENLABS_VOICES_ENDPOINT}?${params.toString()}`, {
     method: "GET",
     headers: { "xi-api-key": apiKey },
@@ -84,7 +65,7 @@ export async function searchElevenLabsVoices(
     }>;
   };
 
-  return (data.voices ?? []).slice(0, limit).map((v) => ({
+  return (data.voices ?? []).map((v) => ({
     voice_id: v.voice_id,
     name: v.name,
     description: v.description,
@@ -92,6 +73,70 @@ export async function searchElevenLabsVoices(
     labels: v.labels ?? {},
     preview_url: v.preview_url,
   }));
+}
+
+/**
+ * Searches the ElevenLabs shared voice library using the given criteria and
+ * returns up to `limit` candidate voices.
+ *
+ * The shared-voices `search` param matches strictly, so a long phrase (e.g.
+ * "casual friendly upbeat young adult student voice") usually returns nothing.
+ * To reliably surface candidates we try progressively looser queries — a short
+ * keyword search with filters, then filters only, then just the language — and
+ * return the first non-empty result. This keeps automatic selection working
+ * instead of silently falling back to the default voice.
+ */
+export async function searchElevenLabsVoices(
+  criteria: VoiceSearchCriteria,
+  limit = 10
+): Promise<ElevenLabsVoiceCandidate[]> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    throw new Error("ELEVENLABS_API_KEY is not configured.");
+  }
+
+  const language = criteria.language?.trim() || "en";
+  const useCase = criteria.use_cases[0]?.trim();
+  // Keep the search to a few keywords; long phrases match nothing.
+  const keywords = [criteria.search, ...criteria.descriptives]
+    .filter((s): s is string => Boolean(s && s.trim()))
+    .flatMap((s) => s.split(/\s+/))
+    .filter(Boolean);
+  const shortSearch = keywords.slice(0, 3).join(" ");
+
+  const build = (parts: {
+    search?: string;
+    useCase?: string;
+    language?: string;
+    age?: VoiceSearchCriteria["age"];
+    gender?: VoiceSearchCriteria["gender"];
+  }): URLSearchParams => {
+    const p = new URLSearchParams();
+    p.set("page_size", String(limit));
+    if (parts.search) p.set("search", parts.search);
+    if (parts.useCase) p.set("use_cases", parts.useCase);
+    if (parts.language) p.set("language", parts.language);
+    // Only send age/gender when present; gender stays off by default so the
+    // search is never biased by an inferred identity trait.
+    if (parts.age) p.set("age", parts.age);
+    if (parts.gender) p.set("gender", parts.gender);
+    return p;
+  };
+
+  // Most specific -> least specific. First non-empty result wins.
+  const attempts: URLSearchParams[] = [
+    build({ search: shortSearch, useCase, language, age: criteria.age, gender: criteria.gender }),
+    build({ search: shortSearch, useCase, language }),
+    build({ useCase, language, age: criteria.age }),
+    build({ useCase, language }),
+    build({ language }),
+  ];
+
+  for (const params of attempts) {
+    const candidates = await fetchSharedVoices(apiKey, params);
+    if (candidates.length > 0) return candidates.slice(0, limit);
+  }
+  return [];
 }
 
 /**

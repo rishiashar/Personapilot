@@ -223,6 +223,15 @@ export function InterviewRoom({
     }
   };
 
+  // Detect voice generation in progress: text is ready (not generating) but
+  // the latest participant message's voice is still loading (not yet playing).
+  const isGeneratingVoice =
+    mode === "voice" &&
+    !isGeneratingResponse &&
+    !voice.isPlaying &&
+    !!lastParticipant &&
+    lastVoiceState?.status === "loading";
+
   const voicePhase: VoicePhase = isCompleted
     ? "idle"
     : recorder.isRecording
@@ -231,11 +240,13 @@ export function InterviewRoom({
         ? "transcribing"
         : isGeneratingResponse
           ? "thinking"
-          : voice.isPlaying
-            ? "speaking"
-            : voiceError
-              ? "error"
-              : "idle";
+          : isGeneratingVoice
+            ? "generating_voice"
+            : voice.isPlaying
+              ? "speaking"
+              : voiceError
+                ? "error"
+                : "idle";
 
   const handleEndSession = () => {
     abortRef.current?.abort();

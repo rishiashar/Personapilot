@@ -42,7 +42,7 @@ export function ResearchContextForm({
           <Label htmlFor="projectName">Project name</Label>
           <Input
             id="projectName"
-            placeholder="e.g. UofT campus discovery study"
+            placeholder="e.g. Freelancer project management study"
             value={value.projectName}
             onChange={(e) => set("projectName", e.target.value)}
           />
@@ -73,7 +73,7 @@ export function ResearchContextForm({
             <Label htmlFor="targetAudience">Target audience</Label>
             <Input
               id="targetAudience"
-              placeholder="e.g. First year commuter students"
+              placeholder="e.g. Freelance designers and developers"
               value={value.targetAudience}
               onChange={(e) => set("targetAudience", e.target.value)}
             />
@@ -82,7 +82,7 @@ export function ResearchContextForm({
             <Label htmlFor="keyLearningGoals">Key learning goals</Label>
             <Input
               id="keyLearningGoals"
-              placeholder="e.g. Understand how students find resources"
+              placeholder="e.g. Understand how freelancers track projects"
               value={value.keyLearningGoals}
               onChange={(e) => set("keyLearningGoals", e.target.value)}
             />

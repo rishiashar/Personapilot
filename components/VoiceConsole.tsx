@@ -20,6 +20,7 @@ export type VoicePhase =
   | "recording"
   | "transcribing"
   | "thinking"
+  | "generating_voice"
   | "speaking"
   | "error";
 
@@ -38,6 +39,10 @@ const PHASE_BADGE: Record<
   thinking: {
     label: "Thinking",
     className: "border-transparent bg-muted text-muted-foreground",
+  },
+  generating_voice: {
+    label: "Generating voice",
+    className: "border-transparent bg-primary/10 text-primary",
   },
   speaking: {
     label: "Speaking",
@@ -74,7 +79,7 @@ export function VoiceConsole({
 }) {
   const isRecording = phase === "recording";
   const isBusy =
-    phase === "transcribing" || phase === "thinking" || phase === "speaking";
+    phase === "transcribing" || phase === "thinking" || phase === "generating_voice" || phase === "speaking";
   const micDisabled = disabled || isBusy;
 
   const helper = disabled
@@ -85,9 +90,11 @@ export function VoiceConsole({
         ? "Transcribing what you said…"
         : phase === "thinking"
           ? `${personaName} is thinking…`
-          : phase === "speaking"
-            ? `${personaName} is speaking…`
-            : "Tap the mic and ask your question out loud.";
+          : phase === "generating_voice"
+            ? `${personaName} is preparing to speak…`
+            : phase === "speaking"
+              ? `${personaName} is speaking…`
+              : "Tap the mic and ask your question out loud.";
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -95,7 +102,7 @@ export function VoiceConsole({
         <div className="flex h-6 items-center">
           {phase !== "idle" ? (
             <Badge className={cn("gap-1.5 font-normal", PHASE_BADGE[phase].className)}>
-              {(phase === "transcribing" || phase === "thinking") && (
+              {(phase === "transcribing" || phase === "thinking" || phase === "generating_voice") && (
                 <Loader2 className="size-3 animate-spin" />
               )}
               {phase === "recording" && (

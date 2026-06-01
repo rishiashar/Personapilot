@@ -49,7 +49,7 @@ export function PersonaForm({
             onClick={onUseSample}
           >
             <Wand2 />
-            Use sample UofT student persona
+            Use sample persona
           </Button>
         </div>
       </CardHeader>
@@ -59,7 +59,7 @@ export function PersonaForm({
             <Label htmlFor="personaName">Persona name</Label>
             <Input
               id="personaName"
-              placeholder="e.g. Aanya Patel"
+              placeholder="e.g. Maya Chen"
               value={value.name}
               onChange={(e) => set("name", e.target.value)}
             />
@@ -68,7 +68,7 @@ export function PersonaForm({
             <Label htmlFor="personaRole">Role</Label>
             <Input
               id="personaRole"
-              placeholder="e.g. First year international student"
+              placeholder="e.g. Freelance UI designer"
               value={value.role}
               onChange={(e) => set("role", e.target.value)}
             />
@@ -79,7 +79,7 @@ export function PersonaForm({
           <Label htmlFor="personaAgeRange">Age range</Label>
           <Input
             id="personaAgeRange"
-            placeholder="e.g. 18 to 20"
+            placeholder="e.g. 28 to 32"
             value={value.ageRange}
             onChange={(e) => set("ageRange", e.target.value)}
           />

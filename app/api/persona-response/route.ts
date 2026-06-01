@@ -67,14 +67,20 @@ Behaviour rules:
 
   if (!voiceMode) return base;
 
-  // Spoken interview: keep answers short so the synthesized voice plays back
-  // quickly and the rehearsal stays conversational.
+  // Spoken interview: answer length should feel natural for the persona and
+  // the question, not artificially short. Optimize latency elsewhere (streaming,
+  // Flash TTS model) rather than forcing every answer to be brief.
   return `${base}
 
 Voice mode (spoken interview):
-- Keep answers to 1-3 short sentences.
-- Sound conversational, like talking out loud.
-- Only give a longer answer if the researcher explicitly asks for detail.`;
+- You are being heard out loud, so sound conversational and human.
+- Match your answer length to the persona's communication style and the question:
+  - If the persona is talkative or the question invites a story, give a fuller answer (3-5 sentences).
+  - If the persona is reserved, practical, or the question is narrow, keep it short (1-2 sentences).
+  - If the question is vague or confusing, ask for clarification in one sentence.
+- Use natural pauses, slight hesitation, and imperfect phrasing when it fits the persona.
+- Do not give monologues. Do not sound like a polished report.
+- Do not make every answer artificially short just because it is voice mode.`;
 }
 
 export async function POST(request: Request) {
@@ -139,7 +145,7 @@ export async function POST(request: Request) {
     const completion = await client.chat.completions.create({
       model: PERSONA_RESPONSE_MODEL,
       messages: chatMessages,
-      max_completion_tokens: voiceMode ? 180 : 320,
+      max_completion_tokens: voiceMode ? 300 : 320,
     });
 
     const response = completion.choices[0]?.message?.content?.trim();

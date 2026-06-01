@@ -19,13 +19,16 @@ interface PersonaResponseBody {
   researchContext?: ResearchContext;
   messages?: InterviewMessage[];
   latestQuestion?: string;
+  // Voice Mode: shorten spoken answers so playback stays snappy.
+  voiceMode?: boolean;
 }
 
 function buildSystemPrompt(
   persona: Persona,
-  context: ResearchContext
+  context: ResearchContext,
+  voiceMode: boolean
 ): string {
-  return `You are role playing as a UX research participant.
+  const base = `You are role playing as a UX research participant.
 
 You are not an AI assistant.
 You are not helping the researcher improve their questions directly.
@@ -61,6 +64,17 @@ Behaviour rules:
 - Do not summarize like a researcher.
 - Do not say you are an AI.
 - Keep most answers between 2 and 5 sentences.`;
+
+  if (!voiceMode) return base;
+
+  // Spoken interview: keep answers short so the synthesized voice plays back
+  // quickly and the rehearsal stays conversational.
+  return `${base}
+
+Voice mode (spoken interview):
+- Keep answers to 1-3 short sentences.
+- Sound conversational, like talking out loud.
+- Only give a longer answer if the researcher explicitly asks for detail.`;
 }
 
 export async function POST(request: Request) {
@@ -74,7 +88,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { persona, researchContext, messages = [], latestQuestion } = body;
+  const {
+    persona,
+    researchContext,
+    messages = [],
+    latestQuestion,
+    voiceMode = false,
+  } = body;
 
   if (!latestQuestion || latestQuestion.trim().length === 0) {
     return NextResponse.json(
@@ -107,7 +127,10 @@ export async function POST(request: Request) {
   }));
 
   const chatMessages: ChatCompletionMessageParam[] = [
-    { role: "system", content: buildSystemPrompt(persona, researchContext) },
+    {
+      role: "system",
+      content: buildSystemPrompt(persona, researchContext, voiceMode),
+    },
     ...history,
     { role: "user", content: latestQuestion },
   ];
@@ -116,7 +139,7 @@ export async function POST(request: Request) {
     const completion = await client.chat.completions.create({
       model: PERSONA_RESPONSE_MODEL,
       messages: chatMessages,
-      max_completion_tokens: 320,
+      max_completion_tokens: voiceMode ? 180 : 320,
     });
 
     const response = completion.choices[0]?.message?.content?.trim();

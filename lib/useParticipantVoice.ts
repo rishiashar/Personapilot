@@ -18,6 +18,9 @@ export interface VoiceState {
  */
 export function useParticipantVoice() {
   const [stateById, setStateById] = useState<Record<string, VoiceState>>({});
+  // Whether participant audio is currently playing, so callers (e.g. Voice
+  // Mode) can show a "speaking" state and disable the mic while it plays.
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlsRef = useRef<Record<string, string>>({});
 
@@ -35,12 +38,15 @@ export function useParticipantVoice() {
       audioRef.current = new Audio();
     }
     const audio = audioRef.current;
+    audio.onplay = () => setIsPlaying(true);
+    audio.onended = () => setIsPlaying(false);
+    audio.onpause = () => setIsPlaying(false);
     audio.pause();
     audio.src = url;
     audio.currentTime = 0;
     // Autoplay can be rejected by the browser; that's fine, the cached audio
     // stays available behind the Play button.
-    void audio.play().catch(() => {});
+    void audio.play().catch(() => setIsPlaying(false));
   }, []);
 
   const generateAndPlay = useCallback(
@@ -89,5 +95,5 @@ export function useParticipantVoice() {
     [stateById]
   );
 
-  return { getState, generateAndPlay };
+  return { getState, generateAndPlay, isPlaying };
 }

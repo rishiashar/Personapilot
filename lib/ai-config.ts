@@ -9,6 +9,14 @@ export const PERSONA_RESPONSE_MODEL = "gpt-5.4-mini";
 export const SESSION_ANALYSIS_MODEL = "gpt-5.4-mini";
 
 /**
+ * Speech-to-text model for Voice Mode (researcher microphone input). Read
+ * server-side by app/api/transcribe. If this model is unavailable on the
+ * current OpenAI account, swap it here for another transcription model
+ * (e.g. "whisper-1" or "gpt-4o-transcribe") — it is the single source of truth.
+ */
+export const TRANSCRIPTION_MODEL = "gpt-4o-mini-transcribe";
+
+/**
  * ElevenLabs voice configuration for participant text-to-speech.
  *
  * Change DEFAULT_ELEVENLABS_VOICE_ID to use a different default voice. It is

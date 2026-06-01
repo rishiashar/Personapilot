@@ -9,35 +9,36 @@ import type {
  * This will be replaced by an OpenAI-backed generator later.
  */
 
-const UTILITY_KEYWORDS = ["where", "when", "how often", "use", "find", "open"];
+const UTILITY_KEYWORDS = ["where", "when", "how often", "use", "find", "open", "tool", "feature"];
 const EMOTIONAL_KEYWORDS = [
   "feel",
-  "belonging",
-  "belong",
-  "pride",
-  "proud",
-  "connected",
-  "connection",
+  "stress",
+  "frustrat",
+  "overwhelm",
+  "enjoy",
+  "satisf",
+  "confiden",
   "experience",
-  "lonely",
+  "creative",
+  "flow",
 ];
 
 const UTILITY_ANSWERS = [
-  "I mostly use it when I need something specific, like checking a link, finding a service, or figuring out where something is. I do not really open it randomly.",
-  "Usually only when I have to, honestly. If I need to check a deadline on Quercus or find a building on the campus map, I will open it, but otherwise it just sits there.",
-  "It depends on the week. Before class I will quickly check links or schedules, but I am not someone who browses these tools for fun.",
+  "I usually open it when a client sends me a new brief or when I need to check where a project stands. I do not just browse around in it for fun.",
+  "Mostly when deadlines are close, honestly. I will check my task list or look up file links, but day to day I am working in Figma, not in a project management tool.",
+  "It depends on the project. If I am juggling three clients at once I check it every morning, but for a quieter week I might only open it a couple times.",
 ];
 
 const EMOTIONAL_ANSWERS = [
-  "As a commuter, I sometimes feel like I come to campus only for class and then leave. I feel connected during events or when something makes me feel like I am part of the university, but that does not happen every day.",
-  "Honestly it comes and goes. Some days I feel like I belong, especially when I run into people I know, but other days I feel a bit like a visitor who is just passing through.",
-  "I think I want to feel more settled here. When something helps me feel included, like a club event or a friendly orientation thing, it really matters, but I do not get that feeling from the apps themselves.",
+  "When I have too many projects at once and things start falling through the cracks, I feel this low-level anxiety all day. A tool that helps me see everything in one place actually calms that down.",
+  "Honestly I feel most creative when admin stuff is handled. If I spend the first hour of my day sorting tasks and chasing invoices I lose the energy I need for actual design work.",
+  "There is a real satisfaction when I finish a sprint and can look back at what I shipped. But if the tool makes that invisible I do not get that feeling, so visibility matters to me.",
 ];
 
 const VAGUE_ANSWERS = [
-  "Sorry, I am not fully sure what you mean. Are you asking about the app itself or my general university experience?",
-  "Hmm, that is a bit broad for me. Could you narrow it down a little? Are you asking about a specific tool or just campus life in general?",
-  "I am not totally sure how to answer that one. Do you mean a particular service, or just how things are going overall?",
+  "Sorry, can you be a bit more specific? Are you asking about the tool itself or about how I manage projects in general?",
+  "Hmm, that is pretty broad. Could you narrow it down? Like, are you asking about a specific part of my workflow?",
+  "I am not totally sure how to answer that one. Do you mean a particular feature, or just my overall experience with project management?",
 ];
 
 const VAGUE_TRIGGERS = ["thoughts", "anything", "in general", "overall", "tell me about"];
@@ -49,7 +50,7 @@ function pick(list: string[], seed: number): string {
 /**
  * Returns a mock participant answer for a researcher question.
  * - Utility-style questions get a practical answer.
- * - Emotional-style questions get a more reflective student answer.
+ * - Emotional-style questions get a more reflective answer.
  * - Very short / vague questions get a gently confused answer.
  */
 export function generateMockResponse(question: string, turn = 0): string {
@@ -77,19 +78,19 @@ export function generateMockResponse(question: string, turn = 0): string {
 }
 
 export const SAMPLE_PERSONA: Omit<Persona, "id" | "createdAt"> = {
-  name: "Aanya Patel",
-  role: "First year international student",
-  ageRange: "18 to 20",
+  name: "Maya Chen",
+  role: "Freelance UI designer",
+  ageRange: "28 to 32",
   background:
-    "Recently moved to Toronto, commutes to campus, uses UofT services like ACORN, Quercus, library tools, campus maps, and student events pages.",
+    "Has been freelancing for four years, manages three to five client projects at a time, uses a mix of Figma, Notion, and spreadsheets to track work. Based in Vancouver, works from home and coffee shops.",
   behaviours:
-    "Uses digital tools only when needed, checks campus links before class, often searches information across multiple UofT websites.",
+    "Checks project tools in the morning and before client calls, batches admin tasks to protect creative time, prefers visual dashboards over long text lists.",
   goals:
-    "Wants to feel more settled, find campus resources faster, and understand what is happening around campus.",
+    "Wants a single place to see all active projects, track deadlines without anxiety, and spend less time on admin so more time goes to design work.",
   frustrations:
-    "Feels overwhelmed by scattered information, does not always feel connected to campus life, forgets to check university updates unless needed.",
+    "Feels scattered when project info is spread across tools, loses track of invoice dates, sometimes misses client follow-ups because nothing reminds her.",
   voiceStyle:
-    "Natural, slightly hesitant, student like, practical, not overly polished.",
+    "Friendly, direct, occasionally reflective, talks like a creative professional not a corporate manager.",
 };
 
 /**
@@ -127,13 +128,13 @@ export function buildSessionAnalysis(
             "A few prompts were broad enough that the participant had to guess your intent.",
           ],
     missedFollowUps: [
-      "When the participant mentioned feeling like a visitor, you could have asked what would make them feel more settled.",
-      "After a utility answer, you could have probed for a specific recent example.",
+      "When the participant mentioned feeling scattered, you could have asked what their ideal morning workflow looks like.",
+      "After a utility answer, you could have probed for a specific recent example from a real project.",
     ],
     suggestedImprovements: [
-      "Instead of \"What do you think about the app?\" try \"Walk me through the last time you opened the app.\"",
-      "Replace \"Do you like campus events?\" with \"Tell me about an event that made you feel part of campus.\"",
-      "Follow vague answers with \"Can you give me a specific example from this week?\"",
+      "Instead of \"What do you think about the tool?\" try \"Walk me through the last time you checked on a project.\"",
+      "Replace \"Do you like managing projects?\" with \"Tell me about a week when project management felt easy versus overwhelming.\"",
+      "Follow vague answers with \"Can you give me a specific example from a recent client project?\"",
     ],
     nextInterviewTips: [
       "Open with an easy, concrete warm-up question before going deeper.",

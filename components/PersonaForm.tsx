@@ -19,7 +19,7 @@ export function PersonaForm({
     onChange({ ...value, [key]: fieldValue });
 
   return (
-    <section className="grid gap-8 border-t border-foreground pt-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
+    <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">
           Participant persona

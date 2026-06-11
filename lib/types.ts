@@ -26,6 +26,8 @@ export interface ResearchContext {
   productContext: string;
   targetAudience: string;
   keyLearningGoals: string;
+  /** Optional interview script shown beside the interview room. */
+  questionGuide?: string[];
 }
 
 export interface InterviewMessage {

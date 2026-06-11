@@ -14,7 +14,66 @@ import { generateMockResponse } from "@/lib/mockResponses";
 import type { InterviewMessage, InterviewSession } from "@/lib/types";
 import { useParticipantVoice } from "@/lib/useParticipantVoice";
 import { useVoiceRecorder } from "@/lib/useVoiceRecorder";
-import { createId } from "@/lib/utils";
+import { cn, createId } from "@/lib/utils";
+
+function QuestionGuidePanel({ questions }: { questions: string[] }) {
+  // Which guide questions the researcher has marked as covered. Ephemeral by
+  // design: it's a reading aid during the session, not part of the record.
+  const [asked, setAsked] = useState<Set<number>>(new Set());
+
+  const toggle = (index: number) =>
+    setAsked((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+
+  return (
+    <>
+      <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
+        <h2 className="caps">Questions</h2>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {asked.size}/{questions.length}
+        </span>
+      </div>
+      <ol className="divide-y divide-border border-b border-border">
+        {questions.map((question, index) => {
+          const isAsked = asked.has(index);
+          return (
+            <li key={index}>
+              <button
+                type="button"
+                onClick={() => toggle(index)}
+                aria-pressed={isAsked}
+                className="group flex w-full items-start gap-2.5 px-4 py-2.5 text-left text-sm leading-relaxed transition-colors hover:bg-muted/60"
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "mt-1 flex size-3.5 shrink-0 items-center justify-center border text-[9px] font-bold transition-colors",
+                    isAsked
+                      ? "border-brand bg-brand text-brand-foreground"
+                      : "border-input bg-card text-transparent group-hover:border-ring"
+                  )}
+                >
+                  ✓
+                </span>
+                <span
+                  className={cn(
+                    isAsked && "text-muted-foreground line-through decoration-border"
+                  )}
+                >
+                  {question}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  );
+}
 
 export function InterviewRoom({
   initialSession,
@@ -258,6 +317,9 @@ export function InterviewRoom({
       <div className="grid grid-cols-1 border border-border bg-card max-lg:divide-y max-lg:divide-border lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-border">
         {/* Left: participant + research goal */}
         <aside className="lg:min-h-0 lg:overflow-y-auto">
+          {(researchContext.questionGuide?.length ?? 0) > 0 && (
+            <QuestionGuidePanel questions={researchContext.questionGuide!} />
+          )}
           <div className="border-b border-border px-4 py-3">
             <h2 className="caps">Participant</h2>
           </div>

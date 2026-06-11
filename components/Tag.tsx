@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 
 export type TagTone = "neutral" | "ink" | "green" | "yellow" | "red" | "blue";
 
-// Square chips. Solid = state of record, outline = descriptive.
+// Square chips in solid signal colors: deep, saturated, never pastel.
 const TONES: Record<TagTone, string> = {
   neutral: "border border-border bg-card text-muted-foreground",
   ink: "bg-foreground text-background",
-  green: "bg-brand text-brand-foreground",
-  yellow: "border border-border bg-muted text-foreground",
+  green: "bg-signal-green text-white",
+  yellow: "bg-signal-amber text-foreground",
   red: "bg-destructive text-white",
-  blue: "border border-brand/35 bg-card text-brand",
+  blue: "bg-brand text-brand-foreground",
 };
 
 export function Tag({

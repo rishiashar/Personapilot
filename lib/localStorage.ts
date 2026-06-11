@@ -12,11 +12,16 @@ const KEYS = {
   analysis: "personapilot:currentSessionAnalysis",
 } as const;
 
-/** Stored alongside the session id so stale analysis isn't shown for a new session. */
+/**
+ * Stored alongside the session id and the transcript length it was generated
+ * from, so stale analysis isn't shown for a new session or for a session that
+ * gained messages after the analysis ran.
+ */
 export interface StoredSessionAnalysis {
   sessionId: string;
   analysis: SessionAnalysis;
   createdAt: string;
+  messageCount?: number;
 }
 
 const isBrowser = () => typeof window !== "undefined";
@@ -125,22 +130,33 @@ export function clearSession(): void {
 
 export function saveSessionAnalysis(
   sessionId: string,
-  analysis: SessionAnalysis
+  analysis: SessionAnalysis,
+  messageCount: number
 ): void {
   const record: StoredSessionAnalysis = {
     sessionId,
     analysis,
     createdAt: new Date().toISOString(),
+    messageCount,
   };
   write(KEYS.analysis, record);
 }
 
-/** Returns the saved analysis only when it matches the given session id. */
+/**
+ * Returns the saved analysis only when it matches the given session id and
+ * was generated from the same number of messages. Records saved before
+ * messageCount existed are treated as stale.
+ */
 export function getSessionAnalysis(
-  sessionId: string
+  sessionId: string,
+  messageCount: number
 ): SessionAnalysis | null {
   const record = snapshot<StoredSessionAnalysis>(KEYS.analysis);
-  if (record && record.sessionId === sessionId) {
+  if (
+    record &&
+    record.sessionId === sessionId &&
+    record.messageCount === messageCount
+  ) {
     return record.analysis;
   }
   return null;

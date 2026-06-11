@@ -1,16 +1,6 @@
-import { FileText } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import type { InterviewMessage } from "@/lib/types";
-import { formatTime } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 
 export function TranscriptPanel({
   messages,
@@ -19,49 +9,46 @@ export function TranscriptPanel({
   messages: InterviewMessage[];
   personaName: string;
 }) {
-  const researcherCount = messages.filter((m) => m.role === "researcher").length;
+  const researcherCount = messages.filter(
+    (m) => m.role === "researcher"
+  ).length;
 
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <FileText className="size-4 text-muted-foreground" />
-            Live transcript
-          </CardTitle>
-          <Badge variant="secondary" className="font-normal tabular-nums">
-            {researcherCount} {researcherCount === 1 ? "question" : "questions"}
-          </Badge>
-        </div>
-      </CardHeader>
-      <Separator />
-      <CardContent className="min-h-0 flex-1 p-0">
+    <div className="flex h-full min-h-0 flex-col bg-card">
+      <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
+        <h2 className="caps">Transcript</h2>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {researcherCount} {researcherCount === 1 ? "question" : "questions"}
+        </span>
+      </div>
+      <div className="min-h-0 flex-1">
         {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center px-6 py-10 text-center text-sm text-muted-foreground">
-            The transcript will build here as you ask questions.
+          <div className="flex h-full items-center justify-center px-6 py-10 text-center">
+            <p className="max-w-[26ch] text-sm leading-relaxed text-muted-foreground">
+              The transcript builds here as you ask questions.
+            </p>
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="space-y-4 px-4 py-4">
+            <div className="divide-y divide-border">
               {messages.map((message) => {
                 const isResearcher = message.role === "researcher";
                 return (
-                  <div key={message.id} className="space-y-1">
+                  <div key={message.id} className="px-4 py-3.5">
                     <div className="flex items-baseline justify-between gap-2">
                       <span
-                        className={
-                          isResearcher
-                            ? "text-xs font-semibold text-primary"
-                            : "text-xs font-semibold text-foreground"
-                        }
+                        className={cn(
+                          "truncate text-xs font-semibold",
+                          isResearcher ? "text-muted-foreground" : "text-brand"
+                        )}
                       >
                         {isResearcher ? "Researcher" : personaName}
                       </span>
-                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                      <span className="font-mono text-[11px] tabular-nums text-muted-foreground/70">
                         {formatTime(message.createdAt)}
                       </span>
                     </div>
-                    <p className="text-sm leading-relaxed text-foreground/90">
+                    <p className="mt-1 text-sm leading-relaxed">
                       {message.text}
                     </p>
                   </div>
@@ -70,7 +57,7 @@ export function TranscriptPanel({
             </div>
           </ScrollArea>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

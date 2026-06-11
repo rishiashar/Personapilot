@@ -1,5 +1,16 @@
 import { cn } from "@/lib/utils";
 
+const PASTEL_SPECTRUM = [
+  "#ff8fa3",
+  "#ffb169",
+  "#ffd76d",
+  "#91d989",
+  "#73c7f6",
+  "#9aa7ff",
+  "#c99bff",
+  "#ff9fd2",
+] as const;
+
 // Deterministic bar heights so server and client render identically.
 function barHeight(i: number, max: number) {
   return Math.round(
@@ -7,6 +18,12 @@ function barHeight(i: number, max: number) {
       0.5 * max * Math.abs(Math.sin(i * 0.82)) +
       0.22 * max * Math.abs(Math.sin(i * 0.31))
   );
+}
+
+function barColor(i: number, count: number) {
+  const phase = i / Math.max(count - 1, 1);
+  const paletteIndex = Math.round(phase * (PASTEL_SPECTRUM.length - 1));
+  return PASTEL_SPECTRUM[paletteIndex];
 }
 
 export function Waveform({
@@ -30,6 +47,7 @@ export function Waveform({
           key={i}
           className={cn("w-[2px] bg-current", animated && "animate-wavebar")}
           style={{
+            color: barColor(i, count),
             height: barHeight(i, maxHeight),
             animationDelay: `${(i % 16) * 90}ms`,
           }}

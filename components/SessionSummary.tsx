@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
@@ -55,20 +55,29 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
   // Placeholder analysis is always available and shown first.
   const placeholder = useMemo(() => buildSessionAnalysis(session), [session]);
 
-  // Restore a previously generated analysis for this exact session, if any,
-  // otherwise start from the placeholder. Lazy initializers read localStorage
-  // once on mount (this component only renders after the store has hydrated).
-  const saved = useMemo(() => getSessionAnalysis(session.id), [session.id]);
+  // Restore a previously generated analysis only if it was produced from this
+  // exact session AND the same transcript length; otherwise it is stale and a
+  // fresh one is generated below. Reads localStorage once on mount (this
+  // component only renders after the store has hydrated).
+  const saved = useMemo(
+    () => getSessionAnalysis(session.id, session.messages.length),
+    [session.id, session.messages.length]
+  );
   const [analysis, setAnalysis] = useState<SessionAnalysis>(
     saved ?? placeholder
   );
   const [isAiGenerated, setIsAiGenerated] = useState(saved !== null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // A finished interview with no fresh saved analysis is analyzed on arrival;
+  // starting in the analyzing state means the first paint already shows it.
+  const shouldAutoRun =
+    session.status === "completed" &&
+    session.messages.length > 0 &&
+    saved === null;
+  const [isAnalyzing, setIsAnalyzing] = useState(shouldAutoRun);
   const [error, setError] = useState<string | null>(null);
 
-  const generateAnalysis = useCallback(async () => {
-    setIsAnalyzing(true);
-    setError(null);
+  const runAnalysis = useCallback(async () => {
     try {
       const res = await fetch("/api/session-analysis", {
         method: "POST",
@@ -91,7 +100,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         // and incorrectly show the "AI analysis" badge.
         setError("AI analysis unavailable. Showing baseline feedback.");
       } else {
-        saveSessionAnalysis(session.id, data.analysis);
+        saveSessionAnalysis(session.id, data.analysis, session.messages.length);
       }
     } catch {
       // Network/route failure: keep the placeholder analysis visible.
@@ -102,6 +111,22 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       setIsAnalyzing(false);
     }
   }, [session.id, session.persona, session.researchContext, session.messages, placeholder]);
+
+  const generateAnalysis = useCallback(() => {
+    setIsAnalyzing(true);
+    setError(null);
+    void runAnalysis();
+  }, [runAnalysis]);
+
+  // Auto-generate the analysis as soon as a finished interview lands here, so
+  // the user never has to press the button for a fresh session. The ref guards
+  // against duplicate requests (e.g. React strict-mode double effects).
+  const autoRanRef = useRef(false);
+  useEffect(() => {
+    if (autoRanRef.current || !shouldAutoRun) return;
+    autoRanRef.current = true;
+    void runAnalysis();
+  }, [runAnalysis, shouldAutoRun]);
 
   const researcherCount = session.messages.filter(
     (m) => m.role === "researcher"
@@ -133,18 +158,32 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
             <Tag tone={isActive ? "ink" : "neutral"}>
               {isActive ? "Active session" : "Completed"}
             </Tag>
-            <Tag tone={isAiGenerated ? "green" : "yellow"}>
-              {isAiGenerated ? "AI analysis" : "Baseline feedback"}
+            <Tag
+              tone={isAnalyzing ? "neutral" : isAiGenerated ? "green" : "yellow"}
+            >
+              {isAnalyzing
+                ? "Analyzing"
+                : isAiGenerated
+                  ? "AI analysis"
+                  : "Baseline feedback"}
             </Tag>
           </div>
           <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-            {isAiGenerated ? "AI-generated coaching for " : "Baseline feedback for "}
-            <span className="font-medium text-foreground">
-              {session.researchContext.projectName || "your rehearsal"}
-            </span>
-            {isAiGenerated
-              ? "."
-              : ". Generate AI analysis for transcript-specific coaching."}
+            {isAnalyzing ? (
+              "Analyzing your interview transcript…"
+            ) : (
+              <>
+                {isAiGenerated
+                  ? "AI-generated coaching for "
+                  : "Baseline feedback for "}
+                <span className="font-medium text-foreground">
+                  {session.researchContext.projectName || "your rehearsal"}
+                </span>
+                {isAiGenerated
+                  ? "."
+                  : ". Generate AI analysis for transcript-specific coaching."}
+              </>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

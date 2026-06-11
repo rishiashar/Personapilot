@@ -163,21 +163,24 @@
   }
 }
 
-/* Seamless horizontal drift for wave layers drawn at 2x viewBox width. */
-@keyframes wave-drift {
-  to {
-    transform: translateX(-1200px);
+@keyframes wavebar {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
   }
 }
 
 @layer utilities {
-  .animate-wave-drift {
-    animation: wave-drift linear infinite;
+  .animate-wavebar {
+    animation: wavebar 1.5s ease-in-out infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-wave-drift {
+  .animate-wavebar {
     animation: none;
   }
 }

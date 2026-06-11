@@ -2,8 +2,8 @@
 
 import { Loader2, Mic, Square } from "lucide-react";
 
-import { GradientWave } from "@/components/GradientWave";
 import { Tag, type TagTone } from "@/components/Tag";
+import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -122,7 +122,11 @@ export function VoiceConsole({
             {helper}
           </p>
           {isSpeaking && (
-            <GradientWave id="pp-wave-console" className="h-6 w-44" />
+            <Waveform
+              count={28}
+              maxHeight={18}
+              className="h-5 w-36 text-brand"
+            />
           )}
         </div>
 

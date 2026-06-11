@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 import { AppHeader } from "@/components/AppHeader";
-import { GradientWave } from "@/components/GradientWave";
 import {
   FeedbackIcon,
   InterviewIcon,
   SetupIcon,
 } from "@/components/SessionIcons";
+import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
 
 const STEPS = [
@@ -72,10 +72,14 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* Wave band */}
+        {/* Waveform band */}
         <div className="border-y border-border">
-          <div className="mx-auto w-full max-w-6xl px-5 py-4 sm:px-8">
-            <GradientWave className="h-20 w-full sm:h-24" />
+          <div className="mx-auto w-full max-w-6xl px-5 py-7 sm:px-8">
+            <Waveform
+              count={96}
+              maxHeight={34}
+              className="h-12 text-foreground"
+            />
           </div>
         </div>
 

@@ -2,101 +2,52 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Lightbulb,
-  ListChecks,
-  Loader2,
-  MessageCircle,
-  RotateCcw,
-  Sparkles,
-  TriangleAlert,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { ParticipantCard } from "@/components/ParticipantCard";
-import { Badge } from "@/components/ui/badge";
+import { Tag, type TagTone } from "@/components/Tag";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
-import {
-  getSessionAnalysis,
-  saveSessionAnalysis,
-} from "@/lib/localStorage";
+import { getSessionAnalysis, saveSessionAnalysis } from "@/lib/localStorage";
 import type { InterviewSession, SessionAnalysis } from "@/lib/types";
 
-function Stat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <Card size="sm">
-      <CardContent>
-        <p className="text-2xl font-semibold tabular-nums">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-type SectionTone = "positive" | "warning" | "default";
-
 function AnalysisSection({
-  icon,
   title,
-  badge,
-  badgeVariant,
+  tag,
+  tagTone,
   items,
-  tone = "default",
 }: {
-  icon: React.ReactNode;
   title: string;
-  badge: string;
-  badgeVariant: "default" | "secondary" | "outline";
+  tag: string;
+  tagTone: TagTone;
   items: string[];
-  tone?: SectionTone;
 }) {
-  const dot =
-    tone === "positive"
-      ? "bg-primary"
-      : tone === "warning"
-        ? "bg-muted-foreground"
-        : "bg-muted-foreground/50";
-
   return (
-    <Card>
-      <CardContent className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="flex items-center gap-2 text-sm font-semibold">
-            {icon}
-            {title}
-          </h3>
-          <Badge variant={badgeVariant}>{badge}</Badge>
-        </div>
-        <Separator />
-        {items.length > 0 ? (
-          <ul className="space-y-2">
-            {items.map((item, index) => (
-              <li
-                key={index}
-                className="flex gap-2.5 text-sm leading-relaxed text-foreground/90"
-              >
-                <span className={`mt-2 size-1.5 shrink-0 rounded-full ${dot}`} />
-                {item}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Nothing flagged here for this session.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+    <section className="border-t border-foreground pt-5 pb-2">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+        <Tag tone={tagTone}>{tag}</Tag>
+      </div>
+      {items.length > 0 ? (
+        <ol className="mt-4 space-y-3">
+          {items.map((item, index) => (
+            <li
+              key={index}
+              className="grid grid-cols-[24px_minmax(0,1fr)] gap-2 text-sm leading-relaxed"
+            >
+              <span className="pt-px font-mono text-xs text-muted-foreground/80">
+                {index + 1}
+              </span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Nothing flagged here for this session.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -138,7 +89,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       if (data.fallback) {
         // Don't persist baseline output, otherwise a reload would restore it
         // and incorrectly show the "AI analysis" badge.
-        setError("AI analysis unavailable — showing baseline feedback.");
+        setError("AI analysis unavailable. Showing baseline feedback.");
       } else {
         saveSessionAnalysis(session.id, data.analysis);
       }
@@ -146,7 +97,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       // Network/route failure: keep the placeholder analysis visible.
       setAnalysis(placeholder);
       setIsAiGenerated(false);
-      setError("Analysis unavailable right now — showing baseline feedback.");
+      setError("Analysis unavailable right now. Showing baseline feedback.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -160,25 +111,34 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
   ).length;
   const isActive = session.status === "active";
 
+  const stats: { label: string; value: number }[] = [
+    { label: "Questions asked", value: researcherCount },
+    { label: "Responses", value: participantCount },
+    { label: "Strong questions", value: analysis.strongQuestions.length },
+    {
+      label: "Suggested rewrites",
+      value: analysis.suggestedImprovements.length,
+    },
+  ];
+
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8 sm:px-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">
-              Session summary
-            </h1>
-            <Badge variant={isActive ? "default" : "secondary"}>
-              {isActive ? "Active session" : "Completed session"}
-            </Badge>
-            <Badge variant={isAiGenerated ? "default" : "outline"}>
+    <div className="mx-auto w-full max-w-6xl space-y-8 px-5 py-12 sm:px-8 sm:py-14">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="caps text-muted-foreground">Summary</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] sm:text-[2.6rem]">
+            Session summary
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <Tag tone={isActive ? "ink" : "neutral"}>
+              {isActive ? "Active session" : "Completed"}
+            </Tag>
+            <Tag tone={isAiGenerated ? "green" : "yellow"}>
               {isAiGenerated ? "AI analysis" : "Baseline feedback"}
-            </Badge>
+            </Tag>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {isAiGenerated
-              ? "AI-generated coaching for "
-              : "Baseline feedback for "}
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+            {isAiGenerated ? "AI-generated coaching for " : "Baseline feedback for "}
             <span className="font-medium text-foreground">
               {session.researchContext.projectName || "your rehearsal"}
             </span>
@@ -188,17 +148,20 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={generateAnalysis} disabled={isAnalyzing}>
+          <Button
+            className="hover:bg-brand"
+            onClick={generateAnalysis}
+            disabled={isAnalyzing}
+          >
             {isAnalyzing ? (
               <>
                 <Loader2 className="animate-spin" />
                 Analyzing interview…
               </>
+            ) : isAiGenerated ? (
+              "Regenerate analysis"
             ) : (
-              <>
-                <Sparkles />
-                {isAiGenerated ? "Regenerate analysis" : "Generate analysis"}
-              </>
+              "Generate analysis"
             )}
           </Button>
           {isActive ? (
@@ -207,7 +170,6 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
               nativeButton={false}
               render={<Link href="/interview" />}
             >
-              <ArrowLeft />
               Back to interview
             </Button>
           ) : null}
@@ -216,7 +178,6 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
             nativeButton={false}
             render={<Link href="/setup" />}
           >
-            <RotateCcw />
             New rehearsal
           </Button>
         </div>
@@ -228,60 +189,61 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         </p>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Questions asked" value={researcherCount} />
-        <Stat label="Participant responses" value={participantCount} />
-        <Stat label="Strong questions" value={analysis.strongQuestions.length} />
-        <Stat
-          label="Suggested rewrites"
-          value={analysis.suggestedImprovements.length}
-        />
-      </div>
+      <dl className="grid grid-cols-2 border-t border-l border-foreground sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="border-r border-b border-foreground bg-card px-4 py-4 sm:px-5"
+          >
+            <dd className="text-3xl font-semibold tracking-tight tabular-nums">
+              {stat.value}
+            </dd>
+            <dt className="mt-1 text-xs font-medium text-muted-foreground">
+              {stat.label}
+            </dt>
+          </div>
+        ))}
+      </dl>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-8">
           <AnalysisSection
-            icon={<CheckCircle2 className="size-4 text-primary" />}
             title="Strong questions"
-            badge="Strong"
-            badgeVariant="default"
+            tag="Strong"
+            tagTone="green"
             items={analysis.strongQuestions}
-            tone="positive"
           />
           <AnalysisSection
-            icon={<TriangleAlert className="size-4 text-muted-foreground" />}
             title="Weak questions"
-            badge="Needs work"
-            badgeVariant="secondary"
+            tag="Needs work"
+            tagTone="yellow"
             items={analysis.weakQuestions}
-            tone="warning"
           />
           <AnalysisSection
-            icon={<MessageCircle className="size-4 text-muted-foreground" />}
             title="Missed follow-ups"
-            badge="Follow-up"
-            badgeVariant="outline"
+            tag="Follow-up"
+            tagTone="neutral"
             items={analysis.missedFollowUps}
           />
           <AnalysisSection
-            icon={<Lightbulb className="size-4 text-primary" />}
             title="Suggested improvements"
-            badge="Rewrite"
-            badgeVariant="default"
+            tag="Rewrite"
+            tagTone="blue"
             items={analysis.suggestedImprovements}
-            tone="positive"
           />
           <AnalysisSection
-            icon={<ListChecks className="size-4 text-muted-foreground" />}
             title="Next interview tips"
-            badge="Next time"
-            badgeVariant="outline"
+            tag="Next time"
+            tagTone="neutral"
             items={analysis.nextInterviewTips}
           />
         </div>
 
-        <div className="space-y-4">
-          <ParticipantCard persona={session.persona} />
+        <div>
+          <ParticipantCard
+            persona={session.persona}
+            className="border border-border"
+          />
         </div>
       </div>
     </div>

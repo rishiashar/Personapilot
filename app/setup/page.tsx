@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
@@ -100,18 +100,19 @@ export default function SetupPage() {
     <>
       <AppHeader step="setup" />
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-8">
-          <div className="space-y-1.5">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">
+        <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
+          <header className="max-w-xl pb-12">
+            <p className="caps text-muted-foreground">Setup</p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-[2.6rem]">
               Set up your rehearsal
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Add your research context and participant persona before starting
-              the interview.
+            <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+              Describe the study and the participant you want to rehearse
+              with. Two minutes here makes the interview believable.
             </p>
-          </div>
+          </header>
 
-          <div className="mt-7 space-y-5">
+          <div className="space-y-14">
             <ResearchContextForm
               value={context}
               onChange={setContext}
@@ -124,23 +125,25 @@ export default function SetupPage() {
             />
           </div>
 
-          <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">
+          <div className="mt-14 flex flex-col items-stretch gap-4 border-t border-foreground pt-7 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
               {canStart
                 ? "Your context and persona are saved as you go."
                 : "Add a project name and persona name to begin."}
             </p>
-            <Button size="lg" onClick={handleStart} disabled={!canStart || isStarting}>
+            <Button
+              size="lg"
+              className="h-12 px-7 text-[15px] hover:bg-brand"
+              onClick={handleStart}
+              disabled={!canStart || isStarting}
+            >
               {isStarting ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Selecting voice…
                 </>
               ) : (
-                <>
-                  Start interview session
-                  <ArrowRight />
-                </>
+                "Start interview session"
               )}
             </Button>
           </div>

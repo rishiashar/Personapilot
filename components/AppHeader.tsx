@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { Compass } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { VoiceMark } from "@/components/Waveform";
 import { cn } from "@/lib/utils";
 
 export type AppStep = "setup" | "interview" | "summary";
@@ -15,78 +13,60 @@ const STEPS: { id: AppStep; label: string }[] = [
 
 function StepIndicator({ current }: { current: AppStep }) {
   const currentIndex = STEPS.findIndex((s) => s.id === current);
-  const progressValue = ((currentIndex + 1) / STEPS.length) * 100;
 
   return (
-    <div className="hidden min-w-[260px] flex-col gap-2 sm:flex">
-      <ol className="flex items-center justify-between text-xs font-medium">
-        {STEPS.map((step, index) => {
-          const isDone = index < currentIndex;
-          const isActive = index === currentIndex;
-          return (
-            <li
-              key={step.id}
+    <ol aria-label="Rehearsal steps" className="hidden items-center sm:flex">
+      {STEPS.map((step, index) => {
+        const isActive = index === currentIndex;
+        const isDone = index < currentIndex;
+        return (
+          <li key={step.id} className="flex items-center">
+            {index > 0 && (
+              <span aria-hidden className="mx-3 h-px w-5 bg-border" />
+            )}
+            <span
+              aria-current={isActive ? "step" : undefined}
               className={cn(
-                "flex items-center gap-1.5",
+                "border-b-2 pb-0.5 text-[13px] font-medium transition-colors",
                 isActive
-                  ? "text-foreground"
+                  ? "border-brand text-foreground"
                   : isDone
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                    ? "border-transparent text-foreground/60"
+                    : "border-transparent text-muted-foreground/60"
               )}
             >
-              <span
-                className={cn(
-                  "flex size-5 items-center justify-center rounded-full border text-[11px] tabular-nums",
-                  isActive
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : isDone
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground"
-                )}
-              >
-                {index + 1}
-              </span>
               {step.label}
-            </li>
-          );
-        })}
-      </ol>
-      <Progress value={progressValue} aria-label="Rehearsal progress" />
-    </div>
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
 export function AppHeader({
   step,
-  mode = "MVP",
+  mode = "Beta",
 }: {
   step?: AppStep;
   mode?: string;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Compass className="size-4.5" />
-          </span>
-          <span className="flex flex-col leading-none">
-            <span className="font-heading text-base font-semibold tracking-tight">
-              PersonaPilot
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              Interview rehearsal
-            </span>
+          <VoiceMark />
+          <span className="text-[15px] font-semibold tracking-tight">
+            PersonaPilot
           </span>
         </Link>
 
         {step ? (
           <StepIndicator current={step} />
         ) : (
-          <Badge variant="secondary" className="font-normal">
+          <span className="text-[13px] font-medium text-muted-foreground">
             {mode}
-          </Badge>
+          </span>
         )}
       </div>
     </header>

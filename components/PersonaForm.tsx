@@ -1,13 +1,4 @@
-import { UserRound, Wand2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,33 +19,28 @@ export function PersonaForm({
     onChange({ ...value, [key]: fieldValue });
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <UserRound className="size-4" />
-            </span>
-            <div>
-              <CardTitle>Participant persona</CardTitle>
-              <CardDescription>
-                The simulated participant you will interview.
-              </CardDescription>
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onUseSample}
-          >
-            <Wand2 />
-            Use sample persona
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="grid gap-5">
-        <div className="grid gap-2 sm:grid-cols-2 sm:gap-5">
+    <section className="grid gap-8 border-t border-foreground pt-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
+      <div>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Participant persona
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          The simulated participant you will interview. The richer the
+          persona, the more believable the answers.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={onUseSample}
+        >
+          Use sample persona
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
+        <div className="grid gap-6 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="personaName">Persona name</Label>
             <Input
@@ -134,7 +120,7 @@ export function PersonaForm({
             onChange={(e) => set("voiceStyle", e.target.value)}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

@@ -2,21 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flag, Keyboard, Mic, Target, Sparkles, Volume2 } from "lucide-react";
 
 import { InterviewChat } from "@/components/InterviewChat";
 import { ParticipantCard } from "@/components/ParticipantCard";
+import { Tag } from "@/components/Tag";
 import { TranscriptPanel } from "@/components/TranscriptPanel";
 import { VoiceConsole, type VoicePhase } from "@/components/VoiceConsole";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { saveSession } from "@/lib/localStorage";
 import { generateMockResponse } from "@/lib/mockResponses";
 import type { InterviewMessage, InterviewSession } from "@/lib/types";
@@ -261,137 +253,118 @@ export function InterviewRoom({
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-4 px-4 py-5 sm:px-8 lg:h-[calc(100dvh-9rem)] lg:grid-cols-[290px_minmax(0,1fr)_300px] lg:py-6">
-      {/* Left: participant + research goal */}
-      <div className="flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
-        <ParticipantCard persona={persona} />
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Target className="size-4 text-muted-foreground" />
-              Research goal
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <p className="leading-relaxed text-foreground/90">
+    <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6">
+      {/* One console frame: three columns divided by rules. */}
+      <div className="grid grid-cols-1 border border-border bg-card max-lg:divide-y max-lg:divide-border lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-border">
+        {/* Left: participant + research goal */}
+        <aside className="lg:min-h-0 lg:overflow-y-auto">
+          <div className="border-b border-border px-4 py-3">
+            <h2 className="caps">Participant</h2>
+          </div>
+          <ParticipantCard persona={persona} />
+          <div className="border-t border-border px-4 py-3">
+            <h2 className="caps">Research goal</h2>
+          </div>
+          <div className="space-y-3 px-4 pb-5 text-sm">
+            <p className="leading-relaxed">
               {researchContext.researchGoal || "No research goal provided yet."}
             </p>
             {researchContext.projectName ? (
-              <>
-                <Separator />
-                <div className="space-y-1">
-                  <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                    Project
-                  </p>
-                  <p className="text-foreground/90">
-                    {researchContext.projectName}
-                  </p>
-                </div>
-              </>
+              <div className="space-y-1 border-t border-border pt-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Project
+                </p>
+                <p>{researchContext.projectName}</p>
+              </div>
             ) : null}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </aside>
 
-      {/* Center: voice-first interview (text fallback under a toggle) */}
-      <Card className="flex min-h-[60vh] flex-col p-0 lg:min-h-0">
-        <CardHeader className="border-b pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              Interview room
-            </CardTitle>
+        {/* Center: voice-first interview (text fallback under a toggle) */}
+        <section className="flex min-h-[60vh] flex-col lg:min-h-0">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
+            <h2 className="caps">Interview</h2>
             <div className="flex flex-wrap items-center gap-1.5">
-              <Badge variant="outline" className="gap-1 font-normal">
-                <Sparkles className="size-3" />
+              <Tag
+                tone={
+                  responseMode === "live"
+                    ? "green"
+                    : responseMode === "mock"
+                      ? "yellow"
+                      : "neutral"
+                }
+              >
                 {responseMode === "live"
                   ? "Live AI"
                   : responseMode === "mock"
-                    ? "Mock mode"
+                    ? "Sample mode"
                     : "AI participant"}
-              </Badge>
-              <Badge variant="outline" className="gap-1 font-normal">
-                <Volume2 className="size-3" />
-                Voice enabled
-              </Badge>
-              <Badge
-                variant={isCompleted ? "secondary" : "default"}
-                className="font-normal"
-              >
-                {isCompleted ? "Completed session" : "Active session"}
-              </Badge>
+              </Tag>
+              <Tag tone={isCompleted ? "neutral" : "ink"}>
+                {isCompleted ? "Completed" : "Active"}
+              </Tag>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="min-h-0 flex-1 p-0">
-          {mode === "voice" ? (
-            <VoiceConsole
-              phase={voicePhase}
-              personaName={persona.name}
-              lastHeard={lastHeard}
-              lastResponse={lastParticipant?.text ?? null}
-              canReplay={lastVoiceState?.status === "ready"}
-              voiceUnavailable={lastVoiceState?.status === "error"}
-              errorMessage={voiceError ?? error}
-              disabled={isCompleted}
-              onToggleRecord={handleToggleRecord}
-              onReplay={handleReplay}
-            />
-          ) : (
-            <InterviewChat
+          <div className="min-h-0 flex-1">
+            {mode === "voice" ? (
+              <VoiceConsole
+                phase={voicePhase}
+                personaName={persona.name}
+                lastHeard={lastHeard}
+                lastResponse={lastParticipant?.text ?? null}
+                canReplay={lastVoiceState?.status === "ready"}
+                voiceUnavailable={lastVoiceState?.status === "error"}
+                errorMessage={voiceError ?? error}
+                disabled={isCompleted}
+                onToggleRecord={handleToggleRecord}
+                onReplay={handleReplay}
+              />
+            ) : (
+              <InterviewChat
+                messages={session.messages}
+                personaName={persona.name}
+                voiceId={persona.voiceId}
+                isGenerating={isGeneratingResponse}
+                disabled={isCompleted}
+                error={error}
+                onSend={handleSend}
+              />
+            )}
+          </div>
+          <div className="flex justify-center border-t border-border py-1.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setMode((m) => (m === "voice" ? "text" : "voice"))}
+            >
+              {mode === "voice" ? "Switch to text" : "Switch to voice"}
+            </Button>
+          </div>
+        </section>
+
+        {/* Right: transcript + end session */}
+        <aside className="flex min-h-[420px] flex-col lg:min-h-0">
+          <div className="min-h-0 flex-1">
+            <TranscriptPanel
               messages={session.messages}
               personaName={persona.name}
-              voiceId={persona.voiceId}
-              isGenerating={isGeneratingResponse}
-              disabled={isCompleted}
-              error={error}
-              onSend={handleSend}
             />
-          )}
-        </CardContent>
-        <div className="flex justify-center border-t border-border py-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
-            onClick={() =>
-              setMode((m) => (m === "voice" ? "text" : "voice"))
-            }
-          >
-            {mode === "voice" ? (
-              <>
-                <Keyboard className="size-3.5" />
-                Use text instead
-              </>
-            ) : (
-              <>
-                <Mic className="size-3.5" />
-                Back to voice
-              </>
-            )}
-          </Button>
-        </div>
-      </Card>
-
-      {/* Right: transcript + end session */}
-      <div className="flex min-h-[420px] flex-col gap-4 lg:min-h-0">
-        <div className="min-h-0 flex-1">
-          <TranscriptPanel
-            messages={session.messages}
-            personaName={persona.name}
-          />
-        </div>
-        <Button
-          variant={isCompleted ? "outline" : "destructive"}
-          size="lg"
-          className="w-full"
-          onClick={
-            isCompleted ? () => router.push("/summary") : handleEndSession
-          }
-        >
-          <Flag />
-          {isCompleted ? "View summary" : "End session"}
-        </Button>
+          </div>
+          <div className="border-t border-border p-3">
+            <Button
+              variant={isCompleted ? "outline" : "destructive"}
+              size="lg"
+              className="h-11 w-full"
+              onClick={
+                isCompleted ? () => router.push("/summary") : handleEndSession
+              }
+            >
+              {isCompleted ? "View summary" : "End session"}
+            </Button>
+          </div>
+        </aside>
       </div>
     </div>
   );

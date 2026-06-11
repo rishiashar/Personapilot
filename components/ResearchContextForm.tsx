@@ -1,13 +1,4 @@
-import { Target, Wand2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,32 +17,26 @@ export function ResearchContextForm({
     onChange({ ...value, [key]: fieldValue });
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <Target className="size-4" />
-            </span>
-            <div>
-              <CardTitle>Research context</CardTitle>
-              <CardDescription>
-                What you are studying and what you want to learn.
-              </CardDescription>
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onUseSample}
-          >
-            <Wand2 />
-            Use sample context
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="grid gap-5">
+    <section className="grid gap-8 border-t border-foreground pt-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
+      <div>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Research context
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          What you are studying and what you want to learn.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={onUseSample}
+        >
+          Use sample context
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="projectName">Project name</Label>
           <Input
@@ -82,7 +67,7 @@ export function ResearchContextForm({
           />
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 sm:gap-5">
+        <div className="grid gap-6 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="targetAudience">Target audience</Label>
             <Input
@@ -102,7 +87,7 @@ export function ResearchContextForm({
             />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

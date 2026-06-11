@@ -1,21 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Loader2,
-  RotateCcw,
-  SendHorizonal,
-  TriangleAlert,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InterviewMessage } from "@/lib/types";
-import { useParticipantVoice, type VoiceState } from "@/lib/useParticipantVoice";
+import {
+  useParticipantVoice,
+  type VoiceState,
+} from "@/lib/useParticipantVoice";
 import { cn, getInitials } from "@/lib/utils";
 
 function VoiceControl({
@@ -27,7 +22,7 @@ function VoiceControl({
 }) {
   if (state.status === "loading") {
     return (
-      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Loader2 className="size-3 animate-spin" />
         Generating voice…
       </span>
@@ -36,9 +31,8 @@ function VoiceControl({
 
   if (state.status === "error") {
     return (
-      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-        <VolumeX className="size-3" />
-        Voice unavailable, showing text response.
+      <span className="text-xs text-muted-foreground">
+        Voice unavailable — showing the text response.
       </span>
     );
   }
@@ -49,16 +43,19 @@ function VoiceControl({
       type="button"
       variant="ghost"
       size="sm"
-      className="h-6 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
+      className="h-6 px-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
       onClick={onPlay}
     >
-      {isReady ? (
-        <RotateCcw className="size-3" />
-      ) : (
-        <Volume2 className="size-3" />
-      )}
-      {isReady ? "Replay" : "Play"}
+      {isReady ? "Replay audio" : "Play audio"}
     </Button>
+  );
+}
+
+function PersonaMark({ initials }: { initials: string }) {
+  return (
+    <span className="flex size-7 shrink-0 items-center justify-center bg-foreground text-[10px] font-semibold text-background">
+      {initials}
+    </span>
   );
 }
 
@@ -82,13 +79,7 @@ function MessageBubble({
         isResearcher ? "justify-end" : "justify-start"
       )}
     >
-      {!isResearcher && (
-        <Avatar size="sm" className="bg-primary/10">
-          <AvatarFallback className="bg-primary/10 text-[10px] font-medium text-primary">
-            {personaInitials}
-          </AvatarFallback>
-        </Avatar>
-      )}
+      {!isResearcher && <PersonaMark initials={personaInitials} />}
       <div
         className={cn(
           "flex max-w-[78%] flex-col gap-1",
@@ -97,10 +88,10 @@ function MessageBubble({
       >
         <div
           className={cn(
-            "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+            "rounded-[10px] px-3.5 py-2.5 text-sm leading-relaxed",
             isResearcher
-              ? "rounded-br-md bg-primary text-primary-foreground"
-              : "rounded-bl-md bg-muted text-foreground"
+              ? "rounded-br-[2px] bg-foreground text-background"
+              : "rounded-bl-[2px] bg-muted text-foreground"
           )}
         >
           {message.text}
@@ -168,9 +159,11 @@ export function InterviewChat({
       <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-4 px-4 py-5 sm:px-6">
           {messages.length === 0 && !isGenerating ? (
-            <div className="mx-auto max-w-md rounded-xl border border-dashed border-border bg-muted/30 px-5 py-6 text-center text-sm text-muted-foreground">
-              Ask your first interview question below. The participant will
-              respond in character so you can rehearse your phrasing.
+            <div className="mx-auto max-w-sm px-5 py-10 text-center">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Ask your first interview question below. {personaName} will
+                answer in character so you can rehearse your phrasing.
+              </p>
             </div>
           ) : null}
 
@@ -194,12 +187,8 @@ export function InterviewChat({
 
           {isGenerating ? (
             <div className="flex items-end gap-2.5">
-              <Avatar size="sm" className="bg-primary/10">
-                <AvatarFallback className="bg-primary/10 text-[10px] font-medium text-primary">
-                  {personaInitials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-3.5 py-3">
+              <PersonaMark initials={personaInitials} />
+              <div className="flex items-center gap-2 rounded-[10px] rounded-bl-[2px] bg-muted px-3.5 py-3">
                 <span className="flex items-center gap-1">
                   <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.2s]" />
                   <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.1s]" />
@@ -216,13 +205,9 @@ export function InterviewChat({
         </div>
       </ScrollArea>
 
-      <div className="border-t border-border bg-card/60 p-3 sm:p-4">
+      <div className="border-t border-border p-3 sm:p-4">
         {error ? (
-          <p
-            role="status"
-            className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground"
-          >
-            <TriangleAlert className="size-3.5 shrink-0" />
+          <p role="status" className="mb-2 text-xs text-muted-foreground">
             {error}
           </p>
         ) : null}
@@ -251,7 +236,6 @@ export function InterviewChat({
             size="lg"
             disabled={disabled || isGenerating || draft.trim().length === 0}
           >
-            <SendHorizonal />
             Send
           </Button>
         </form>

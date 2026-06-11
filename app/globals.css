@@ -50,10 +50,16 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Semantic signal colors: deep and saturated, used solid. */
+/* Pastel washes with deep companion text: soft surfaces, legible signals. */
 @theme {
-  --color-signal-green: oklch(0.54 0.14 152);
-  --color-signal-amber: oklch(0.82 0.16 85);
+  --color-wash-blue: oklch(0.93 0.045 258);
+  --color-wash-blue-fg: oklch(0.43 0.14 260);
+  --color-wash-green: oklch(0.94 0.05 152);
+  --color-wash-green-fg: oklch(0.42 0.1 152);
+  --color-wash-amber: oklch(0.95 0.06 88);
+  --color-wash-amber-fg: oklch(0.5 0.1 75);
+  --color-wash-red: oklch(0.93 0.04 25);
+  --color-wash-red-fg: oklch(0.48 0.15 26);
 }
 
 :root {
@@ -76,7 +82,7 @@
   --border: oklch(0.885 0 0);
   --input: oklch(0.83 0 0);
   --ring: var(--brand);
-  --brand: oklch(0.45 0.26 264);
+  --brand: oklch(0.56 0.17 262);
   --brand-foreground: oklch(1 0 0);
   --chart-1: oklch(0.25 0 0);
   --chart-2: oklch(0.42 0 0);
@@ -157,24 +163,21 @@
   }
 }
 
-@keyframes wavebar {
-  0%,
-  100% {
-    transform: scaleY(0.25);
-  }
-  50% {
-    transform: scaleY(1);
+/* Seamless horizontal drift for wave layers drawn at 2x viewBox width. */
+@keyframes wave-drift {
+  to {
+    transform: translateX(-1200px);
   }
 }
 
 @layer utilities {
-  .animate-wavebar {
-    animation: wavebar 1.5s ease-in-out infinite;
+  .animate-wave-drift {
+    animation: wave-drift linear infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-wavebar {
+  .animate-wave-drift {
     animation: none;
   }
 }

@@ -1,7 +1,12 @@
 import Link from "next/link";
 
 import { AppHeader } from "@/components/AppHeader";
-import { Waveform } from "@/components/Waveform";
+import { GradientWave } from "@/components/GradientWave";
+import {
+  FeedbackIcon,
+  InterviewIcon,
+  SetupIcon,
+} from "@/components/SessionIcons";
 import { Button } from "@/components/ui/button";
 
 const STEPS = [
@@ -10,18 +15,24 @@ const STEPS = [
     description:
       "Define your research goal, build the participant persona, and paste or upload the questions you plan to ask.",
     meta: "2 min",
+    icon: SetupIcon,
+    tile: "bg-wash-blue text-wash-blue-fg",
   },
   {
     title: "Run the interview",
     description:
       "Ask your questions out loud with your guide beside you. The persona answers in character, in a matched voice.",
     meta: "10–20 min",
+    icon: InterviewIcon,
+    tile: "bg-wash-green text-wash-green-fg",
   },
   {
     title: "Read the feedback",
     description:
       "Strong questions, weak questions, missed follow-ups, and suggested rewrites you can take into the next session.",
     meta: "Instant",
+    icon: FeedbackIcon,
+    tile: "bg-wash-amber text-wash-amber-fg",
   },
 ];
 
@@ -61,10 +72,10 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* Waveform band */}
-        <div className="border-y border-foreground">
-          <div className="mx-auto w-full max-w-6xl px-5 py-7 sm:px-8">
-            <Waveform count={96} maxHeight={34} className="h-12 text-foreground" />
+        {/* Wave band */}
+        <div className="border-y border-border">
+          <div className="mx-auto w-full max-w-6xl px-5 py-4 sm:px-8">
+            <GradientWave className="h-20 w-full sm:h-24" />
           </div>
         </div>
 
@@ -77,16 +88,15 @@ export default function HomePage() {
             How a session runs
           </h2>
           <ol className="mt-10 grid border border-foreground max-sm:divide-y sm:grid-cols-3 sm:divide-x divide-foreground">
-            {STEPS.map((step, index) => (
+            {STEPS.map((step) => (
               <li
                 key={step.title}
                 className="flex flex-col bg-card p-6 transition-colors hover:bg-muted/50 sm:p-7"
               >
                 <span
-                  aria-hidden
-                  className="text-4xl font-semibold tracking-tight text-brand"
+                  className={`flex size-11 items-center justify-center ${step.tile}`}
                 >
-                  {index + 1}
+                  <step.icon className="size-6" />
                 </span>
                 <h3 className="mt-5 text-xl font-semibold tracking-tight">
                   {step.title}
@@ -103,14 +113,14 @@ export default function HomePage() {
         </section>
 
         {/* Statement */}
-        <section className="bg-brand text-brand-foreground">
+        <section className="bg-wash-blue">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-            <p className="max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
+            <p className="max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance text-wash-blue-fg sm:text-5xl">
               Synthetic rehearsal,
               <br />
               not synthetic research.
             </p>
-            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-brand-foreground/75">
+            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-wash-blue-fg/75">
               PersonaPilot does not generate findings, and its answers are not
               data. It exists to train the researcher, so the questions you
               bring to real participants are worth their time.
@@ -118,7 +128,7 @@ export default function HomePage() {
             <div className="mt-10">
               <Button
                 size="lg"
-                className="h-12 bg-white px-7 text-[15px] text-foreground hover:bg-white/90"
+                className="h-12 px-7 text-[15px] hover:bg-brand"
                 nativeButton={false}
                 render={<Link href="/setup" />}
               >

@@ -103,6 +103,14 @@ export const SAMPLE_RESEARCH_CONTEXT: ResearchContext = {
   targetAudience: "Freelance designers and developers with 2+ active clients",
   keyLearningGoals:
     "Discover pain points in task tracking, deadline management, and client communication across projects.",
+  questionGuide: [
+    "Walk me through how you started your week on Monday.",
+    "Tell me about the last time a deadline caught you by surprise. What happened?",
+    "How do you decide what to work on when two clients both need something today?",
+    "Where do you keep track of what you owe each client right now?",
+    "Tell me about a moment when your current setup actually failed you.",
+    "If you could see one thing at a glance every morning, what would it be?",
+  ],
 };
 
 /**

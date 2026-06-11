@@ -50,6 +50,12 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Semantic signal colors: deep and saturated, used solid. */
+@theme {
+  --color-signal-green: oklch(0.54 0.14 152);
+  --color-signal-amber: oklch(0.82 0.16 85);
+}
+
 :root {
   /* Neutral foundation, one brand color, square geometry. */
   --background: oklch(1 0 0);

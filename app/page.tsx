@@ -8,13 +8,13 @@ const STEPS = [
   {
     title: "Set up the study",
     description:
-      "Define your research goal and build the participant persona. A sample persona is included if you want to try it first.",
+      "Define your research goal, build the participant persona, and paste or upload the questions you plan to ask.",
     meta: "2 min",
   },
   {
     title: "Run the interview",
     description:
-      "Ask your questions out loud. The persona answers in character, in a voice matched to its profile, and the transcript builds live.",
+      "Ask your questions out loud with your guide beside you. The persona answers in character, in a matched voice.",
     meta: "10–20 min",
   },
   {
@@ -76,25 +76,25 @@ export default function HomePage() {
           <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
             How a session runs
           </h2>
-          <ol className="mt-10">
+          <ol className="mt-10 grid border border-foreground max-sm:divide-y sm:grid-cols-3 sm:divide-x divide-foreground">
             {STEPS.map((step, index) => (
               <li
                 key={step.title}
-                className="grid grid-cols-[40px_minmax(0,1fr)] gap-y-2 border-t border-foreground py-7 sm:grid-cols-[64px_300px_minmax(0,1fr)_96px] sm:gap-x-6 sm:py-8"
+                className="flex flex-col bg-card p-6 transition-colors hover:bg-muted/50 sm:p-7"
               >
                 <span
                   aria-hidden
-                  className="text-2xl font-semibold tracking-tight text-muted-foreground/40"
+                  className="text-4xl font-semibold tracking-tight text-brand"
                 >
                   {index + 1}
                 </span>
-                <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <h3 className="mt-5 text-xl font-semibold tracking-tight">
                   {step.title}
                 </h3>
-                <p className="col-start-2 max-w-md text-[15px] leading-relaxed text-muted-foreground sm:col-start-3 sm:pt-1">
+                <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
                   {step.description}
                 </p>
-                <span className="col-start-2 text-sm text-muted-foreground sm:col-start-4 sm:pt-1.5 sm:text-right">
+                <span className="mt-auto pt-6 text-sm font-medium text-muted-foreground">
                   {step.meta}
                 </span>
               </li>
@@ -103,14 +103,14 @@ export default function HomePage() {
         </section>
 
         {/* Statement */}
-        <section className="bg-muted">
+        <section className="bg-brand text-brand-foreground">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <p className="max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
               Synthetic rehearsal,
               <br />
               not synthetic research.
             </p>
-            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-brand-foreground/75">
               PersonaPilot does not generate findings, and its answers are not
               data. It exists to train the researcher, so the questions you
               bring to real participants are worth their time.
@@ -118,7 +118,7 @@ export default function HomePage() {
             <div className="mt-10">
               <Button
                 size="lg"
-                className="h-12 px-7 text-[15px] hover:bg-brand"
+                className="h-12 bg-white px-7 text-[15px] text-foreground hover:bg-white/90"
                 nativeButton={false}
                 render={<Link href="/setup" />}
               >

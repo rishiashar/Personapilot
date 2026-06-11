@@ -6,6 +6,10 @@ import { Loader2 } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
+import {
+  QuestionGuideForm,
+  countQuestions,
+} from "@/components/QuestionGuideForm";
 import { ResearchContextForm } from "@/components/ResearchContextForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +19,7 @@ import {
 } from "@/lib/localStorage";
 import { SAMPLE_PERSONA, SAMPLE_RESEARCH_CONTEXT } from "@/lib/mockResponses";
 import type { InterviewSession, Persona, ResearchContext } from "@/lib/types";
-import { createId } from "@/lib/utils";
+import { cn, createId } from "@/lib/utils";
 
 const EMPTY_CONTEXT: ResearchContext = {
   projectName: "",
@@ -36,15 +40,64 @@ const EMPTY_PERSONA: PersonaDraft = {
   voiceStyle: "",
 };
 
+const STEP_META = [
+  {
+    label: "Research context",
+    title: "What are you studying?",
+    description:
+      "The goal and product context shape how the participant answers. A project name is enough to move on.",
+  },
+  {
+    label: "Participant",
+    title: "Who are you interviewing?",
+    description:
+      "The richer the persona, the more believable the answers. Start with a name and add detail as you go.",
+  },
+  {
+    label: "Question guide",
+    title: "What will you ask?",
+    description:
+      "Optional. Type your questions or import them from a document; they stay visible during the interview.",
+  },
+] as const;
+
 export default function SetupPage() {
   const router = useRouter();
   const [context, setContext] = useState<ResearchContext>(EMPTY_CONTEXT);
   const [persona, setPersona] = useState<PersonaDraft>(EMPTY_PERSONA);
+  const [questionsText, setQuestionsText] = useState("");
+  const [step, setStep] = useState(0);
+  const [maxVisited, setMaxVisited] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
+
+  const goTo = (next: number) => {
+    setStep(next);
+    setMaxVisited((m) => Math.max(m, next));
+    window.scrollTo({ top: 0 });
+  };
+
+  const stepValid =
+    step === 0
+      ? context.projectName.trim().length > 0
+      : step === 1
+        ? persona.name.trim().length > 0
+        : true;
+
+  const canStart =
+    persona.name.trim().length > 0 && context.projectName.trim().length > 0;
 
   const handleStart = async () => {
     if (isStarting) return;
     setIsStarting(true);
+
+    const questionGuide = questionsText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const fullContext: ResearchContext = {
+      ...context,
+      questionGuide: questionGuide.length > 0 ? questionGuide : undefined,
+    };
 
     const fullPersona: Persona = {
       ...persona,
@@ -57,7 +110,10 @@ export default function SetupPage() {
       const res = await fetch("/api/select-voice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ persona: fullPersona, researchContext: context }),
+        body: JSON.stringify({
+          persona: fullPersona,
+          researchContext: fullContext,
+        }),
       });
       if (res.ok) {
         const voice = (await res.json()) as {
@@ -81,71 +137,167 @@ export default function SetupPage() {
     const session: InterviewSession = {
       id: createId("session"),
       persona: fullPersona,
-      researchContext: context,
+      researchContext: fullContext,
       messages: [],
       status: "active",
       createdAt: new Date().toISOString(),
     };
 
     savePersona(fullPersona);
-    saveResearchContext(context);
+    saveResearchContext(fullContext);
     saveSession(session);
     router.push("/interview");
   };
 
-  const canStart =
-    persona.name.trim().length > 0 && context.projectName.trim().length > 0;
+  const questionCount = countQuestions(questionsText);
+  const meta = STEP_META[step];
+
+  const hint =
+    step === 0 && !stepValid
+      ? "Add a project name to continue."
+      : step === 1 && !stepValid
+        ? "Add a persona name to continue."
+        : step === 2
+          ? questionCount > 0
+            ? `${questionCount} ${questionCount === 1 ? "question" : "questions"} ready.`
+            : "Questions are optional. You can start without them."
+          : "";
 
   return (
     <>
       <AppHeader step="setup" />
       <main className="flex-1">
         <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
-          <header className="max-w-xl pb-12">
-            <p className="caps text-muted-foreground">Setup</p>
+          {/* Stepper */}
+          <nav aria-label="Setup steps">
+            <ol className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              {STEP_META.map((item, index) => {
+                const isActive = index === step;
+                const isDone = index < step;
+                const reachable = index <= maxVisited;
+                return (
+                  <li key={item.label}>
+                    <button
+                      type="button"
+                      disabled={!reachable}
+                      onClick={() => reachable && goTo(index)}
+                      aria-current={isActive ? "step" : undefined}
+                      className={cn(
+                        "flex items-center gap-2 text-[13px] font-medium transition-colors",
+                        isActive
+                          ? "text-foreground"
+                          : reachable
+                            ? "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground/50"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex size-5 items-center justify-center text-[11px] font-semibold",
+                          isActive
+                            ? "bg-foreground text-background"
+                            : isDone
+                              ? "bg-brand text-brand-foreground"
+                              : "border border-input text-muted-foreground"
+                        )}
+                      >
+                        {index + 1}
+                      </span>
+                      {item.label}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+            {/* Progress */}
+            <div className="mt-4 flex gap-1" aria-hidden>
+              {STEP_META.map((item, index) => (
+                <span
+                  key={item.label}
+                  className={cn(
+                    "h-0.5 flex-1",
+                    index <= step ? "bg-brand" : "bg-border"
+                  )}
+                />
+              ))}
+            </div>
+          </nav>
+
+          <header className="max-w-xl pt-10 pb-10">
+            <p className="caps text-muted-foreground">
+              Step {step + 1} of {STEP_META.length}
+            </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-[2.6rem]">
-              Set up your rehearsal
+              {meta.title}
             </h1>
             <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-              Describe the study and the participant you want to rehearse
-              with. Two minutes here makes the interview believable.
+              {meta.description}
             </p>
           </header>
 
-          <div className="space-y-14">
+          {step === 0 && (
             <ResearchContextForm
               value={context}
               onChange={setContext}
-              onUseSample={() => setContext(SAMPLE_RESEARCH_CONTEXT)}
+              onUseSample={() => {
+                setContext(SAMPLE_RESEARCH_CONTEXT);
+                setQuestionsText(
+                  (SAMPLE_RESEARCH_CONTEXT.questionGuide ?? []).join("\n")
+                );
+              }}
             />
+          )}
+          {step === 1 && (
             <PersonaForm
               value={persona}
               onChange={setPersona}
               onUseSample={() => setPersona(SAMPLE_PERSONA)}
             />
-          </div>
+          )}
+          {step === 2 && (
+            <QuestionGuideForm
+              value={questionsText}
+              onChange={setQuestionsText}
+            />
+          )}
 
-          <div className="mt-14 flex flex-col items-stretch gap-4 border-t border-foreground pt-7 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              {canStart
-                ? "Your context and persona are saved as you go."
-                : "Add a project name and persona name to begin."}
-            </p>
+          <div className="mt-12 flex items-center justify-between gap-4 border-t border-foreground pt-7">
             <Button
-              size="lg"
-              className="h-12 px-7 text-[15px] hover:bg-brand"
-              onClick={handleStart}
-              disabled={!canStart || isStarting}
+              variant="ghost"
+              onClick={() => goTo(step - 1)}
+              className={cn(step === 0 && "invisible")}
             >
-              {isStarting ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Selecting voice…
-                </>
-              ) : (
-                "Start interview session"
-              )}
+              Back
             </Button>
+            <div className="flex items-center gap-4">
+              <p className="hidden text-sm text-muted-foreground sm:block">
+                {hint}
+              </p>
+              {step < STEP_META.length - 1 ? (
+                <Button
+                  className="h-11 px-7 hover:bg-brand"
+                  disabled={!stepValid}
+                  onClick={() => goTo(step + 1)}
+                >
+                  Continue
+                </Button>
+              ) : (
+                <Button
+                  className="h-11 px-7 text-[15px] hover:bg-brand"
+                  onClick={handleStart}
+                  disabled={!canStart || isStarting}
+                >
+                  {isStarting ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      Selecting voice…
+                    </>
+                  ) : (
+                    "Start interview session"
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </main>

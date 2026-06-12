@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { AppFooter } from "@/components/AppFooter";
@@ -12,53 +11,29 @@ import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const STEPS = [
-  {
-    title: "Set up the study",
-    description:
-      "Define your research goal, build the participant persona, and paste or upload the questions you plan to ask.",
-    meta: "2 min",
-    icon: "/icons/research-setup.svg",
-  },
-  {
-    title: "Run the interview",
-    description:
-      "Ask your questions out loud with your guide beside you. The persona answers in character, in a matched voice.",
-    meta: "10-20 min",
-    icon: "/icons/interview-microphone.svg",
-  },
-  {
-    title: "Read the feedback",
-    description:
-      "Strong questions, weak questions, missed follow-ups, and suggested rewrites you can take into the next session.",
-    meta: "Instant",
-    icon: "/icons/read-feedback.svg",
-  },
-];
-
 const FEATURES = [
   {
     tag: "01 · Setup",
-    title: "Bring your script, or build one in minutes",
+    title: "Bring your questions, or build a study in minutes",
     description:
-      "Set a research goal, shape the participant persona, and drop in your question guide. Drag a file onto the upload zone or pick from six ready-made sample studies when you just want to practice.",
+      "Write down what you want to learn, describe the person you would interview, and add your questions. Drag in a file with your script, or pick one of six ready-made sample studies and start right away.",
     points: [
       "Drag and drop your interview script: txt, md, docx",
-      "Six rotating sample studies with matched personas",
-      "Personas with backgrounds, behaviours, and frustrations",
+      "Six sample studies with matching participants",
+      "Participants with real backgrounds, habits, and frustrations",
     ],
     gradient: "from-wash-blue via-background to-background",
     mockup: <SetupMockup className="w-full max-w-md" />,
   },
   {
     tag: "02 · Interview",
-    title: "A live room that feels like the real thing",
+    title: "Talk to a participant that talks back",
     description:
-      "Ask out loud and the persona answers in character, in a matched voice. Your question guide sits beside the conversation so you can check off ground as you cover it, with the full transcript building as you go.",
+      "Ask your questions out loud and the participant answers in character, in their own voice. Your question list sits beside the conversation so you can tick off ground as you cover it, and the transcript builds as you go.",
     points: [
-      "Voice mode with speech in, persona voice out",
-      "Question checklist with progress you can tick off",
-      "Compact participant card, full profile one tap away",
+      "Speak your questions, hear spoken answers",
+      "Tick off questions as you cover them",
+      "Participant details one tap away, never in your way",
     ],
     gradient: "from-wash-amber via-background to-background",
     mockup: <InterviewMockup className="w-full max-w-lg" />,
@@ -68,11 +43,11 @@ const FEATURES = [
     tag: "03 · Feedback",
     title: "See what every question actually got you",
     description:
-      "The summary maps each question to the kind of answer it produced: concrete story, factual detail, opinion, or a flat yes or no, and whether that serves your research goal. Weak phrasing gets a rewrite you can use next time.",
+      "After the interview, every question you asked is graded by what it got back: a real story, a useful fact, just an opinion, or a flat yes or no. Weak questions get a better version you can use next time.",
     points: [
-      "Question by question answer analysis",
-      "At-a-glance session verdict with a feedback mix bar",
-      "Missed follow-ups and suggested rewrites",
+      "Every question mapped to the answer it produced",
+      "One-look session verdict: strong, mixed, or needs work",
+      "Missed follow-ups and ready-to-use rewrites",
     ],
     gradient: "from-wash-green via-background to-background",
     mockup: <SummaryMockup className="w-full max-w-lg" />,
@@ -87,12 +62,12 @@ export default function HomePage() {
         {/* Hero */}
         <section className="mx-auto w-full max-w-6xl px-5 pt-20 pb-16 sm:px-8 sm:pt-28 sm:pb-24">
           <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-7xl">
-            Rehearse your user interviews.
+            Practice your user interviews before they count.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            A practice room for UX researchers. Build a participant persona,
-            interview it by voice, and get direct feedback on your questioning
-            technique.
+            PersonaPilot gives you an AI participant to interview out loud. Ask
+            your questions, hear answers in a real voice, and find out which
+            questions work before you sit down with a real person.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-6">
             <Button
@@ -131,9 +106,9 @@ export default function HomePage() {
           id="features"
           className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24"
         >
-          <p className="caps text-muted-foreground">What you get</p>
+          <p className="caps text-muted-foreground">How it works</p>
           <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
-            The whole loop, from script to feedback
+            Set up, interview, get graded
           </h2>
           <div className="mt-12 space-y-10 sm:space-y-14">
             {FEATURES.map((feature) => (
@@ -183,61 +158,54 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How it works: index */}
-        <section
-          id="how-it-works"
-          className="border-t border-foreground bg-muted/30"
-        >
+        {/* Story */}
+        <section id="story" className="border-t border-foreground bg-muted/30">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-            <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
-              How a session runs
-            </h2>
-            <ol className="mt-10 grid border border-foreground max-sm:divide-y sm:grid-cols-3 sm:divide-x divide-foreground">
-              {STEPS.map((step) => (
-                <li
-                  key={step.title}
-                  className="flex flex-col bg-card p-6 transition-colors hover:bg-muted/50 sm:p-7"
-                >
-                  <span
-                    aria-hidden
-                    className="flex size-20 items-center justify-center"
-                  >
-                    <Image
-                      src={step.icon}
-                      alt=""
-                      width={80}
-                      height={80}
-                      className="size-20 object-contain"
-                      unoptimized
-                    />
-                  </span>
-                  <h3 className="mt-5 text-xl font-semibold tracking-tight">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-                    {step.description}
-                  </p>
-                  <span className="mt-auto pt-6 text-sm font-medium text-muted-foreground">
-                    {step.meta}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <div className="max-w-3xl">
+              <p className="caps text-muted-foreground">Why this exists</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+                Built after an interview that went nowhere
+              </h2>
+              <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
+                <p>
+                  I walked out of my first real user interview with thirty
+                  minutes of recording and almost nothing I could use. The
+                  participant was generous with their time. My questions were
+                  not generous back: too vague, too leading, too easy to answer
+                  with a shrug.
+                </p>
+                <p>
+                  Nobody lets you practice this. You prepare a script, you get
+                  one shot with a real person, and you only find out your
+                  questions were weak after you have already spent their time.
+                </p>
+                <p>
+                  So I built the practice room I wanted: a participant you can
+                  interview as many times as you need, and feedback that tells
+                  you exactly which questions earned real answers and which
+                  ones wasted the minute.
+                </p>
+              </div>
+              <p className="mt-8 text-[14px] font-medium">
+                Rishi Ashar
+                <span className="text-muted-foreground"> · Maker of PersonaPilot</span>
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Statement */}
+        {/* Closing CTA */}
         <section className="border-t border-foreground bg-wash-blue">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <p className="max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance text-wash-blue-fg sm:text-5xl">
-              Synthetic rehearsal,
+              Your next real interview
               <br />
-              not synthetic research.
+              deserves a rehearsal.
             </p>
             <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-wash-blue-fg/75">
-              PersonaPilot does not generate findings, and its answers are not
-              data. It exists to train the researcher, so the questions you
-              bring to real participants are worth their time.
+              PersonaPilot will not do your research for you. It makes sure
+              that when you sit down with a real person, every question you
+              ask is worth their time.
             </p>
             <div className="mt-10">
               <Button

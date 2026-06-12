@@ -1,4 +1,10 @@
-import type { InterviewSession, SessionAnalysis } from "@/lib/types";
+import type {
+  AnswerKind,
+  ExchangeInsight,
+  InterviewMessage,
+  InterviewSession,
+  SessionAnalysis,
+} from "@/lib/types";
 
 /**
  * Temporary, rule-based participant responses for the MVP.
@@ -73,6 +79,74 @@ export function generateMockResponse(question: string, turn = 0): string {
   );
 }
 
+/** Heuristic read of what kind of answer a participant reply is. */
+function classifyAnswer(answer: string): AnswerKind {
+  const a = answer.trim().toLowerCase();
+  const words = a.split(/\s+/).filter(Boolean).length;
+  if (a.includes("?")) return "vague";
+  if (words <= 6) return "yes_no";
+  if (/\b(last time|yesterday|last week|this morning|recently|one time)\b/.test(a))
+    return "story";
+  if (/\b(feel|felt|honestly|anxiety|satisf|enjoy|frustrat|overwhelm)\b/.test(a))
+    return "opinion";
+  if (/\b(usually|every|when|check|open|use|depends)\b/.test(a))
+    return "factual";
+  return "opinion";
+}
+
+const EXCHANGE_READING: Record<
+  AnswerKind,
+  { learned: string; alignment: ExchangeInsight["alignment"] }
+> = {
+  story: {
+    learned:
+      "A concrete, recent example you can mine for real behaviour and context.",
+    alignment: "on_goal",
+  },
+  factual: {
+    learned:
+      "Practical detail about when and how they act, but not the why behind it.",
+    alignment: "partial",
+  },
+  opinion: {
+    learned:
+      "How they feel about it. Useful signal, but pair it with a follow-up for a concrete example.",
+    alignment: "partial",
+  },
+  vague: {
+    learned:
+      "Nothing yet. The phrasing was broad enough that the participant asked you to narrow it down.",
+    alignment: "off_goal",
+  },
+  yes_no: {
+    learned:
+      "A short, closed answer. It confirms a fact but opens no new ground.",
+    alignment: "off_goal",
+  },
+};
+
+/** Pair each researcher question with the reply that followed it. */
+function buildExchanges(messages: InterviewMessage[]): ExchangeInsight[] {
+  const exchanges: ExchangeInsight[] = [];
+  for (let i = 0; i < messages.length; i++) {
+    const message = messages[i];
+    if (message.role !== "researcher") continue;
+    const reply = messages
+      .slice(i + 1)
+      .find((m) => m.role === "participant");
+    if (!reply) continue;
+    const answerKind = classifyAnswer(reply.text);
+    const reading = EXCHANGE_READING[answerKind];
+    exchanges.push({
+      question: message.text,
+      answerKind,
+      whatYouLearned: reading.learned,
+      alignment: reading.alignment,
+    });
+  }
+  return exchanges;
+}
+
 /**
  * Placeholder session analysis for the summary page.
  * Lightly references the session so the output feels session-aware,
@@ -94,6 +168,7 @@ export function buildSessionAnalysis(
     .slice(0, 3);
 
   return {
+    exchanges: buildExchanges(session?.messages ?? []),
     strongQuestions:
       strongQuestions.length > 0
         ? strongQuestions

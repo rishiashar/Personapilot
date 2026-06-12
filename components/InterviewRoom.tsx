@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 import { InterviewChat } from "@/components/InterviewChat";
 import { ParticipantCard } from "@/components/ParticipantCard";
@@ -15,6 +16,43 @@ import type { InterviewMessage, InterviewSession } from "@/lib/types";
 import { useParticipantVoice } from "@/lib/useParticipantVoice";
 import { useVoiceRecorder } from "@/lib/useVoiceRecorder";
 import { cn, createId } from "@/lib/utils";
+
+function RailSection({
+  title,
+  meta,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  meta?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="border-t border-border">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-muted/60"
+      >
+        <h2 className="caps">{title}</h2>
+        <span className="flex items-center gap-2">
+          {meta}
+          <ChevronDown
+            className={cn(
+              "size-3.5 text-muted-foreground transition-transform",
+              open && "rotate-180"
+            )}
+          />
+        </span>
+      </button>
+      {open && children}
+    </div>
+  );
+}
 
 function QuestionGuidePanel({ questions }: { questions: string[] }) {
   // Which guide questions the researcher has marked as covered. Ephemeral by
@@ -30,14 +68,21 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
     });
 
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
         <h2 className="caps">Questions</h2>
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {asked.size}/{questions.length}
         </span>
       </div>
-      <ol className="divide-y divide-border border-b border-border">
+      {questions.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center px-6 py-10 text-center">
+          <p className="max-w-[24ch] text-sm leading-relaxed text-muted-foreground">
+            No question guide for this session. Ask anything you like.
+          </p>
+        </div>
+      ) : (
+        <ol className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
         {questions.map((question, index) => {
           const isAsked = asked.has(index);
           return (
@@ -70,8 +115,9 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
             </li>
           );
         })}
-      </ol>
-    </>
+        </ol>
+      )}
+    </div>
   );
 }
 
@@ -315,30 +361,34 @@ export function InterviewRoom({
     <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6">
       {/* One console frame: three columns divided by rules. */}
       <div className="grid grid-cols-1 border border-foreground bg-card max-lg:divide-y max-lg:divide-foreground lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-foreground">
-        {/* Left: participant + research goal */}
-        <aside className="lg:min-h-0 lg:overflow-y-auto">
-          {(researchContext.questionGuide?.length ?? 0) > 0 && (
-            <QuestionGuidePanel questions={researchContext.questionGuide!} />
-          )}
-          <div className="border-b border-border px-4 py-3">
-            <h2 className="caps">Participant</h2>
+        {/* Left: question guide gets the room; participant and goal stay
+            compact at the bottom so the rail reads as a script, not a dossier. */}
+        <aside className="flex flex-col lg:min-h-0">
+          <div className="min-h-0 flex-1">
+            <QuestionGuidePanel
+              questions={researchContext.questionGuide ?? []}
+            />
           </div>
-          <ParticipantCard persona={persona} />
-          <div className="border-t border-border px-4 py-3">
-            <h2 className="caps">Research goal</h2>
-          </div>
-          <div className="space-y-3 px-4 pb-5 text-sm">
-            <p className="leading-relaxed">
-              {researchContext.researchGoal || "No research goal provided yet."}
-            </p>
-            {researchContext.projectName ? (
-              <div className="space-y-1 border-t border-border pt-3">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Project
+          <div className="shrink-0">
+            <RailSection title="Participant" defaultOpen>
+              <ParticipantCard persona={persona} collapsible />
+            </RailSection>
+            <RailSection title="Research goal">
+              <div className="space-y-3 px-4 pb-4 text-sm">
+                <p className="leading-relaxed">
+                  {researchContext.researchGoal ||
+                    "No research goal provided yet."}
                 </p>
-                <p>{researchContext.projectName}</p>
+                {researchContext.projectName ? (
+                  <div className="space-y-1 border-t border-border pt-3">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Project
+                    </p>
+                    <p>{researchContext.projectName}</p>
+                  </div>
+                ) : null}
               </div>
-            ) : null}
+            </RailSection>
           </div>
         </aside>
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
-import { QuestionShiftMockup } from "@/components/landing/ScreenMockups";
+import { RewriteMoment } from "@/components/landing/RewriteMoment";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Reveal } from "@/components/landing/Reveal";
@@ -229,11 +229,9 @@ export default function HomePage() {
                 </p>
               </div>
               </Reveal>
-              <Reveal>
-              <div className="mt-10">
-                <QuestionShiftMockup className="w-full" />
+              <div className="mt-12 sm:mt-14">
+                <RewriteMoment className="w-full" />
               </div>
-              </Reveal>
               <Reveal>
               <div className="mt-12 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
                 <p>

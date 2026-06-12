@@ -15,7 +15,7 @@ export function TranscriptPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-card">
-      <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
+      <div className="flex min-h-12 items-center justify-between gap-2 border-b border-border px-4 py-2">
         <h2 className="caps">Transcript</h2>
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {researcherCount} {researcherCount === 1 ? "question" : "questions"}

@@ -172,7 +172,7 @@ export default function SetupPage() {
         <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
           {/* Stepper */}
           <nav aria-label="Setup steps">
-            <ol className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <ol className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {STEP_META.map((item, index) => {
                 const isActive = index === step;
                 const isDone = index < step;
@@ -225,7 +225,7 @@ export default function SetupPage() {
             </div>
           </nav>
 
-          <header className="max-w-xl pt-10 pb-10">
+          <header key={step} className="animate-rise mx-auto max-w-xl pt-10 pb-10 text-center">
             <p className="caps text-muted-foreground">
               Step {step + 1} of {STEP_META.length}
             </p>
@@ -237,6 +237,10 @@ export default function SetupPage() {
             </p>
           </header>
 
+          <div
+            key={`panel-${step}`}
+            className="animate-rise border border-foreground bg-card p-6 [animation-delay:80ms] sm:p-10"
+          >
           {step === 0 && (
             <ResearchContextForm
               value={context}
@@ -272,8 +276,9 @@ export default function SetupPage() {
               onChange={setQuestionsText}
             />
           )}
+          </div>
 
-          <div className="mt-12 flex items-center justify-between gap-4 border-t border-foreground pt-7">
+          <div className="mt-10 flex items-center justify-between gap-4">
             <Button
               variant="ghost"
               onClick={() => goTo(step - 1)}

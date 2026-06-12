@@ -19,9 +19,7 @@ export function ResearchContextForm({
   return (
     <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">
-          Research context
-        </h2>
+        <h2 className="caps">Research context</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           What you are studying and what you want to learn.
         </p>

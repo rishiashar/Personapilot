@@ -21,9 +21,7 @@ export function PersonaForm({
   return (
     <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">
-          Participant persona
-        </h2>
+        <h2 className="caps">Participant persona</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           The simulated participant you will interview. The richer the
           persona, the more believable the answers.

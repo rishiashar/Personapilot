@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -18,7 +18,7 @@ import {
   saveResearchContext,
   saveSession,
 } from "@/lib/localStorage";
-import { SAMPLE_PERSONA, SAMPLE_RESEARCH_CONTEXT } from "@/lib/mockResponses";
+import { nextSampleStudy, type SampleStudy } from "@/lib/sampleStudies";
 import type { InterviewSession, Persona, ResearchContext } from "@/lib/types";
 import { cn, createId } from "@/lib/utils";
 
@@ -70,6 +70,7 @@ export default function SetupPage() {
   const [step, setStep] = useState(0);
   const [maxVisited, setMaxVisited] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
+  const sampleRef = useRef<SampleStudy | null>(null);
 
   const goTo = (next: number) => {
     setStep(next);
@@ -241,10 +242,10 @@ export default function SetupPage() {
               value={context}
               onChange={setContext}
               onUseSample={() => {
-                setContext(SAMPLE_RESEARCH_CONTEXT);
-                setQuestionsText(
-                  (SAMPLE_RESEARCH_CONTEXT.questionGuide ?? []).join("\n")
-                );
+                const study = nextSampleStudy();
+                sampleRef.current = study;
+                setContext(study.context);
+                setQuestionsText((study.context.questionGuide ?? []).join("\n"));
               }}
             />
           )}
@@ -252,7 +253,17 @@ export default function SetupPage() {
             <PersonaForm
               value={persona}
               onChange={setPersona}
-              onUseSample={() => setPersona(SAMPLE_PERSONA)}
+              onUseSample={() => {
+                // Pair the persona with the sampled context when one is in
+                // play; repeated clicks cycle to the next study's persona.
+                const current = sampleRef.current;
+                const study =
+                  current && persona.name !== current.persona.name
+                    ? current
+                    : nextSampleStudy();
+                sampleRef.current = study;
+                setPersona(study.persona);
+              }}
             />
           )}
           {step === 2 && (

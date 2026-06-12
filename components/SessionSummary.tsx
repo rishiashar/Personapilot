@@ -23,11 +23,13 @@ function AnalysisSection({
   tag,
   tagTone,
   items,
+  accent = false,
 }: {
   title: string;
   tag: string;
   tagTone: TagTone;
   items: string[];
+  accent?: boolean;
 }) {
   return (
     <section id={sectionId(title)} className="scroll-mt-24 border-t border-foreground pt-5 pb-2">
@@ -42,7 +44,7 @@ function AnalysisSection({
           {items.map((item, index) => (
             <li
               key={index}
-              className="grid grid-cols-[24px_minmax(0,1fr)] gap-2 text-sm leading-relaxed"
+              className={`grid grid-cols-[24px_minmax(0,1fr)] gap-2 text-sm leading-relaxed ${accent ? "border-l-2 border-brand pl-3" : ""}`}
             >
               <span className="pt-px font-mono text-xs text-muted-foreground/80">
                 {index + 1}
@@ -337,7 +339,26 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         <div>
           <p className="caps text-muted-foreground">Summary</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] sm:text-[2.6rem]">
-            Session summary
+            Session{" "}
+            <span className="relative inline-block whitespace-nowrap text-brand">
+              summary
+              <svg
+                aria-hidden
+                viewBox="0 0 230 12"
+                preserveAspectRatio="none"
+                className="absolute right-0 -bottom-1 left-0 h-[0.12em] w-full"
+              >
+                <path
+                  d="M4 9 C 60 3, 160 2.5, 226 6.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  pathLength="1"
+                  className="animate-underline-draw"
+                />
+              </svg>
+            </span>
           </h1>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
             <Tag tone={isActive ? "ink" : "neutral"}>
@@ -434,7 +455,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
               key={stat.label}
               className={`bg-card px-4 py-4 sm:px-5 ${index % 2 === 0 ? "border-r border-foreground" : ""} ${index < 2 ? "lg:border-b lg:border-foreground" : ""}`}
             >
-              <dd className="text-3xl font-semibold tracking-tight tabular-nums">
+              <dd className="text-3xl font-semibold tracking-tight text-brand tabular-nums">
                 {stat.value}
               </dd>
               <dt className="mt-1 text-xs font-medium text-muted-foreground">
@@ -478,6 +499,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
             tag="Rewrite"
             tagTone="blue"
             items={analysis.suggestedImprovements}
+            accent
           />
           <AnalysisSection
             title="Next interview tips"

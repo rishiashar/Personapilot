@@ -12,7 +12,7 @@ const PASTEL_SPECTRUM = [
 ] as const;
 
 // Deterministic bar heights so server and client render identically.
-function barHeight(i: number, max: number) {
+export function barHeight(i: number, max: number) {
   return Math.round(
     0.28 * max +
       0.5 * max * Math.abs(Math.sin(i * 0.82)) +
@@ -20,7 +20,7 @@ function barHeight(i: number, max: number) {
   );
 }
 
-function barColor(i: number, count: number) {
+export function barColor(i: number, count: number) {
   const phase = i / Math.max(count - 1, 1);
   const scaled = phase * (PASTEL_SPECTRUM.length - 1);
   const leftIndex = Math.floor(scaled);

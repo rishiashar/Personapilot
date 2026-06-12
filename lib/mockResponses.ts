@@ -45,12 +45,58 @@ const VAGUE_ANSWERS = [
 
 const VAGUE_TRIGGERS = ["thoughts", "anything", "in general", "overall", "tell me about"];
 
+const GREETING_TRIGGERS = [
+  "hi",
+  "hii",
+  "hello",
+  "hey",
+  "good morning",
+  "good afternoon",
+  "good evening",
+  "how are you",
+  "how's it going",
+  "how is it going",
+  "nice to meet",
+  "thanks for joining",
+  "thanks for coming",
+  "thank you for joining",
+  "thanks for taking the time",
+  "thank you for taking the time",
+];
+
+const CONSENT_TRIGGERS = [
+  "confidential",
+  "consent",
+  "record this",
+  "recording",
+  "recorded",
+  "anonymous",
+  "anonymized",
+  "is that okay",
+  "is that ok",
+  "no right or wrong",
+  "you can stop at any time",
+];
+
+const GREETING_ANSWERS = [
+  "Hi, good to meet you. I'm doing alright, it has been a bit of a hectic morning but I'm glad to be here. How about you?",
+  "Hey, hi. Doing well, thanks. I grabbed a coffee on the way so I'm all set whenever you are.",
+  "Hello! Yeah, I'm good. Found the link fine and everything, so happy to chat whenever you want to start.",
+];
+
+const CONSENT_ANSWERS = [
+  "Sure, that all sounds fine to me. Go ahead.",
+  "Yeah, no problem, that works for me. I figured there'd be something like that.",
+  "Okay, understood. That's fine, feel free to start whenever.",
+];
+
 function pick(list: string[], seed: number): string {
   return list[seed % list.length];
 }
 
 /**
  * Returns a mock participant answer for a researcher question.
+ * - Greetings and consent scripts get small-talk style acknowledgements.
  * - Utility-style questions get a practical answer.
  * - Emotional-style questions get a more reflective answer.
  * - Very short / vague questions get a gently confused answer.
@@ -58,6 +104,16 @@ function pick(list: string[], seed: number): string {
 export function generateMockResponse(question: string, turn = 0): string {
   const q = question.trim().toLowerCase();
   const wordCount = q.split(/\s+/).filter(Boolean).length;
+
+  const isGreeting =
+    wordCount <= 14 &&
+    GREETING_TRIGGERS.some((t) =>
+      new RegExp(`(^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`).test(q)
+    );
+  const isConsent = CONSENT_TRIGGERS.some((t) => q.includes(t));
+
+  if (isConsent) return pick(CONSENT_ANSWERS, turn);
+  if (isGreeting) return pick(GREETING_ANSWERS, turn);
 
   const isVagueLength = wordCount > 0 && wordCount <= 3;
   const isVagueTrigger = VAGUE_TRIGGERS.some((t) => q.includes(t));

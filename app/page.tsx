@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import { RewriteMoment } from "@/components/landing/RewriteMoment";
+import { RightDoor } from "@/components/landing/RightDoor";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Reveal } from "@/components/landing/Reveal";
@@ -220,6 +221,7 @@ export default function HomePage() {
               </div>
               <Reveal>
               <div className="mt-16 text-center sm:mt-20">
+                <RightDoor className="mb-12 sm:mb-14" />
                 <p className="caps text-muted-foreground">The lesson</p>
                 <p className="mx-auto mt-4 max-w-2xl text-2xl leading-snug font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
                   Better <span className="text-brand">questions</span> create

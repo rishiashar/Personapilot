@@ -26,8 +26,8 @@ const FEATURES = [
         label="Setup · Question guide"
         frameWidth={1100}
         frameHeight={780}
-        scale={0.46}
-        className="max-w-md"
+        scale={0.52}
+        className="absolute top-8 left-8 sm:top-12 sm:left-12"
       />
     ),
   },
@@ -48,8 +48,8 @@ const FEATURES = [
         label="Interview · Live"
         frameWidth={1280}
         frameHeight={800}
-        scale={0.42}
-        className="max-w-lg"
+        scale={0.5}
+        className="absolute top-8 left-8 sm:top-12 sm:left-12"
       />
     ),
     reverse: true,
@@ -71,8 +71,8 @@ const FEATURES = [
         label="Summary · Question by question"
         frameWidth={1280}
         frameHeight={900}
-        scale={0.42}
-        className="max-w-lg"
+        scale={0.5}
+        className="absolute top-8 left-8 sm:top-12 sm:left-12"
       />
     ),
   },
@@ -84,17 +84,16 @@ export default function HomePage() {
       <AppHeader mode="Beta" />
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pt-16 pb-16 sm:px-8 sm:pt-24 sm:pb-24 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
+        <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20">
           <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
             Practice your user interviews before they count.
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             PersonaPilot gives you an AI participant to interview out loud. Ask
             your questions, hear answers in a real voice, and find out which
             questions work before you sit down with a real person.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-6">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
             <Button
               size="lg"
               className="h-12 px-7 text-[15px] hover:bg-brand"
@@ -113,8 +112,7 @@ export default function HomePage() {
           <p className="mt-8 text-[13px] text-muted-foreground">
             Free. No account. Sessions stay in your browser.
           </p>
-          </div>
-          <HeroDemo className="w-full max-w-lg justify-self-center lg:justify-self-end" />
+          <HeroDemo className="mt-14 w-full max-w-2xl text-left sm:mt-16" />
         </section>
 
         {/* Feature cards */}
@@ -160,7 +158,7 @@ export default function HomePage() {
                 </div>
                 <div
                   className={cn(
-                    "flex items-center justify-center border-foreground bg-gradient-to-br p-7 max-lg:border-t sm:p-10 lg:border-l",
+                    "relative min-h-[320px] overflow-hidden border-foreground bg-gradient-to-br max-lg:border-t sm:min-h-[420px] lg:border-l",
                     feature.gradient,
                     feature.reverse && "lg:order-1 lg:border-r lg:border-l-0",
                   )}

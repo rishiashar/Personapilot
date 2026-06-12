@@ -136,16 +136,29 @@ export function HeroDemo({ className }: { className?: string }) {
       </div>
       <div className="flex min-h-[230px] flex-col gap-3 p-4 text-[13px]">
         <div className="flex justify-end">
-          <p className="max-w-[85%] border border-foreground bg-foreground px-3 py-2 text-background">
-            {shownQuestion}
-            {!still && phase === "typing" && (
-              <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-background" />
-            )}
-          </p>
+          <div className="max-w-[85%] space-y-1.5 text-right">
+            <span className="text-[10px] font-medium text-muted-foreground">
+              You · Researcher
+            </span>
+            <p className="border border-foreground bg-foreground px-3 py-2 text-left text-background">
+              {shownQuestion}
+              {!still && phase === "typing" && (
+                <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-background" />
+              )}
+            </p>
+          </div>
         </div>
         {showAnswer && (
           <div className={cn("flex justify-start", !still && ENTER)}>
-            <div className="max-w-[85%] space-y-2">
+            <div className="max-w-[85%] space-y-1.5">
+              <span className="flex items-center gap-1.5">
+                <span className="flex size-4 items-center justify-center bg-brand text-[8px] font-semibold text-white">
+                  D
+                </span>
+                <span className="text-[10px] font-medium text-muted-foreground">
+                  Dario · Participant
+                </span>
+              </span>
               <p className="border border-border bg-muted/40 px-3 py-2">
                 {!still && phase === "thinking" ? (
                   <span className="inline-flex gap-1">
@@ -193,7 +206,7 @@ export function HeroDemo({ className }: { className?: string }) {
           ))}
         </span>
         <span className="caps text-muted-foreground">
-          {speaking ? "Speaking..." : "Listening"}
+          {speaking ? "Dario is speaking..." : "Listening"}
         </span>
       </div>
     </div>

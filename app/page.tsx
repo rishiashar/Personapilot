@@ -110,9 +110,6 @@ export default function HomePage() {
               See how it works
             </a>
           </div>
-          <p className="mt-8 text-[13px] text-muted-foreground">
-            Free. No account. Sessions stay in your browser.
-          </p>
           <HeroDemo className="mt-14 w-full max-w-2xl text-left sm:mt-16" />
         </section>
 

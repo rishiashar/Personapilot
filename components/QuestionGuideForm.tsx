@@ -99,10 +99,6 @@ export function QuestionGuideForm({
     <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
       <div>
         <h2 className="caps">Question guide</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Optional. The questions you plan to ask, shown beside the interview
-          room so you can read while you talk.
-        </p>
       </div>
 
       <div className="grid gap-6">
@@ -203,10 +199,6 @@ export function QuestionGuideForm({
             value={value}
             onChange={(e) => onChange(e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
-            You can ask anything during the interview. This list is a script
-            to glance at, not a cage.
-          </p>
         </div>
       </div>
     </section>

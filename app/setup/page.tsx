@@ -45,20 +45,17 @@ const STEP_META = [
   {
     label: "Research context",
     title: "What are you studying?",
-    description:
-      "The goal and product context shape how the participant answers. A project name is enough to move on.",
+    description: "A project name is enough to move on.",
   },
   {
     label: "Participant",
     title: "Who are you interviewing?",
-    description:
-      "The richer the persona, the more believable the answers. Start with a name and add detail as you go.",
+    description: "The richer the persona, the more believable the answers.",
   },
   {
     label: "Question guide",
     title: "What will you ask?",
-    description:
-      "Optional. Type your questions or import them from a document; they stay visible during the interview.",
+    description: "Optional. Your questions stay visible during the interview.",
   },
 ] as const;
 
@@ -217,7 +214,7 @@ export default function SetupPage() {
                 <span
                   key={item.label}
                   className={cn(
-                    "h-0.5 flex-1",
+                    "h-1 flex-1",
                     index <= step ? "bg-brand" : "bg-border"
                   )}
                 />

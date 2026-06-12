@@ -90,9 +90,11 @@ export default function HomePage() {
           data-hero
           className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20"
         >
-          <h1 className="animate-rise max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
-            Practice your user interviews{" "}
-            <span className="relative inline-block whitespace-nowrap text-brand">
+          <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
+            <span className="animate-hero-line inline-block">
+              Practice your user interviews
+            </span>{" "}
+            <span className="animate-hero-line relative inline-block whitespace-nowrap text-brand [animation-delay:140ms]">
               before they count.
               <svg
                 aria-hidden
@@ -107,17 +109,17 @@ export default function HomePage() {
                   strokeWidth="5"
                   strokeLinecap="round"
                   pathLength="1"
-                  className="animate-underline-draw"
+                  className="animate-underline-draw [animation-delay:850ms]"
                 />
               </svg>
             </span>
           </h1>
-          <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
+          <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:320ms]">
             ProbeRoom gives you an AI participant to interview out loud. Ask
             your questions, hear answers in a real voice, and find out which
             questions work before you sit down with a real person.
           </p>
-          <div className="animate-rise mt-10 flex flex-wrap items-center justify-center gap-6 [animation-delay:220ms]">
+          <div className="animate-rise mt-10 flex flex-wrap items-center justify-center gap-6 [animation-delay:440ms]">
             <Button
               size="lg"
               className="h-12 px-7 text-[15px] hover:bg-brand"
@@ -133,7 +135,7 @@ export default function HomePage() {
               See how it works
             </a>
           </div>
-          <HeroDemo className="animate-rise mt-14 w-full max-w-2xl text-left [animation-delay:340ms] sm:mt-16" />
+          <HeroDemo className="animate-rise mt-14 w-full max-w-2xl text-left [animation-delay:560ms] sm:mt-16" />
         </section>
 
         {/* Feature cards */}

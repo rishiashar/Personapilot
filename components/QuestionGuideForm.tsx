@@ -98,9 +98,7 @@ export function QuestionGuideForm({
   return (
     <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">
-          Question guide
-        </h2>
+        <h2 className="caps">Question guide</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Optional. The questions you plan to ask, shown beside the interview
           room so you can read while you talk.

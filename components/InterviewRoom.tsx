@@ -36,7 +36,7 @@ function RailSection({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-muted/60"
+        className="flex min-h-12 w-full items-center justify-between gap-2 px-4 py-2 text-left transition-colors hover:bg-muted/60"
       >
         <h2 className="caps">{title}</h2>
         <span className="flex items-center gap-2">
@@ -69,7 +69,7 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
+      <div className="flex min-h-12 items-center justify-between gap-2 border-b border-border px-4 py-2">
         <h2 className="caps">Questions</h2>
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {asked.size}/{questions.length}
@@ -394,7 +394,7 @@ export function InterviewRoom({
 
         {/* Center: voice-first interview (text fallback under a toggle) */}
         <section className="flex min-h-[60vh] flex-col lg:min-h-0">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
+          <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2 sm:px-5">
             <h2 className="caps">Interview</h2>
             <div className="flex flex-wrap items-center gap-1.5">
               <Tag

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 import { ParticipantCard } from "@/components/ParticipantCard";
+import { Reveal } from "@/components/landing/Reveal";
 import { Tag, type TagTone } from "@/components/Tag";
 import { Button } from "@/components/ui/button";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
@@ -332,13 +333,13 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-5 py-12 sm:px-8 sm:py-14">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="animate-rise mx-auto flex max-w-2xl flex-col items-center text-center">
         <div>
           <p className="caps text-muted-foreground">Summary</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] sm:text-[2.6rem]">
             Session summary
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
             <Tag tone={isActive ? "ink" : "neutral"}>
               {isActive ? "Active session" : "Completed"}
             </Tag>
@@ -352,7 +353,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
                   : "Baseline feedback"}
             </Tag>
           </div>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
             {isAnalyzing ? (
               "Analyzing your interview transcript…"
             ) : (
@@ -370,7 +371,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
             )}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-7 flex flex-wrap justify-center gap-2">
           <Button
             className="hover:bg-brand"
             onClick={generateAnalysis}
@@ -407,12 +408,13 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       </div>
 
       {error ? (
-        <p className="text-sm text-muted-foreground" role="status">
+        <p className="text-center text-sm text-muted-foreground" role="status">
           {error}
         </p>
       ) : null}
 
       {/* At a glance: verdict, feedback mix, raw numbers */}
+      <Reveal>
       <div className="grid border border-foreground max-lg:divide-y lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x divide-foreground">
         <div className={`flex flex-col justify-between gap-6 p-6 sm:p-7 ${verdict.wash}`}>
           <div>
@@ -442,11 +444,15 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
           ))}
         </dl>
       </div>
+      </Reveal>
 
       {analysis.exchanges && analysis.exchanges.length > 0 ? (
-        <ExchangeBreakdown exchanges={analysis.exchanges} />
+        <Reveal>
+          <ExchangeBreakdown exchanges={analysis.exchanges} />
+        </Reveal>
       ) : null}
 
+      <Reveal>
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">
           <AnalysisSection
@@ -488,6 +494,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
           />
         </div>
       </div>
+      </Reveal>
     </div>
   );
 }

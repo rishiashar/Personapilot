@@ -6,10 +6,10 @@ import type {
 } from "@/lib/types";
 
 const KEYS = {
-  persona: "personapilot:currentPersona",
-  researchContext: "personapilot:currentResearchContext",
-  session: "personapilot:currentSession",
-  analysis: "personapilot:currentSessionAnalysis",
+  persona: "proberoom:currentPersona",
+  researchContext: "proberoom:currentResearchContext",
+  session: "proberoom:currentSession",
+  analysis: "proberoom:currentSessionAnalysis",
 } as const;
 
 /**

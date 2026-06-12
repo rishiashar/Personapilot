@@ -113,7 +113,7 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
-            PersonaPilot gives you an AI participant to interview out loud. Ask
+            ProbeRoom gives you an AI participant to interview out loud. Ask
             your questions, hear answers in a real voice, and find out which
             questions work before you sit down with a real person.
           </p>
@@ -246,14 +246,14 @@ export default function HomePage() {
                 </p>
                 <p>
                   Real interviews are still the source of truth, and nothing
-                  here replaces them. PersonaPilot is the practice space
+                  here replaces them. ProbeRoom is the practice space
                   before that moment, so you find the right door before you
                   are in the room with a real person.
                 </p>
               </div>
               <p className="mt-8 text-[14px] font-medium">
                 Rishi Ashar
-                <span className="text-muted-foreground"> · Maker of PersonaPilot</span>
+                <span className="text-muted-foreground"> · Maker of ProbeRoom</span>
               </p>
               </Reveal>
             </div>
@@ -274,7 +274,7 @@ export default function HomePage() {
               deserves a rehearsal.
             </p>
             <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-background/65">
-              PersonaPilot will not do your research for you. It makes sure
+              ProbeRoom will not do your research for you. It makes sure
               that when you sit down with a real person, every question you
               ask is worth their time.
             </p>

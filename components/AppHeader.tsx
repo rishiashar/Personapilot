@@ -58,7 +58,7 @@ export function AppHeader({
         <Link href="/" className="flex items-center gap-2.5">
           <VoiceMark />
           <span className="text-[15px] font-semibold tracking-tight">
-            PersonaPilot
+            ProbeRoom
           </span>
         </Link>
 

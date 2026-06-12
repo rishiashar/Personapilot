@@ -216,24 +216,25 @@ export function isElevenLabsConfigured(): boolean {
 }
 
 /**
- * Synthesizes speech for the given text using ElevenLabs and returns the raw
- * MP3 audio. Throws when no key is configured or the request fails so the
- * caller can fall back to a text-only response.
+ * Synthesizes speech for the given text using ElevenLabs and returns the MP3
+ * audio as a stream so the caller can forward bytes to the client as they
+ * arrive instead of buffering the whole file. Throws when no key is configured
+ * or the request fails so the caller can fall back to a text-only response.
  */
-export async function synthesizeSpeech({
+export async function synthesizeSpeechStream({
   text,
   voiceId,
 }: {
   text: string;
   voiceId: string;
-}): Promise<ArrayBuffer> {
+}): Promise<ReadableStream<Uint8Array>> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
     throw new Error("ELEVENLABS_API_KEY is not configured.");
   }
 
   const res = await fetch(
-    `${ELEVENLABS_TTS_ENDPOINT}/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`,
+    `${ELEVENLABS_TTS_ENDPOINT}/${encodeURIComponent(voiceId)}/stream?output_format=mp3_44100_128`,
     {
       method: "POST",
       headers: {
@@ -248,12 +249,12 @@ export async function synthesizeSpeech({
     }
   );
 
-  if (!res.ok) {
+  if (!res.ok || !res.body) {
     const detail = await res.text().catch(() => "");
     throw new Error(
       `ElevenLabs request failed: ${res.status} ${res.statusText} ${detail}`.trim()
     );
   }
 
-  return res.arrayBuffer();
+  return res.body;
 }

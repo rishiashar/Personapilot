@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { DEFAULT_ELEVENLABS_VOICE_ID } from "@/lib/ai-config";
 import {
   isElevenLabsConfigured,
-  synthesizeSpeech,
+  synthesizeSpeechStream,
 } from "@/lib/elevenlabs";
 
 export const runtime = "nodejs";
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     DEFAULT_ELEVENLABS_VOICE_ID;
 
   try {
-    const audio = await synthesizeSpeech({ text, voiceId });
+    const audio = await synthesizeSpeechStream({ text, voiceId });
     return new NextResponse(audio, {
       status: 200,
       headers: {

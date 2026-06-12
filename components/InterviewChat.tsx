@@ -32,7 +32,7 @@ function VoiceControl({
   if (state.status === "error") {
     return (
       <span className="text-xs text-muted-foreground">
-        Voice unavailable — showing the text response.
+        Voice unavailable. Showing the text response.
       </span>
     );
   }

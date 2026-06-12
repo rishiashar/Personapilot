@@ -58,12 +58,10 @@ function MockTag({
   );
 }
 
-const DEPTH_LEVELS = ["Tasks", "Habits", "Feelings", "Identity"] as const;
-
 /**
- * Depth chart for the story section: two questions from the same study drop
- * plumb lines into the conversation. The functional question stops at the
- * first layer; the reworded one reaches identity.
+ * The "rewrite moment" from the story: the original interview script question
+ * crossed out and rewritten, then the answer each version actually got, with
+ * the insight phrases highlighted the way a researcher marks a transcript.
  */
 export function QuestionShiftMockup({ className }: { className?: string }) {
   return (
@@ -75,83 +73,63 @@ export function QuestionShiftMockup({ className }: { className?: string }) {
       )}
     >
       <div className="flex items-center justify-between border-b border-foreground px-4 py-2">
-        <span className="caps">How deep the answers went</span>
-        <span className="caps text-muted-foreground">Same study</span>
+        <span className="caps">Interview script · Question 4</span>
+        <span className="caps text-muted-foreground">The rewrite</span>
       </div>
 
-      {/* The two questions */}
-      <div className="grid grid-cols-[1fr_minmax(64px,96px)_1fr] text-[11px]">
-        <div className="flex flex-col items-center gap-2 p-4 text-center">
-          <MockTag tone="neutral">Asked first</MockTag>
-          <p className="max-w-52 leading-snug font-medium">
+      <div className="grid divide-y divide-foreground/15 text-[12px] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        {/* Before */}
+        <div className="space-y-3 p-5">
+          <MockTag tone="neutral">What the script said</MockTag>
+          <p className="text-[14px] leading-snug font-medium text-muted-foreground line-through decoration-foreground/50">
             Which links do you open in the app?
           </p>
+          <div className="space-y-1.5">
+            <p className="caps text-[9px] text-muted-foreground">
+              What it got back
+            </p>
+            <p className="leading-relaxed text-muted-foreground">
+              &ldquo;Mostly the library page. Sometimes the shuttle
+              schedule.&rdquo;
+            </p>
+          </div>
+          <MockTag tone="amber">Nothing to act on</MockTag>
         </div>
-        <div />
-        <div className="flex flex-col items-center gap-2 p-4 text-center">
-          <MockTag tone="blue">Asked instead</MockTag>
-          <p className="max-w-52 leading-snug font-medium">
+
+        {/* After */}
+        <div className="relative space-y-3 p-5">
+          <span
+            aria-hidden
+            className="absolute inset-y-0 left-0 w-0.5 bg-brand sm:w-[3px]"
+          />
+          <MockTag tone="blue">Rewritten mid-study</MockTag>
+          <p className="text-[14px] leading-snug font-medium">
             When do you feel connected to UofT?
           </p>
+          <div className="space-y-1.5">
+            <p className="caps text-[9px] text-muted-foreground">
+              What it got back
+            </p>
+            <p className="leading-relaxed">
+              &ldquo;Honestly?{" "}
+              <mark className="bg-wash-blue px-0.5 text-foreground">
+                During convocation season.
+              </mark>{" "}
+              The rest of the year it feels like{" "}
+              <mark className="bg-wash-blue px-0.5 text-foreground">
+                a place I commute to, not a place I belong to
+              </mark>
+              .&rdquo;
+            </p>
+          </div>
+          <MockTag tone="green">Real insight</MockTag>
         </div>
       </div>
 
-      {/* Depth strata */}
-      <div>
-        {DEPTH_LEVELS.map((label, i) => {
-          const isFirst = i === 0;
-          const isLast = i === DEPTH_LEVELS.length - 1;
-          return (
-            <div
-              key={label}
-              className="grid grid-cols-[1fr_minmax(64px,96px)_1fr] border-t border-dashed border-foreground/20"
-            >
-              {/* Functional question: stops at the surface */}
-              <div className="flex min-h-14 flex-col items-center">
-                {isFirst ? (
-                  <>
-                    <span className="h-3 w-px bg-foreground/40" />
-                    <span className="size-2 bg-foreground/40" />
-                    <span className="mt-2 mb-1">
-                      <MockTag tone="amber">Surface level</MockTag>
-                    </span>
-                    <p className="max-w-48 px-3 pb-3 text-center text-[10px] leading-snug text-muted-foreground">
-                      &ldquo;Mostly the library page. Sometimes the shuttle
-                      schedule.&rdquo;
-                    </p>
-                  </>
-                ) : null}
-              </div>
-
-              {/* Depth label */}
-              <div className="flex min-h-14 items-center justify-center">
-                <span className="caps text-[9px] text-muted-foreground">
-                  {label}
-                </span>
-              </div>
-
-              {/* Reworded question: drops all the way down */}
-              <div className="flex min-h-14 flex-col items-center">
-                {isLast ? (
-                  <>
-                    <span className="h-3 w-0.5 bg-brand" />
-                    <span className="size-2 bg-brand" />
-                    <span className="mt-2 mb-1">
-                      <MockTag tone="green">Real insight</MockTag>
-                    </span>
-                    <p className="max-w-56 px-3 pb-3 text-center text-[10px] leading-snug text-muted-foreground">
-                      &ldquo;During convocation season. The rest of the year it
-                      feels like a place I commute to, not a place I belong
-                      to.&rdquo;
-                    </p>
-                  </>
-                ) : (
-                  <span className="w-0.5 flex-1 bg-brand" />
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="border-t border-foreground/15 px-5 py-2.5">
+        <p className="text-[11px] text-muted-foreground">
+          Same participant, same study. Only the question changed.
+        </p>
       </div>
     </div>
   );

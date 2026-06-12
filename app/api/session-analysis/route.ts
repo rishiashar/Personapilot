@@ -5,6 +5,9 @@ import { SESSION_ANALYSIS_MODEL } from "@/lib/ai-config";
 import { getOpenAIClient } from "@/lib/openai";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
 import type {
+  AnswerKind,
+  ExchangeInsight,
+  GoalAlignment,
   InterviewMessage,
   InterviewSession,
   Persona,
@@ -36,12 +39,18 @@ Do not be overly polite.
 Be clear, practical, and specific.
 Reference the actual transcript when possible (quote or paraphrase the researcher's questions).
 
-Return structured JSON only with these keys, each an array of short strings written for a UX researcher:
+Return structured JSON only with these keys. The first five are arrays of short strings written for a UX researcher:
 strongQuestions
 weakQuestions
 missedFollowUps
 suggestedImprovements
-nextInterviewTips`;
+nextInterviewTips
+
+Also include "exchanges": an array with one object per researcher question, in transcript order. Each object maps a question to what it actually got the researcher:
+- question: the researcher's question, quoted or lightly trimmed
+- answerKind: one of "story" (concrete recent example), "factual" (practical detail, no story), "opinion" (feelings or judgements), "vague" (generic or asked for clarification), "yes_no" (closed answer)
+- whatYouLearned: one plain sentence on what information that answer actually gave the researcher, or why it gave none
+- alignment: "on_goal" | "partial" | "off_goal" for how well that information serves the research goal and key learning goals`;
 
 function buildTranscript(messages: InterviewMessage[]): string {
   return messages
@@ -75,6 +84,43 @@ function toStringArray(value: unknown): string[] {
     .filter((v) => v.length > 0);
 }
 
+const ANSWER_KINDS: ReadonlySet<string> = new Set([
+  "story",
+  "factual",
+  "opinion",
+  "vague",
+  "yes_no",
+]);
+const ALIGNMENTS: ReadonlySet<string> = new Set([
+  "on_goal",
+  "partial",
+  "off_goal",
+]);
+
+function toExchanges(value: unknown): ExchangeInsight[] {
+  if (!Array.isArray(value)) return [];
+  const exchanges: ExchangeInsight[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object") continue;
+    const obj = entry as Record<string, unknown>;
+    const question =
+      typeof obj.question === "string" ? obj.question.trim() : "";
+    const whatYouLearned =
+      typeof obj.whatYouLearned === "string" ? obj.whatYouLearned.trim() : "";
+    const answerKind =
+      typeof obj.answerKind === "string" && ANSWER_KINDS.has(obj.answerKind)
+        ? (obj.answerKind as AnswerKind)
+        : null;
+    const alignment =
+      typeof obj.alignment === "string" && ALIGNMENTS.has(obj.alignment)
+        ? (obj.alignment as GoalAlignment)
+        : null;
+    if (!question || !whatYouLearned || !answerKind || !alignment) continue;
+    exchanges.push({ question, answerKind, whatYouLearned, alignment });
+  }
+  return exchanges;
+}
+
 function parseAnalysis(raw: string): SessionAnalysis | null {
   let parsed: unknown;
   try {
@@ -90,6 +136,7 @@ function parseAnalysis(raw: string): SessionAnalysis | null {
     missedFollowUps: toStringArray(obj.missedFollowUps),
     suggestedImprovements: toStringArray(obj.suggestedImprovements),
     nextInterviewTips: toStringArray(obj.nextInterviewTips),
+    exchanges: toExchanges(obj.exchanges),
   };
   // Require at least some content so we don't surface an empty report.
   const total =
@@ -147,7 +194,7 @@ export async function POST(request: Request) {
     const completion = await client.chat.completions.create({
       model: SESSION_ANALYSIS_MODEL,
       messages: chatMessages,
-      max_completion_tokens: 900,
+      max_completion_tokens: 1400,
       response_format: { type: "json_object" },
     });
 

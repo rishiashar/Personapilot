@@ -9,7 +9,13 @@ import { Tag, type TagTone } from "@/components/Tag";
 import { Button } from "@/components/ui/button";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
 import { getSessionAnalysis, saveSessionAnalysis } from "@/lib/localStorage";
-import type { InterviewSession, SessionAnalysis } from "@/lib/types";
+import type {
+  AnswerKind,
+  ExchangeInsight,
+  GoalAlignment,
+  InterviewSession,
+  SessionAnalysis,
+} from "@/lib/types";
 
 function AnalysisSection({
   title,
@@ -161,6 +167,69 @@ function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
         ))}
       </div>
     </div>
+  );
+}
+
+const ANSWER_KIND_LABEL: Record<AnswerKind, { label: string; tone: TagTone }> =
+  {
+    story: { label: "Concrete story", tone: "green" },
+    factual: { label: "Factual detail", tone: "blue" },
+    opinion: { label: "Opinion", tone: "neutral" },
+    vague: { label: "Vague answer", tone: "yellow" },
+    yes_no: { label: "Yes or no", tone: "red" },
+  };
+
+const ALIGNMENT_LABEL: Record<GoalAlignment, { label: string; tone: TagTone }> =
+  {
+    on_goal: { label: "On goal", tone: "green" },
+    partial: { label: "Partial", tone: "yellow" },
+    off_goal: { label: "Off goal", tone: "red" },
+  };
+
+// The core loop of the tool: question in, answer type out. Shows whether each
+// question is actually producing the information the study is after.
+function ExchangeBreakdown({ exchanges }: { exchanges: ExchangeInsight[] }) {
+  return (
+    <section id="question-by-question" className="scroll-mt-24">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-base font-semibold tracking-tight">
+          Question by question
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          What each question got you, and whether it serves your goal.
+        </p>
+      </div>
+      <ol className="mt-4 divide-y divide-border border border-foreground bg-card">
+        {exchanges.map((exchange, index) => {
+          const kind = ANSWER_KIND_LABEL[exchange.answerKind];
+          const alignment = ALIGNMENT_LABEL[exchange.alignment];
+          return (
+            <li
+              key={index}
+              className="grid grid-cols-[24px_minmax(0,1fr)] gap-2 px-4 py-3.5 sm:px-5"
+            >
+              <span className="pt-px font-mono text-xs text-muted-foreground/80">
+                {index + 1}
+              </span>
+              <div className="min-w-0 space-y-1.5">
+                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+                  <p className="min-w-0 text-sm leading-relaxed font-medium">
+                    {exchange.question}
+                  </p>
+                  <span className="flex shrink-0 gap-1.5">
+                    <Tag tone={kind.tone}>{kind.label}</Tag>
+                    <Tag tone={alignment.tone}>{alignment.label}</Tag>
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {exchange.whatYouLearned}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
 
@@ -373,6 +442,10 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
           ))}
         </dl>
       </div>
+
+      {analysis.exchanges && analysis.exchanges.length > 0 ? (
+        <ExchangeBreakdown exchanges={analysis.exchanges} />
+      ) : null}
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">

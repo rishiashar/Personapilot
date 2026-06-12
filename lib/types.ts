@@ -47,10 +47,26 @@ export interface InterviewSession {
   endedAt?: string;
 }
 
+/** The kind of answer a question produced. */
+export type AnswerKind = "story" | "factual" | "opinion" | "vague" | "yes_no";
+
+/** How well the information an answer produced serves the research goal. */
+export type GoalAlignment = "on_goal" | "partial" | "off_goal";
+
+/** One question/answer pair mapped to what it actually got the researcher. */
+export interface ExchangeInsight {
+  question: string;
+  answerKind: AnswerKind;
+  whatYouLearned: string;
+  alignment: GoalAlignment;
+}
+
 export interface SessionAnalysis {
   strongQuestions: string[];
   weakQuestions: string[];
   missedFollowUps: string[];
   suggestedImprovements: string[];
   nextInterviewTips: string[];
+  /** Optional: absent on analyses saved before this field existed. */
+  exchanges?: ExchangeInsight[];
 }

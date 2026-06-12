@@ -261,7 +261,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
           <AnalysisSection
             title="Missed follow-ups"
             tag="Follow-up"
-            tagTone="neutral"
+            tagTone="red"
             items={analysis.missedFollowUps}
           />
           <AnalysisSection

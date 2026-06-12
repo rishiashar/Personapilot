@@ -234,6 +234,7 @@ export function InterviewChat({
           <Button
             type="submit"
             size="lg"
+            className="hover:bg-brand"
             disabled={disabled || isGenerating || draft.trim().length === 0}
           >
             Send

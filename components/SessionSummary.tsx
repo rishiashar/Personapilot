@@ -281,7 +281,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         <div>
           <ParticipantCard
             persona={session.persona}
-            className="border border-border"
+            className="border border-foreground"
           />
         </div>
       </div>

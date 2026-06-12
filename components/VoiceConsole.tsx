@@ -103,10 +103,10 @@ export function VoiceConsole({
             disabled={micDisabled}
             aria-label={isRecording ? "Stop recording" : "Start recording"}
             className={cn(
-              "relative size-24 rounded-full text-white transition-colors duration-150 active:scale-[0.97]",
+              "relative size-24 rounded-full transition-colors duration-150 active:scale-[0.97]",
               isRecording
-                ? "bg-destructive hover:bg-destructive/90"
-                : "bg-foreground hover:bg-brand"
+                ? "bg-destructive text-white hover:bg-destructive/90"
+                : "bg-foreground text-background hover:bg-brand hover:text-brand-foreground"
             )}
           >
             {isRecording ? (

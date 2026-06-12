@@ -29,7 +29,7 @@ function StepIndicator({ current }: { current: AppStep }) {
               className={cn(
                 "border-b-2 pb-0.5 text-[13px] font-medium transition-colors",
                 isActive
-                  ? "border-brand text-foreground"
+                  ? "border-foreground text-foreground"
                   : isDone
                     ? "border-transparent text-foreground/60"
                     : "border-transparent text-muted-foreground/60"

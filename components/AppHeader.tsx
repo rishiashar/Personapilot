@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HeaderCta } from "@/components/landing/HeaderCta";
 import { VoiceMark } from "@/components/Waveform";
 import { cn } from "@/lib/utils";
 
@@ -61,13 +62,7 @@ export function AppHeader({
           </span>
         </Link>
 
-        {step ? (
-          <StepIndicator current={step} />
-        ) : (
-          <span className="text-[13px] font-medium text-muted-foreground">
-            {mode}
-          </span>
-        )}
+        {step ? <StepIndicator current={step} /> : <HeaderCta mode={mode} />}
       </div>
     </header>
   );

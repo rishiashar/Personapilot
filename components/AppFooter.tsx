@@ -6,7 +6,7 @@ export function AppFooter() {
           PersonaPilot. A rehearsal tool for UX research.
         </p>
         <p className="text-[13px] text-muted-foreground">
-          Sessions stay in your browser.
+          Made by <span className="font-medium text-foreground">Rishi Ashar</span>
         </p>
       </div>
     </footer>

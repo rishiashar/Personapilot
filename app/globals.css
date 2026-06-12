@@ -194,6 +194,19 @@
   }
 }
 
+@keyframes hero-line {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -227,6 +240,10 @@
     animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .animate-hero-line {
+    animation: hero-line 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .animate-spectrum-sweep {
     animation: spectrum-sweep 3s linear infinite;
   }
@@ -246,6 +263,7 @@
   .animate-wavebar,
   .animate-hero-enter,
   .animate-rise,
+  .animate-hero-line,
   .animate-spectrum-sweep {
     animation: none;
   }

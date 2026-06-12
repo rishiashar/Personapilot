@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { QuestionShiftMockup } from "@/components/landing/ScreenMockups";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
+import { Reveal } from "@/components/landing/Reveal";
 import { Button } from "@/components/ui/button";
 import { Waveform } from "@/components/Waveform";
 import { cn } from "@/lib/utils";
@@ -86,15 +87,15 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20">
-          <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
+          <h1 className="animate-rise max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
             Practice your user interviews before they count.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
             PersonaPilot gives you an AI participant to interview out loud. Ask
             your questions, hear answers in a real voice, and find out which
             questions work before you sit down with a real person.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
+          <div className="animate-rise mt-10 flex flex-wrap items-center justify-center gap-6 [animation-delay:220ms]">
             <Button
               size="lg"
               className="h-12 px-7 text-[15px] hover:bg-brand"
@@ -110,22 +111,22 @@ export default function HomePage() {
               See how it works
             </a>
           </div>
-          <HeroDemo className="mt-14 w-full max-w-2xl text-left sm:mt-16" />
+          <HeroDemo className="animate-rise mt-14 w-full max-w-2xl text-left [animation-delay:340ms] sm:mt-16" />
         </section>
 
         {/* Feature cards */}
         <section id="features" className="border-t border-foreground">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-          <p className="caps text-muted-foreground">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
-            Set up, interview, get graded
-          </h2>
+          <Reveal>
+            <p className="caps text-muted-foreground">How it works</p>
+            <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+              Set up, interview, get graded
+            </h2>
+          </Reveal>
           <div className="mt-12 space-y-10 sm:space-y-14">
             {FEATURES.map((feature) => (
-              <article
-                key={feature.tag}
-                className="grid border border-foreground bg-card lg:grid-cols-2"
-              >
+              <Reveal key={feature.tag}>
+              <article className="grid border border-foreground bg-card transition-shadow duration-300 hover:shadow-[8px_8px_0_0_var(--foreground)] lg:grid-cols-2">
                 <div
                   className={cn(
                     "flex flex-col justify-center p-7 sm:p-10",
@@ -164,6 +165,7 @@ export default function HomePage() {
                   {feature.mockup}
                 </div>
               </article>
+              </Reveal>
             ))}
           </div>
           </div>
@@ -173,10 +175,13 @@ export default function HomePage() {
         <section id="story" className="border-t border-foreground bg-muted/30">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <div className="max-w-3xl">
-              <p className="caps text-muted-foreground">Why this exists</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
-                The questions were the problem
-              </h2>
+              <Reveal>
+                <p className="caps text-muted-foreground">Why this exists</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+                  The questions were the problem
+                </h2>
+              </Reveal>
+              <Reveal delay={100}>
               <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
                 <p>
                   During my capstone project at the University of Toronto, my
@@ -201,9 +206,13 @@ export default function HomePage() {
                   questions were different.
                 </p>
               </div>
+              </Reveal>
+              <Reveal>
               <div className="mt-10">
                 <QuestionShiftMockup className="w-full" />
               </div>
+              </Reveal>
+              <Reveal>
               <div className="mt-12 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
                 <p>
                   That is the lesson behind this tool:{" "}
@@ -224,6 +233,7 @@ export default function HomePage() {
                 Rishi Ashar
                 <span className="text-muted-foreground"> · Maker of PersonaPilot</span>
               </p>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -231,6 +241,7 @@ export default function HomePage() {
         {/* Closing CTA */}
         <section className="border-t border-foreground bg-foreground text-background">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 py-20 text-center sm:px-8 sm:py-28">
+            <Reveal className="flex w-full flex-col items-center">
             <Waveform count={42} maxHeight={26} className="w-full max-w-xs" />
             <span className="caps mt-10 text-background/50">
               One last question
@@ -255,6 +266,7 @@ export default function HomePage() {
                 Start a rehearsal
               </Button>
             </div>
+            </Reveal>
           </div>
         </section>
       </main>

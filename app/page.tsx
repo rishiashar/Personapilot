@@ -8,6 +8,7 @@ import {
   SetupMockup,
   SummaryMockup,
 } from "@/components/landing/ScreenMockups";
+import { HeroDemo } from "@/components/landing/HeroDemo";
 import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -61,8 +62,9 @@ export default function HomePage() {
       <AppHeader mode="Beta" />
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto w-full max-w-6xl px-5 pt-20 pb-16 sm:px-8 sm:pt-28 sm:pb-24">
-          <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-7xl">
+        <section className="mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pt-16 pb-16 sm:px-8 sm:pt-24 sm:pb-24 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+          <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
             Practice your user interviews before they count.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
@@ -89,6 +91,8 @@ export default function HomePage() {
           <p className="mt-8 text-[13px] text-muted-foreground">
             Free. No account. Sessions stay in your browser.
           </p>
+          </div>
+          <HeroDemo className="w-full max-w-lg justify-self-center lg:justify-self-end" />
         </section>
 
         {/* Waveform band */}

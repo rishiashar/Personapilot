@@ -23,10 +23,12 @@ function AnalysisSection({
   items: string[];
 }) {
   return (
-    <section className="border-t border-foreground pt-5 pb-2">
+    <section id={sectionId(title)} className="scroll-mt-24 border-t border-foreground pt-5 pb-2">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-base font-semibold tracking-tight">{title}</h3>
-        <Tag tone={tagTone}>{tag}</Tag>
+        <Tag tone={tagTone}>
+          {tag} · {items.length}
+        </Tag>
       </div>
       {items.length > 0 ? (
         <ol className="mt-4 space-y-3">
@@ -48,6 +50,117 @@ function AnalysisSection({
         </p>
       )}
     </section>
+  );
+}
+
+function sectionId(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+type Verdict = {
+  label: string;
+  takeaway: string;
+  wash: string;
+};
+
+// One glanceable judgement derived from the balance of coaching feedback:
+// what went well (strong questions) versus what needs attention (weak
+// questions and missed follow-ups).
+function getVerdict(analysis: SessionAnalysis): Verdict {
+  const good = analysis.strongQuestions.length;
+  const bad = analysis.weakQuestions.length + analysis.missedFollowUps.length;
+
+  if (good > 0 && good >= bad) {
+    return {
+      label: "Strong session",
+      takeaway:
+        "Your questioning carried this interview. Skim the follow-ups below to sharpen the edges.",
+      wash: "bg-wash-green text-wash-green-fg",
+    };
+  }
+  if (good > 0) {
+    return {
+      label: "Mixed session",
+      takeaway:
+        "Some questions landed, but missed follow-ups and weak phrasing left insights on the table.",
+      wash: "bg-wash-amber text-wash-amber-fg",
+    };
+  }
+  return {
+    label: "Needs work",
+    takeaway:
+      "This one was rough. Start with the suggested improvements, then rerun the rehearsal.",
+    wash: "bg-wash-red text-wash-red-fg",
+  };
+}
+
+const GLANCE_SEGMENTS = [
+  {
+    key: "strongQuestions",
+    label: "Strong",
+    title: "Strong questions",
+    bar: "bg-wash-green-fg",
+    chip: "bg-wash-green text-wash-green-fg",
+  },
+  {
+    key: "weakQuestions",
+    label: "Needs work",
+    title: "Weak questions",
+    bar: "bg-wash-amber-fg",
+    chip: "bg-wash-amber text-wash-amber-fg",
+  },
+  {
+    key: "missedFollowUps",
+    label: "Missed",
+    title: "Missed follow-ups",
+    bar: "bg-wash-red-fg",
+    chip: "bg-wash-red text-wash-red-fg",
+  },
+  {
+    key: "suggestedImprovements",
+    label: "Rewrites",
+    title: "Suggested improvements",
+    bar: "bg-wash-blue-fg",
+    chip: "bg-wash-blue text-wash-blue-fg",
+  },
+] as const;
+
+// Glanceable breakdown: a proportional bar of the feedback mix plus jump
+// links into each section.
+function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
+  const counts = GLANCE_SEGMENTS.map((s) => ({
+    ...s,
+    count: analysis[s.key].length,
+  }));
+  const total = counts.reduce((sum, s) => sum + s.count, 0);
+  if (total === 0) return null;
+
+  return (
+    <div>
+      <div className="flex h-2.5 w-full overflow-hidden border border-foreground" aria-hidden>
+        {counts.map((s) =>
+          s.count > 0 ? (
+            <span
+              key={s.key}
+              className={s.bar}
+              style={{ width: `${(s.count / total) * 100}%` }}
+            />
+          ) : null
+        )}
+      </div>
+      <div className="mt-2.5 flex flex-wrap gap-1.5">
+        {counts.map((s) => (
+          <a
+            key={s.key}
+            href={`#${sectionId(s.title)}`}
+            className={`inline-flex h-[22px] items-center gap-1.5 px-2 text-[10px] leading-none font-semibold tracking-[0.06em] uppercase ${s.chip}`}
+          >
+            {s.label}
+            <span className="font-mono tabular-nums">{s.count}</span>
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -146,6 +259,8 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
     },
   ];
 
+  const verdict = getVerdict(analysis);
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-5 py-12 sm:px-8 sm:py-14">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -228,21 +343,36 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
         </p>
       ) : null}
 
-      <dl className="grid grid-cols-2 border-t border-l border-foreground sm:grid-cols-4">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="border-r border-b border-foreground bg-card px-4 py-4 sm:px-5"
-          >
-            <dd className="text-3xl font-semibold tracking-tight tabular-nums">
-              {stat.value}
-            </dd>
-            <dt className="mt-1 text-xs font-medium text-muted-foreground">
-              {stat.label}
-            </dt>
+      {/* At a glance: verdict, feedback mix, raw numbers */}
+      <div className="grid border border-foreground max-lg:divide-y lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x divide-foreground">
+        <div className={`flex flex-col justify-between gap-6 p-6 sm:p-7 ${verdict.wash}`}>
+          <div>
+            <p className="caps opacity-70">At a glance</p>
+            <p className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+              {verdict.label}
+            </p>
+            <p className="mt-3 max-w-md text-sm leading-relaxed">
+              {verdict.takeaway}
+            </p>
           </div>
-        ))}
-      </dl>
+          <GlanceBar analysis={analysis} />
+        </div>
+        <dl className="grid grid-cols-2 max-lg:divide-y divide-foreground">
+          {stats.map((stat, index) => (
+            <div
+              key={stat.label}
+              className={`bg-card px-4 py-4 sm:px-5 ${index % 2 === 0 ? "border-r border-foreground" : ""} ${index < 2 ? "lg:border-b lg:border-foreground" : ""}`}
+            >
+              <dd className="text-3xl font-semibold tracking-tight tabular-nums">
+                {stat.value}
+              </dd>
+              <dt className="mt-1 text-xs font-medium text-muted-foreground">
+                {stat.label}
+              </dt>
+            </div>
+          ))}
+        </dl>
+      </div>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">

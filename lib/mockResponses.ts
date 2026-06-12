@@ -1,9 +1,4 @@
-import type {
-  InterviewSession,
-  Persona,
-  ResearchContext,
-  SessionAnalysis,
-} from "@/lib/types";
+import type { InterviewSession, SessionAnalysis } from "@/lib/types";
 
 /**
  * Temporary, rule-based participant responses for the MVP.
@@ -77,41 +72,6 @@ export function generateMockResponse(question: string, turn = 0): string {
     turn
   );
 }
-
-export const SAMPLE_PERSONA: Omit<Persona, "id" | "createdAt"> = {
-  name: "Maya Chen",
-  role: "Freelance UI designer",
-  ageRange: "28 to 32",
-  background:
-    "Has been freelancing for four years, manages three to five client projects at a time, uses a mix of Figma, Notion, and spreadsheets to track work. Based in Vancouver, works from home and coffee shops.",
-  behaviours:
-    "Checks project tools in the morning and before client calls, batches admin tasks to protect creative time, prefers visual dashboards over long text lists.",
-  goals:
-    "Wants a single place to see all active projects, track deadlines without anxiety, and spend less time on admin so more time goes to design work.",
-  frustrations:
-    "Feels scattered when project info is spread across tools, loses track of invoice dates, sometimes misses client follow-ups because nothing reminds her.",
-  voiceStyle:
-    "Friendly, direct, occasionally reflective, talks like a creative professional not a corporate manager.",
-};
-
-export const SAMPLE_RESEARCH_CONTEXT: ResearchContext = {
-  projectName: "Freelancer project management study",
-  researchGoal:
-    "Understand how freelance designers and developers manage multiple client projects, and where current tools fall short.",
-  productContext:
-    "A lightweight project management tool designed for solo freelancers who juggle several clients at once.",
-  targetAudience: "Freelance designers and developers with 2+ active clients",
-  keyLearningGoals:
-    "Discover pain points in task tracking, deadline management, and client communication across projects.",
-  questionGuide: [
-    "Walk me through how you started your week on Monday.",
-    "Tell me about the last time a deadline caught you by surprise. What happened?",
-    "How do you decide what to work on when two clients both need something today?",
-    "Where do you keep track of what you owe each client right now?",
-    "Tell me about a moment when your current setup actually failed you.",
-    "If you could see one thing at a glance every morning, what would it be?",
-  ],
-};
 
 /**
  * Placeholder session analysis for the summary page.

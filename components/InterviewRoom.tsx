@@ -314,7 +314,7 @@ export function InterviewRoom({
   return (
     <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6">
       {/* One console frame: three columns divided by rules. */}
-      <div className="grid grid-cols-1 border border-border bg-card max-lg:divide-y max-lg:divide-border lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-border">
+      <div className="grid grid-cols-1 border border-foreground bg-card max-lg:divide-y max-lg:divide-foreground lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-foreground">
         {/* Left: participant + research goal */}
         <aside className="lg:min-h-0 lg:overflow-y-auto">
           {(researchContext.questionGuide?.length ?? 0) > 0 && (

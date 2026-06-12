@@ -6,6 +6,7 @@ import { QuestionShiftMockup } from "@/components/landing/ScreenMockups";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Button } from "@/components/ui/button";
+import { Waveform } from "@/components/Waveform";
 import { cn } from "@/lib/utils";
 
 const FEATURES = [
@@ -109,9 +110,6 @@ export default function HomePage() {
               See how it works
             </a>
           </div>
-          <p className="mt-8 text-[13px] text-muted-foreground">
-            Free. No account. Sessions stay in your browser.
-          </p>
           <HeroDemo className="mt-14 w-full max-w-2xl text-left sm:mt-16" />
         </section>
 
@@ -231,14 +229,18 @@ export default function HomePage() {
         </section>
 
         {/* Closing CTA */}
-        <section className="border-t border-foreground bg-wash-blue">
-          <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-            <p className="max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance text-wash-blue-fg sm:text-5xl">
+        <section className="border-t border-foreground bg-foreground text-background">
+          <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 py-20 text-center sm:px-8 sm:py-28">
+            <Waveform count={42} maxHeight={26} className="w-full max-w-xs" />
+            <span className="caps mt-10 text-background/50">
+              One last question
+            </span>
+            <p className="mt-5 max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
               Your next real interview
               <br />
               deserves a rehearsal.
             </p>
-            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-wash-blue-fg/75">
+            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-background/65">
               PersonaPilot will not do your research for you. It makes sure
               that when you sit down with a real person, every question you
               ask is worth their time.
@@ -246,7 +248,7 @@ export default function HomePage() {
             <div className="mt-10">
               <Button
                 size="lg"
-                className="h-12 px-7 text-[15px] hover:bg-brand"
+                className="h-12 bg-background px-7 text-[15px] text-foreground hover:bg-brand hover:text-white"
                 nativeButton={false}
                 render={<Link href="/setup" />}
               >

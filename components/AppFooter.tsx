@@ -27,13 +27,19 @@ function FooterMark() {
 
 export function AppFooter() {
   return (
-    <footer className="bg-foreground text-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-5 px-5 py-12 text-center sm:px-8">
+    <footer className="overflow-hidden bg-foreground text-background">
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-5 px-5 pt-12 pb-2 text-center sm:px-8">
         <FooterMark />
         <p className="text-[13px] text-background/60">
           Made by <span className="font-medium text-background">Rishi Ashar</span>
         </p>
       </div>
+      <p
+        aria-hidden
+        className="-mb-[0.28em] text-center text-[clamp(4.5rem,16vw,15rem)] leading-none font-semibold tracking-[-0.045em] whitespace-nowrap select-none"
+      >
+        ProbeRoom
+      </p>
     </footer>
   );
 }

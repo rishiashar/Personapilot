@@ -21,6 +21,7 @@ const FEATURES = [
       "Participants with real backstories",
     ],
     gradient: "from-wash-blue via-background to-background",
+    bullet: "bg-wash-blue-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/setup"
@@ -42,6 +43,7 @@ const FEATURES = [
       "Transcript builds itself",
     ],
     gradient: "from-wash-amber via-background to-background",
+    bullet: "bg-wash-amber-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/interview"
@@ -64,6 +66,7 @@ const FEATURES = [
       "Ready-to-use rewrites",
     ],
     gradient: "from-wash-green via-background to-background",
+    bullet: "bg-wash-green-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/summary"
@@ -166,7 +169,10 @@ export default function HomePage() {
                       >
                         <span
                           aria-hidden
-                          className="mt-[5px] size-2 shrink-0 bg-brand"
+                          className={cn(
+                            "mt-[5px] size-2 shrink-0",
+                            feature.bullet,
+                          )}
                         />
                         {point}
                       </li>

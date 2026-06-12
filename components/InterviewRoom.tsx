@@ -369,7 +369,7 @@ export function InterviewRoom({
               questions={researchContext.questionGuide ?? []}
             />
           </div>
-          <div className="shrink-0">
+          <div className="lg:max-h-[55%] lg:overflow-y-auto">
             <RailSection title="Participant" defaultOpen>
               <ParticipantCard persona={persona} collapsible />
             </RailSection>

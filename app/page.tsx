@@ -2,8 +2,7 @@ import Link from "next/link";
 
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
-import { RewriteMoment } from "@/components/landing/RewriteMoment";
-import { RightDoor } from "@/components/landing/RightDoor";
+import { StoryBeats } from "@/components/landing/StoryBeats";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Reveal } from "@/components/landing/Reveal";
@@ -203,25 +202,10 @@ export default function HomePage() {
                 The questions were the problem
               </h2>
             </Reveal>
-            <div className="mx-auto max-w-3xl">
-              <Reveal delay={100}>
-              <div className="mt-6 text-center">
-                <p className="caps text-muted-foreground">
-                  University of Toronto · Capstone study
-                </p>
-                <p className="mx-auto mt-3 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
-                  My team spent a term asking students why they ignored the
-                  university&apos;s app. The answers were fine, and useless.
-                  Then we changed one question.
-                </p>
-              </div>
-              </Reveal>
-              <div className="mt-12 sm:mt-14">
-                <RewriteMoment className="w-full" />
-              </div>
+            <div className="mx-auto max-w-5xl">
+              <StoryBeats className="mt-14 sm:mt-20" />
               <Reveal>
-              <div className="mt-16 text-center sm:mt-20">
-                <RightDoor className="mb-12 sm:mb-14" />
+              <div className="mt-16 text-center sm:mt-24">
                 <p className="caps text-muted-foreground">The lesson</p>
                 <p className="mx-auto mt-4 max-w-2xl text-2xl leading-snug font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
                   Better <span className="text-brand">questions</span> create

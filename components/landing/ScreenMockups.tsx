@@ -58,29 +58,80 @@ function MockTag({
   );
 }
 
+/**
+ * The "rewrite moment" from the story: the original interview script question
+ * crossed out and rewritten, then the answer each version actually got, with
+ * the insight phrases highlighted the way a researcher marks a transcript.
+ */
 export function QuestionShiftMockup({ className }: { className?: string }) {
   return (
-    <Window label="Same study · Different questions" className={className}>
-      <div className="grid divide-y divide-foreground/15 text-[11px] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        <div className="space-y-2 p-4">
-          <MockTag tone="neutral">What we asked first</MockTag>
-          <p className="font-medium">Which links do you open in the app?</p>
-          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
-            Mostly the library page. Sometimes the shuttle schedule.
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none border border-foreground bg-background text-left select-none",
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between border-b border-foreground px-4 py-2">
+        <span className="caps">Interview script · Question 4</span>
+        <span className="caps text-muted-foreground">The rewrite</span>
+      </div>
+
+      <div className="grid divide-y divide-foreground/15 text-[12px] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        {/* Before */}
+        <div className="space-y-3 p-5">
+          <MockTag tone="neutral">What the script said</MockTag>
+          <p className="text-[14px] leading-snug font-medium text-muted-foreground line-through decoration-foreground/50">
+            Which links do you open in the app?
           </p>
-          <MockTag tone="amber">Surface level</MockTag>
+          <div className="space-y-1.5">
+            <p className="caps text-[9px] text-muted-foreground">
+              What it got back
+            </p>
+            <p className="leading-relaxed text-muted-foreground">
+              &ldquo;Mostly the library page. Sometimes the shuttle
+              schedule.&rdquo;
+            </p>
+          </div>
+          <MockTag tone="amber">Nothing to act on</MockTag>
         </div>
-        <div className="space-y-2 p-4">
-          <MockTag tone="blue">What we asked instead</MockTag>
-          <p className="font-medium">When do you feel connected to UofT?</p>
-          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
-            Honestly? During convocation season. The rest of the year it feels
-            like a place I commute to, not a place I belong to.
+
+        {/* After */}
+        <div className="relative space-y-3 p-5">
+          <span
+            aria-hidden
+            className="absolute inset-y-0 left-0 w-0.5 bg-brand sm:w-[3px]"
+          />
+          <MockTag tone="blue">Rewritten mid-study</MockTag>
+          <p className="text-[14px] leading-snug font-medium">
+            When do you feel connected to UofT?
           </p>
+          <div className="space-y-1.5">
+            <p className="caps text-[9px] text-muted-foreground">
+              What it got back
+            </p>
+            <p className="leading-relaxed">
+              &ldquo;Honestly?{" "}
+              <mark className="bg-wash-blue px-0.5 text-foreground">
+                During convocation season.
+              </mark>{" "}
+              The rest of the year it feels like{" "}
+              <mark className="bg-wash-blue px-0.5 text-foreground">
+                a place I commute to, not a place I belong to
+              </mark>
+              .&rdquo;
+            </p>
+          </div>
           <MockTag tone="green">Real insight</MockTag>
         </div>
       </div>
-    </Window>
+
+      <div className="border-t border-foreground/15 px-5 py-2.5">
+        <p className="text-[11px] text-muted-foreground">
+          Same participant, same study. Only the question changed.
+        </p>
+      </div>
+    </div>
   );
 }
 

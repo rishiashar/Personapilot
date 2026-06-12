@@ -2,14 +2,9 @@ import Link from "next/link";
 
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
-import {
-  InterviewMockup,
-  QuestionShiftMockup,
-  SetupMockup,
-  SummaryMockup,
-} from "@/components/landing/ScreenMockups";
+import { QuestionShiftMockup } from "@/components/landing/ScreenMockups";
 import { HeroDemo } from "@/components/landing/HeroDemo";
-import { Waveform } from "@/components/Waveform";
+import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +20,16 @@ const FEATURES = [
       "Participants with real backgrounds, habits, and frustrations",
     ],
     gradient: "from-wash-blue via-background to-background",
-    mockup: <SetupMockup className="w-full max-w-md" />,
+    mockup: (
+      <LiveAppFrame
+        src="/demo/setup"
+        label="Setup · Question guide"
+        frameWidth={1100}
+        frameHeight={780}
+        scale={0.46}
+        className="max-w-md"
+      />
+    ),
   },
   {
     tag: "02 · Interview",
@@ -38,7 +42,16 @@ const FEATURES = [
       "Participant details one tap away, never in your way",
     ],
     gradient: "from-wash-amber via-background to-background",
-    mockup: <InterviewMockup className="w-full max-w-lg" />,
+    mockup: (
+      <LiveAppFrame
+        src="/demo/interview"
+        label="Interview · Live"
+        frameWidth={1280}
+        frameHeight={800}
+        scale={0.42}
+        className="max-w-lg"
+      />
+    ),
     reverse: true,
   },
   {
@@ -52,7 +65,16 @@ const FEATURES = [
       "Missed follow-ups and ready-to-use rewrites",
     ],
     gradient: "from-wash-green via-background to-background",
-    mockup: <SummaryMockup className="w-full max-w-lg" />,
+    mockup: (
+      <LiveAppFrame
+        src="/demo/summary"
+        label="Summary · Question by question"
+        frameWidth={1280}
+        frameHeight={900}
+        scale={0.42}
+        className="max-w-lg"
+      />
+    ),
   },
 ];
 
@@ -95,22 +117,9 @@ export default function HomePage() {
           <HeroDemo className="w-full max-w-lg justify-self-center lg:justify-self-end" />
         </section>
 
-        {/* Waveform band */}
-        <div className="border-y border-foreground">
-          <div className="mx-auto w-full max-w-6xl px-5 py-7 sm:px-8">
-            <Waveform
-              count={96}
-              maxHeight={34}
-              className="h-12 text-foreground"
-            />
-          </div>
-        </div>
-
         {/* Feature cards */}
-        <section
-          id="features"
-          className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24"
-        >
+        <section id="features" className="border-t border-foreground">
+          <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
           <p className="caps text-muted-foreground">How it works</p>
           <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
             Set up, interview, get graded
@@ -160,6 +169,7 @@ export default function HomePage() {
                 </div>
               </article>
             ))}
+          </div>
           </div>
         </section>
 

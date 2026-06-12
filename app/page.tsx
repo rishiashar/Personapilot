@@ -6,7 +6,7 @@ import { StoryBeats } from "@/components/landing/StoryBeats";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Reveal } from "@/components/landing/Reveal";
-import { StepGlyph } from "@/components/landing/StepGlyph";
+import { StepTag } from "@/components/landing/StepTag";
 import { Button } from "@/components/ui/button";
 import { Waveform } from "@/components/Waveform";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const FEATURES = [
   {
     tag: "Set the stage",
-    glyph: <StepGlyph kind="setup" />,
+    kind: "setup" as const,
     title: "Bring your questions, or build a study in minutes",
     description:
       "Write down what you want to learn, describe the person you would interview, and add your questions. Drag in a file with your script, or pick one of six ready-made sample studies and start right away.",
@@ -37,7 +37,7 @@ const FEATURES = [
   },
   {
     tag: "Step into the room",
-    glyph: <StepGlyph kind="interview" />,
+    kind: "interview" as const,
     title: "Talk to a participant that talks back",
     description:
       "Ask your questions out loud and the participant answers in character, in their own voice. Your question list sits beside the conversation so you can tick off ground as you cover it, and the transcript builds as you go.",
@@ -61,7 +61,7 @@ const FEATURES = [
   },
   {
     tag: "Get graded",
-    glyph: <StepGlyph kind="feedback" />,
+    kind: "feedback" as const,
     title: "See what every question actually got you",
     description:
       "After the interview, every question you asked is graded by what it got back: a real story, a useful fact, just an opinion, or a flat yes or no. Weak questions get a better version you can use next time.",
@@ -159,10 +159,7 @@ export default function HomePage() {
                     feature.reverse && "lg:order-2",
                   )}
                 >
-                  <div className="flex items-center gap-4">
-                    {feature.glyph}
-                    <p className="caps text-muted-foreground">{feature.tag}</p>
-                  </div>
+                  <StepTag kind={feature.kind}>{feature.tag}</StepTag>
                   <h3 className="mt-5 text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">
                     {feature.title}
                   </h3>

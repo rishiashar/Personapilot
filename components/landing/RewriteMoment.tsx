@@ -1,8 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { cn } from "@/lib/utils";
+
+function subscribeReducedMotion(callback: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function useReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
+}
 
 function Highlight({
   children,
@@ -37,19 +51,17 @@ function Highlight({
  */
 export function RewriteMoment({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [entered, setEntered] = useState(false);
+  const [inView, setInView] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const entered = inView || reducedMotion;
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setEntered(true);
-      return;
-    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setEntered(true);
+          setInView(true);
           observer.disconnect();
         }
       },

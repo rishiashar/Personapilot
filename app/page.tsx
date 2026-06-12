@@ -86,7 +86,10 @@ export default function HomePage() {
       <AppHeader mode="Beta" />
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20">
+        <section
+          data-hero
+          className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20"
+        >
           <h1 className="animate-rise max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
             Practice your user interviews before they count.
           </h1>
@@ -117,9 +120,9 @@ export default function HomePage() {
         {/* Feature cards */}
         <section id="features" className="border-t border-foreground">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-          <Reveal>
+          <Reveal className="text-center">
             <p className="caps text-muted-foreground">How it works</p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
               Set up, interview, get graded
             </h2>
           </Reveal>
@@ -174,13 +177,13 @@ export default function HomePage() {
         {/* Story */}
         <section id="story" className="border-t border-foreground bg-muted/30">
           <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-            <div className="max-w-3xl">
-              <Reveal>
-                <p className="caps text-muted-foreground">Why this exists</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
-                  The questions were the problem
-                </h2>
-              </Reveal>
+            <Reveal className="text-center">
+              <p className="caps text-muted-foreground">Why this exists</p>
+              <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+                The questions were the problem
+              </h2>
+            </Reveal>
+            <div className="mx-auto max-w-3xl">
               <Reveal delay={100}>
               <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
                 <p>

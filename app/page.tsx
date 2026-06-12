@@ -12,16 +12,16 @@ import { cn } from "@/lib/utils";
 
 const FEATURES = [
   {
-    tag: "01 · Setup",
     title: "Bring your questions, or build a study in minutes",
     description:
-      "Write down what you want to learn, describe the person you would interview, and add your questions. Drag in a file with your script, or pick one of six ready-made sample studies and start right away.",
+      "Add your questions, drop in your script, or pick a ready-made study.",
     points: [
-      "Drag and drop your interview script: txt, md, docx",
-      "Six sample studies with matching participants",
-      "Participants with real backgrounds, habits, and frustrations",
+      "Drag and drop: txt, md, docx",
+      "Six ready-made sample studies",
+      "Participants with real backstories",
     ],
     gradient: "from-wash-blue via-background to-background",
+    bullet: "bg-wash-blue-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/setup"
@@ -34,16 +34,16 @@ const FEATURES = [
     ),
   },
   {
-    tag: "02 · Interview",
     title: "Talk to a participant that talks back",
     description:
-      "Ask your questions out loud and the participant answers in character, in their own voice. Your question list sits beside the conversation so you can tick off ground as you cover it, and the transcript builds as you go.",
+      "Ask out loud. The participant answers in character, in their own voice.",
     points: [
-      "Speak your questions, hear spoken answers",
-      "Tick off questions as you cover them",
-      "Participant details one tap away, never in your way",
+      "Speak questions, hear answers",
+      "Tick off questions as you go",
+      "Transcript builds itself",
     ],
     gradient: "from-wash-amber via-background to-background",
+    bullet: "bg-wash-amber-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/interview"
@@ -57,16 +57,16 @@ const FEATURES = [
     reverse: true,
   },
   {
-    tag: "03 · Feedback",
     title: "See what every question actually got you",
     description:
-      "After the interview, every question you asked is graded by what it got back: a real story, a useful fact, just an opinion, or a flat yes or no. Weak questions get a better version you can use next time.",
+      "Every question is graded by the answer it got back. Weak ones get a rewrite.",
     points: [
-      "Every question mapped to the answer it produced",
-      "One-look session verdict: strong, mixed, or needs work",
-      "Missed follow-ups and ready-to-use rewrites",
+      "Question-by-question grades",
+      "One-look session verdict",
+      "Ready-to-use rewrites",
     ],
     gradient: "from-wash-green via-background to-background",
+    bullet: "bg-wash-green-fg",
     mockup: (
       <LiveAppFrame
         src="/demo/summary"
@@ -147,7 +147,7 @@ export default function HomePage() {
           </Reveal>
           <div className="mt-12 space-y-10 sm:space-y-14">
             {FEATURES.map((feature) => (
-              <Reveal key={feature.tag}>
+              <Reveal key={feature.title}>
               <article className="grid border border-foreground bg-card transition-shadow duration-300 hover:shadow-[8px_8px_0_0_var(--foreground)] lg:grid-cols-2">
                 <div
                   className={cn(
@@ -155,8 +155,7 @@ export default function HomePage() {
                     feature.reverse && "lg:order-2",
                   )}
                 >
-                  <p className="caps text-muted-foreground">{feature.tag}</p>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">
+                  <h3 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">
                     {feature.title}
                   </h3>
                   <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
@@ -170,7 +169,10 @@ export default function HomePage() {
                       >
                         <span
                           aria-hidden
-                          className="mt-[5px] size-2 shrink-0 bg-brand"
+                          className={cn(
+                            "mt-[5px] size-2 shrink-0",
+                            feature.bullet,
+                          )}
                         />
                         {point}
                       </li>

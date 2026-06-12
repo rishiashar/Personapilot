@@ -6,7 +6,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1 border-t border-border pt-3">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="text-sm leading-relaxed">{value || "—"}</p>
+      <p className="text-sm leading-relaxed">{value || "Not provided"}</p>
     </div>
   );
 }

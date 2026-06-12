@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ const STEPS = [
     title: "Run the interview",
     description:
       "Ask your questions out loud with your guide beside you. The persona answers in character, in a matched voice.",
-    meta: "10–20 min",
+    meta: "10-20 min",
     icon: "/icons/interview-microphone.svg",
   },
   {
@@ -138,16 +139,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-foreground">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-9 sm:flex-row sm:items-baseline sm:justify-between sm:px-8">
-          <p className="text-[13px] font-medium">
-            PersonaPilot. A rehearsal tool for UX research.
-          </p>
-          <p className="text-[13px] text-muted-foreground">
-            Made at the University of Toronto.
-          </p>
-        </div>
-      </footer>
+      <AppFooter />
     </>
   );
 }

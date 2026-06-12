@@ -185,6 +185,15 @@
   }
 }
 
+@keyframes underline-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -208,6 +217,12 @@
   .animate-rise {
     animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+
+  .animate-underline-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: underline-draw 600ms cubic-bezier(0.22, 1, 0.36, 1) 500ms both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -219,5 +234,10 @@
   .animate-hero-enter,
   .animate-rise {
     animation: none;
+  }
+
+  .animate-underline-draw {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

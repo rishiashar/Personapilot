@@ -91,7 +91,26 @@ export default function HomePage() {
           className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20"
         >
           <h1 className="animate-rise max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
-            Practice your user interviews before they count.
+            Practice your user interviews{" "}
+            <span className="relative inline-block whitespace-nowrap text-brand">
+              before they count.
+              <svg
+                aria-hidden
+                viewBox="0 0 230 12"
+                preserveAspectRatio="none"
+                className="absolute right-0 -bottom-2 left-0 h-[0.12em] w-full"
+              >
+                <path
+                  d="M4 9 C 60 3, 160 2.5, 226 6.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  pathLength="1"
+                  className="animate-underline-draw"
+                />
+              </svg>
+            </span>
           </h1>
           <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
             PersonaPilot gives you an AI participant to interview out loud. Ask

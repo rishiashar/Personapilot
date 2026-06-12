@@ -1,11 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { AppHeader } from "@/components/AppHeader";
-import {
-  FeedbackIcon,
-  InterviewIcon,
-  SetupIcon,
-} from "@/components/SessionIcons";
 import { Waveform } from "@/components/Waveform";
 import { Button } from "@/components/ui/button";
 
@@ -15,24 +11,21 @@ const STEPS = [
     description:
       "Define your research goal, build the participant persona, and paste or upload the questions you plan to ask.",
     meta: "2 min",
-    icon: SetupIcon,
-    tile: "bg-wash-blue text-wash-blue-fg",
+    icon: "/icons/research-setup.svg",
   },
   {
     title: "Run the interview",
     description:
       "Ask your questions out loud with your guide beside you. The persona answers in character, in a matched voice.",
     meta: "10–20 min",
-    icon: InterviewIcon,
-    tile: "bg-wash-green text-wash-green-fg",
+    icon: "/icons/interview-microphone.svg",
   },
   {
     title: "Read the feedback",
     description:
       "Strong questions, weak questions, missed follow-ups, and suggested rewrites you can take into the next session.",
     meta: "Instant",
-    icon: FeedbackIcon,
-    tile: "bg-wash-amber text-wash-amber-fg",
+    icon: "/icons/read-feedback.svg",
   },
 ];
 
@@ -60,12 +53,6 @@ export default function HomePage() {
             >
               Start a rehearsal
             </Button>
-            <a
-              href="#how-it-works"
-              className="text-[15px] font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-brand hover:text-brand"
-            >
-              How it works ↓
-            </a>
           </div>
           <p className="mt-8 text-[13px] text-muted-foreground">
             Free. No account. Sessions stay in your browser.
@@ -73,7 +60,7 @@ export default function HomePage() {
         </section>
 
         {/* Waveform band */}
-        <div className="border-y border-border">
+        <div className="border-y border-foreground">
           <div className="mx-auto w-full max-w-6xl px-5 py-7 sm:px-8">
             <Waveform
               count={96}
@@ -98,9 +85,17 @@ export default function HomePage() {
                 className="flex flex-col bg-card p-6 transition-colors hover:bg-muted/50 sm:p-7"
               >
                 <span
-                  className={`flex size-11 items-center justify-center ${step.tile}`}
+                  aria-hidden
+                  className="flex size-20 items-center justify-center"
                 >
-                  <step.icon className="size-6" />
+                  <Image
+                    src={step.icon}
+                    alt=""
+                    width={80}
+                    height={80}
+                    className="size-20 object-contain"
+                    unoptimized
+                  />
                 </span>
                 <h3 className="mt-5 text-xl font-semibold tracking-tight">
                   {step.title}

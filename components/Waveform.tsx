@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
 
 const PASTEL_SPECTRUM = [
-  "#ff8fa3",
-  "#ffb169",
-  "#ffd76d",
-  "#91d989",
-  "#73c7f6",
-  "#9aa7ff",
-  "#c99bff",
-  "#ff9fd2",
+  [255, 160, 180],
+  [255, 194, 128],
+  [255, 228, 124],
+  [164, 226, 154],
+  [128, 211, 247],
+  [170, 180, 255],
+  [211, 166, 255],
+  [255, 162, 219],
 ] as const;
 
 // Deterministic bar heights so server and client render identically.
@@ -22,8 +22,16 @@ function barHeight(i: number, max: number) {
 
 function barColor(i: number, count: number) {
   const phase = i / Math.max(count - 1, 1);
-  const paletteIndex = Math.round(phase * (PASTEL_SPECTRUM.length - 1));
-  return PASTEL_SPECTRUM[paletteIndex];
+  const scaled = phase * (PASTEL_SPECTRUM.length - 1);
+  const leftIndex = Math.floor(scaled);
+  const rightIndex = Math.min(leftIndex + 1, PASTEL_SPECTRUM.length - 1);
+  const mix = scaled - leftIndex;
+  const left = PASTEL_SPECTRUM[leftIndex];
+  const right = PASTEL_SPECTRUM[rightIndex];
+  const [r, g, b] = left.map((channel, channelIndex) =>
+    Math.round(channel + (right[channelIndex] - channel) * mix)
+  );
+  return `rgb(${r} ${g} ${b})`;
 }
 
 export function Waveform({
@@ -45,7 +53,7 @@ export function Waveform({
       {Array.from({ length: count }, (_, i) => (
         <span
           key={i}
-          className={cn("w-[2px] bg-current", animated && "animate-wavebar")}
+          className={cn("w-[3px] bg-current", animated && "animate-wavebar")}
           style={{
             color: barColor(i, count),
             height: barHeight(i, maxHeight),

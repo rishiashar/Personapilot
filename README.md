@@ -1,8 +1,8 @@
-# PersonaPilot
+# ProbeRoom
 
 **Practice UX interview questions with AI role-play participants before speaking to real users.**
 
-PersonaPilot is an AI-powered UX interview rehearsal tool. A researcher creates a participant persona, adds research context, runs a rehearsal interview against a simulated participant, and reviews structured feedback on their interview technique.
+ProbeRoom (ProbeRoom.ai) is an AI-powered UX interview rehearsal tool. A researcher creates a participant persona, adds research context, runs a rehearsal interview against a simulated participant, and reviews structured feedback on their interview technique.
 
 > Synthetic rehearsal, not synthetic research.
 
@@ -124,4 +124,4 @@ The app never fully breaks if an API fails:
 
 This project came from a real problem during a capstone project at the University of Toronto. Working on UofT Mobile, the team initially asked only utility-based questions ("What links do you open?") which produced shallow answers. Shifting to deeper questions about belonging, identity, and connection changed the quality of insights entirely.
 
-PersonaPilot turns that learning into a product: sometimes users do have deeper insights, but our questions are not opening the right door. This tool helps researchers practice opening that door before they speak to real participants.
+ProbeRoom turns that learning into a product: sometimes users do have deeper insights, but our questions are not opening the right door. This tool helps researchers practice opening that door before they speak to real participants.

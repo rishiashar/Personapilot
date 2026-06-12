@@ -1,4 +1,4 @@
-# PersonaPilot design language
+# ProbeRoom design language
 
 Distilled from the landing page. Every screen in the rehearsal flow follows
 these rules.

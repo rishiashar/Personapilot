@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PersonaPilot: Rehearse UX interviews",
+  title: "ProbeRoom: Rehearse UX interviews",
   description:
     "Practice UX interview questions with AI role-play participants before speaking to real users.",
 };

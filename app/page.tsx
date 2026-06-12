@@ -14,11 +14,11 @@ const FEATURES = [
   {
     title: "Bring your questions, or build a study in minutes",
     description:
-      "Write down what you want to learn, describe the person you would interview, and add your questions. Drag in a file with your script, or pick one of six ready-made sample studies and start right away.",
+      "Add your questions, drop in your script, or pick a ready-made study.",
     points: [
-      "Drag and drop your interview script: txt, md, docx",
-      "Six sample studies with matching participants",
-      "Participants with real backgrounds, habits, and frustrations",
+      "Drag and drop: txt, md, docx",
+      "Six ready-made sample studies",
+      "Participants with real backstories",
     ],
     gradient: "from-wash-blue via-background to-background",
     mockup: (
@@ -35,11 +35,11 @@ const FEATURES = [
   {
     title: "Talk to a participant that talks back",
     description:
-      "Ask your questions out loud and the participant answers in character, in their own voice. Your question list sits beside the conversation so you can tick off ground as you cover it, and the transcript builds as you go.",
+      "Ask out loud. The participant answers in character, in their own voice.",
     points: [
-      "Speak your questions, hear spoken answers",
-      "Tick off questions as you cover them",
-      "Participant details one tap away, never in your way",
+      "Speak questions, hear answers",
+      "Tick off questions as you go",
+      "Transcript builds itself",
     ],
     gradient: "from-wash-amber via-background to-background",
     mockup: (
@@ -57,11 +57,11 @@ const FEATURES = [
   {
     title: "See what every question actually got you",
     description:
-      "After the interview, every question you asked is graded by what it got back: a real story, a useful fact, just an opinion, or a flat yes or no. Weak questions get a better version you can use next time.",
+      "Every question is graded by the answer it got back. Weak ones get a rewrite.",
     points: [
-      "Every question mapped to the answer it produced",
-      "One-look session verdict: strong, mixed, or needs work",
-      "Missed follow-ups and ready-to-use rewrites",
+      "Question-by-question grades",
+      "One-look session verdict",
+      "Ready-to-use rewrites",
     ],
     gradient: "from-wash-green via-background to-background",
     mockup: (

@@ -4,6 +4,7 @@ import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import {
   InterviewMockup,
+  QuestionShiftMockup,
   SetupMockup,
   SummaryMockup,
 } from "@/components/landing/ScreenMockups";
@@ -164,26 +165,49 @@ export default function HomePage() {
             <div className="max-w-3xl">
               <p className="caps text-muted-foreground">Why this exists</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
-                Built after an interview that went nowhere
+                The questions were the problem
               </h2>
               <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
                 <p>
-                  I walked out of my first real user interview with thirty
-                  minutes of recording and almost nothing I could use. The
-                  participant was generous with their time. My questions were
-                  not generous back: too vague, too leading, too easy to answer
-                  with a shrug.
+                  During my capstone project at the University of Toronto, my
+                  team was researching why students were not using UofT
+                  Mobile, an app that put the university&apos;s links and
+                  tools in one place. We asked the obvious questions. Which
+                  links do you open? How often? What tasks are you trying to
+                  finish?
                 </p>
                 <p>
-                  Nobody lets you practice this. You prepare a script, you get
-                  one shot with a real person, and you only find out your
-                  questions were weak after you have already spent their time.
+                  The answers were fine. They were also stuck at the surface.
+                  They told us how students used the app, but never why they
+                  would come back to it. So we changed the questions. Instead
+                  of asking about links, we asked: what does UofT mean to you?
+                  When do you feel connected to it? Do you feel like you
+                  belong here?
                 </p>
                 <p>
-                  So I built the practice room I wanted: a participant you can
-                  interview as many times as you need, and feedback that tells
-                  you exactly which questions earned real answers and which
-                  ones wasted the minute.
+                  The whole conversation changed. Tasks became feelings, app
+                  usage became student identity, and suddenly we were learning
+                  things worth acting on. Same study, same students. Only the
+                  questions were different.
+                </p>
+              </div>
+              <div className="mt-10">
+                <QuestionShiftMockup className="w-full" />
+              </div>
+              <div className="mt-12 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
+                <p>
+                  That is the lesson behind this tool:{" "}
+                  <span className="font-medium text-foreground">
+                    better questions create better conversations.
+                  </span>{" "}
+                  People usually have deeper stories to share. Our questions
+                  just fail to open the right door.
+                </p>
+                <p>
+                  Real interviews are still the source of truth, and nothing
+                  here replaces them. PersonaPilot is the practice space
+                  before that moment, so you find the right door before you
+                  are in the room with a real person.
                 </p>
               </div>
               <p className="mt-8 text-[14px] font-medium">

@@ -58,6 +58,32 @@ function MockTag({
   );
 }
 
+export function QuestionShiftMockup({ className }: { className?: string }) {
+  return (
+    <Window label="Same study · Different questions" className={className}>
+      <div className="grid divide-y divide-foreground/15 text-[11px] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <div className="space-y-2 p-4">
+          <MockTag tone="neutral">What we asked first</MockTag>
+          <p className="font-medium">Which links do you open in the app?</p>
+          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
+            Mostly the library page. Sometimes the shuttle schedule.
+          </p>
+          <MockTag tone="amber">Surface level</MockTag>
+        </div>
+        <div className="space-y-2 p-4">
+          <MockTag tone="blue">What we asked instead</MockTag>
+          <p className="font-medium">When do you feel connected to UofT?</p>
+          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
+            Honestly? During convocation season. The rest of the year it feels
+            like a place I commute to, not a place I belong to.
+          </p>
+          <MockTag tone="green">Real insight</MockTag>
+        </div>
+      </div>
+    </Window>
+  );
+}
+
 export function SetupMockup({ className }: { className?: string }) {
   return (
     <Window label="Setup · Question guide" className={className}>

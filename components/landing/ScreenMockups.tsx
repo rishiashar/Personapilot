@@ -58,29 +58,102 @@ function MockTag({
   );
 }
 
+const DEPTH_LEVELS = ["Tasks", "Habits", "Feelings", "Identity"] as const;
+
+/**
+ * Depth chart for the story section: two questions from the same study drop
+ * plumb lines into the conversation. The functional question stops at the
+ * first layer; the reworded one reaches identity.
+ */
 export function QuestionShiftMockup({ className }: { className?: string }) {
   return (
-    <Window label="Same study · Different questions" className={className}>
-      <div className="grid divide-y divide-foreground/15 text-[11px] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        <div className="space-y-2 p-4">
-          <MockTag tone="neutral">What we asked first</MockTag>
-          <p className="font-medium">Which links do you open in the app?</p>
-          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
-            Mostly the library page. Sometimes the shuttle schedule.
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none border border-foreground bg-background text-left select-none",
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between border-b border-foreground px-4 py-2">
+        <span className="caps">How deep the answers went</span>
+        <span className="caps text-muted-foreground">Same study</span>
+      </div>
+
+      {/* The two questions */}
+      <div className="grid grid-cols-[1fr_minmax(64px,96px)_1fr] text-[11px]">
+        <div className="flex flex-col items-center gap-2 p-4 text-center">
+          <MockTag tone="neutral">Asked first</MockTag>
+          <p className="max-w-52 leading-snug font-medium">
+            Which links do you open in the app?
           </p>
-          <MockTag tone="amber">Surface level</MockTag>
         </div>
-        <div className="space-y-2 p-4">
-          <MockTag tone="blue">What we asked instead</MockTag>
-          <p className="font-medium">When do you feel connected to UofT?</p>
-          <p className="border border-border bg-muted/40 px-2.5 py-2 text-muted-foreground">
-            Honestly? During convocation season. The rest of the year it feels
-            like a place I commute to, not a place I belong to.
+        <div />
+        <div className="flex flex-col items-center gap-2 p-4 text-center">
+          <MockTag tone="blue">Asked instead</MockTag>
+          <p className="max-w-52 leading-snug font-medium">
+            When do you feel connected to UofT?
           </p>
-          <MockTag tone="green">Real insight</MockTag>
         </div>
       </div>
-    </Window>
+
+      {/* Depth strata */}
+      <div>
+        {DEPTH_LEVELS.map((label, i) => {
+          const isFirst = i === 0;
+          const isLast = i === DEPTH_LEVELS.length - 1;
+          return (
+            <div
+              key={label}
+              className="grid grid-cols-[1fr_minmax(64px,96px)_1fr] border-t border-dashed border-foreground/20"
+            >
+              {/* Functional question: stops at the surface */}
+              <div className="flex min-h-14 flex-col items-center">
+                {isFirst ? (
+                  <>
+                    <span className="h-3 w-px bg-foreground/40" />
+                    <span className="size-2 bg-foreground/40" />
+                    <span className="mt-2 mb-1">
+                      <MockTag tone="amber">Surface level</MockTag>
+                    </span>
+                    <p className="max-w-48 px-3 pb-3 text-center text-[10px] leading-snug text-muted-foreground">
+                      &ldquo;Mostly the library page. Sometimes the shuttle
+                      schedule.&rdquo;
+                    </p>
+                  </>
+                ) : null}
+              </div>
+
+              {/* Depth label */}
+              <div className="flex min-h-14 items-center justify-center">
+                <span className="caps text-[9px] text-muted-foreground">
+                  {label}
+                </span>
+              </div>
+
+              {/* Reworded question: drops all the way down */}
+              <div className="flex min-h-14 flex-col items-center">
+                {isLast ? (
+                  <>
+                    <span className="h-3 w-0.5 bg-brand" />
+                    <span className="size-2 bg-brand" />
+                    <span className="mt-2 mb-1">
+                      <MockTag tone="green">Real insight</MockTag>
+                    </span>
+                    <p className="max-w-56 px-3 pb-3 text-center text-[10px] leading-snug text-muted-foreground">
+                      &ldquo;During convocation season. The rest of the year it
+                      feels like a place I commute to, not a place I belong
+                      to.&rdquo;
+                    </p>
+                  </>
+                ) : (
+                  <span className="w-0.5 flex-1 bg-brand" />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

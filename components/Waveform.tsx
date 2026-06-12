@@ -66,6 +66,8 @@ export function Waveform({
 }
 
 // The ProbeRoom mark: voice bars flanking two door panels.
+// When rendered inside a `group` parent, hovering swings the door panels
+// open and the voice bars pulse in brand blue.
 export function VoiceMark({ className }: { className?: string }) {
   return (
     <svg
@@ -74,13 +76,21 @@ export function VoiceMark({ className }: { className?: string }) {
       className={cn("h-[18px] w-auto text-foreground", className)}
       fill="currentColor"
     >
-      <rect x="0" y="207" width="42" height="146" rx="21" />
-      <rect x="90" y="105" width="42" height="348" rx="21" />
-      <rect x="557" y="105" width="42" height="348" rx="21" />
-      <rect x="647" y="207" width="42" height="146" rx="21" />
-      <g stroke="currentColor" strokeWidth="44" strokeLinejoin="round">
-        <path d="M220 36 L288 87 L288 468 L220 519 Z" />
-        <path d="M469 36 L401 87 L401 468 L469 519 Z" />
+      <g className="transition-colors duration-300 group-hover:text-brand">
+        <rect x="0" y="207" width="42" height="146" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar" />
+        <rect x="90" y="105" width="42" height="348" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:180ms]" />
+        <rect x="557" y="105" width="42" height="348" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:360ms]" />
+        <rect x="647" y="207" width="42" height="146" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:540ms]" />
+      </g>
+      <g fill="currentColor" stroke="currentColor" strokeWidth="44" strokeLinejoin="round">
+        <path
+          d="M220 36 L288 87 L288 468 L220 519 Z"
+          className="transition-transform duration-500 ease-out group-hover:-translate-x-[28px]"
+        />
+        <path
+          d="M469 36 L401 87 L401 468 L469 519 Z"
+          className="transition-transform duration-500 ease-out group-hover:translate-x-[28px]"
+        />
       </g>
     </svg>
   );

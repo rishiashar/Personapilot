@@ -6,7 +6,7 @@ export function AppFooter() {
           PersonaPilot. A rehearsal tool for UX research.
         </p>
         <p className="text-[13px] text-muted-foreground">
-          Made at the University of Toronto.
+          Sessions stay in your browser.
         </p>
       </div>
     </footer>

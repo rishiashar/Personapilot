@@ -65,16 +65,23 @@ export function Waveform({
   );
 }
 
-// Three-bar mark used as the wordmark glyph.
+// The ProbeRoom mark: voice bars flanking two door panels.
 export function VoiceMark({ className }: { className?: string }) {
   return (
-    <span
+    <svg
       aria-hidden
-      className={cn("flex items-center gap-[2.5px] text-foreground", className)}
+      viewBox="-22 0 733 557"
+      className={cn("h-[18px] w-auto text-foreground", className)}
+      fill="currentColor"
     >
-      <span className="h-[7px] w-[2.5px] bg-current" />
-      <span className="h-[14px] w-[2.5px] bg-current" />
-      <span className="h-[10px] w-[2.5px] bg-current" />
-    </span>
+      <rect x="0" y="207" width="42" height="146" rx="21" />
+      <rect x="90" y="105" width="42" height="348" rx="21" />
+      <rect x="557" y="105" width="42" height="348" rx="21" />
+      <rect x="647" y="207" width="42" height="146" rx="21" />
+      <g stroke="currentColor" strokeWidth="44" strokeLinejoin="round">
+        <path d="M220 36 L288 87 L288 468 L220 519 Z" />
+        <path d="M469 36 L401 87 L401 468 L469 519 Z" />
+      </g>
+    </svg>
   );
 }

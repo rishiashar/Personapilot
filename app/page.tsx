@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
-import { RewriteMoment } from "@/components/landing/RewriteMoment";
+import { StoryBeats } from "@/components/landing/StoryBeats";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LiveAppFrame } from "@/components/landing/LiveAppFrame";
 import { Reveal } from "@/components/landing/Reveal";
@@ -202,57 +202,25 @@ export default function HomePage() {
                 The questions were the problem
               </h2>
             </Reveal>
-            <div className="mx-auto max-w-3xl">
-              <Reveal delay={100}>
-              <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
-                <p>
-                  During my capstone project at the University of Toronto, my
-                  team was researching why students were not using UofT
-                  Mobile, an app that put the university&apos;s links and
-                  tools in one place. We asked the obvious questions. Which
-                  links do you open? How often? What tasks are you trying to
-                  finish?
-                </p>
-                <p>
-                  The answers were fine. They were also stuck at the surface.
-                  They told us how students used the app, but never why they
-                  would come back to it. So we changed the questions. Instead
-                  of asking about links, we asked: what does UofT mean to you?
-                  When do you feel connected to it? Do you feel like you
-                  belong here?
-                </p>
-                <p>
-                  The whole conversation changed. Tasks became feelings, app
-                  usage became student identity, and suddenly we were learning
-                  things worth acting on. Same study, same students. Only the
-                  questions were different.
-                </p>
-              </div>
-              </Reveal>
-              <div className="mt-12 sm:mt-14">
-                <RewriteMoment className="w-full" />
-              </div>
+            <div className="mx-auto max-w-5xl">
+              <StoryBeats className="mt-14 sm:mt-20" />
               <Reveal>
-              <div className="mt-12 space-y-4 text-[16px] leading-relaxed text-muted-foreground">
-                <p>
-                  That is the lesson behind this tool:{" "}
-                  <span className="font-medium text-foreground">
-                    better questions create better conversations.
-                  </span>{" "}
-                  People usually have deeper stories to share. Our questions
-                  just fail to open the right door.
+              <div className="mt-16 text-center sm:mt-24">
+                <p className="caps text-muted-foreground">The lesson</p>
+                <p className="mx-auto mt-4 max-w-2xl text-2xl leading-snug font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+                  Better <span className="text-brand">questions</span> create
+                  better conversations.
                 </p>
-                <p>
-                  Real interviews are still the source of truth, and nothing
-                  here replaces them. ProbeRoom is the practice space
-                  before that moment, so you find the right door before you
-                  are in the room with a real person.
+                <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                  People have deeper stories to share. Our questions just fail
+                  to open the right door. ProbeRoom is the practice space for
+                  finding it before you are in the room with a real person.
+                </p>
+                <p className="mt-8 text-[14px] font-medium">
+                  Rishi Ashar
+                  <span className="text-muted-foreground"> · Maker of ProbeRoom</span>
                 </p>
               </div>
-              <p className="mt-8 text-[14px] font-medium">
-                Rishi Ashar
-                <span className="text-muted-foreground"> · Maker of ProbeRoom</span>
-              </p>
               </Reveal>
             </div>
           </div>

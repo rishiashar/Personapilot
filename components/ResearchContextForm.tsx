@@ -31,7 +31,7 @@ export function ResearchContextForm({
         </Button>
       </div>
 
-      <div className="grid gap-6">
+      <div className="stagger-children grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="projectName">Project name</Label>
           <Input

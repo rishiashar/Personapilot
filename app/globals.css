@@ -227,6 +227,17 @@
   }
 }
 
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .animate-wavebar {
     animation: wavebar 1.5s ease-in-out infinite;
@@ -253,6 +264,35 @@
     stroke-dashoffset: 1;
     animation: underline-draw 600ms cubic-bezier(0.22, 1, 0.36, 1) 500ms both;
   }
+
+  /* Cascade direct children in on mount. Subtle and quick, for form rows. */
+  .stagger-children > * {
+    animation: row-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger-children > *:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  .stagger-children > *:nth-child(2) {
+    animation-delay: 95ms;
+  }
+  .stagger-children > *:nth-child(3) {
+    animation-delay: 150ms;
+  }
+  .stagger-children > *:nth-child(4) {
+    animation-delay: 205ms;
+  }
+  .stagger-children > *:nth-child(5) {
+    animation-delay: 260ms;
+  }
+  .stagger-children > *:nth-child(6) {
+    animation-delay: 315ms;
+  }
+  .stagger-children > *:nth-child(7) {
+    animation-delay: 370ms;
+  }
+  .stagger-children > *:nth-child(n + 8) {
+    animation-delay: 425ms;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -264,7 +304,8 @@
   .animate-hero-enter,
   .animate-rise,
   .animate-hero-line,
-  .animate-spectrum-sweep {
+  .animate-spectrum-sweep,
+  .stagger-children > * {
     animation: none;
   }
 

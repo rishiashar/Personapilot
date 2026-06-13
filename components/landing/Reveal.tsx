@@ -10,7 +10,7 @@ function subscribeReducedMotion(callback: () => void) {
   return () => media.removeEventListener("change", callback);
 }
 
-function useReducedMotion() {
+export function useReducedMotion() {
   return useSyncExternalStore(
     subscribeReducedMotion,
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,

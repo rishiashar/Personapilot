@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 import { ParticipantCard } from "@/components/ParticipantCard";
-import { Reveal } from "@/components/landing/Reveal";
+import { Reveal, useReducedMotion } from "@/components/landing/Reveal";
 import { Tag, type TagTone } from "@/components/Tag";
 import { Button } from "@/components/ui/button";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
 import { getSessionAnalysis, saveSessionAnalysis } from "@/lib/localStorage";
+import { cn } from "@/lib/utils";
 import type {
   AnswerKind,
   ExchangeInsight,
@@ -64,6 +65,51 @@ function AnalysisSection({
 
 function sectionId(title: string): string {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+// Counts a number up to its target the first time it mounts, and again from the
+// old value to the new one whenever the analysis changes, so the result stats
+// read as freshly computed. Jumps straight to the value under reduced motion.
+function useCountUp(target: number, durationMs = 600): number {
+  const reducedMotion = useReducedMotion();
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
+
+  useEffect(() => {
+    const from = fromRef.current;
+    let raf = 0;
+    if (reducedMotion || from === target) {
+      raf = requestAnimationFrame(() => {
+        setDisplay(target);
+        fromRef.current = target;
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + (target - from) * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = target;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs, reducedMotion]);
+
+  return display;
+}
+
+function StatValue({ value }: { value: number }) {
+  const display = useCountUp(value);
+  return (
+    <dd className="text-3xl font-semibold tracking-tight text-brand tabular-nums">
+      {display}
+    </dd>
+  );
 }
 
 type Verdict = {
@@ -137,12 +183,22 @@ const GLANCE_SEGMENTS = [
 // Glanceable breakdown: a proportional bar of the feedback mix plus jump
 // links into each section.
 function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
+  const reducedMotion = useReducedMotion();
+  const [grown, setGrown] = useState(false);
   const counts = GLANCE_SEGMENTS.map((s) => ({
     ...s,
     count: analysis[s.key].length,
   }));
   const total = counts.reduce((sum, s) => sum + s.count, 0);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setGrown(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   if (total === 0) return null;
+
+  const filled = grown || reducedMotion;
 
   return (
     <div>
@@ -151,8 +207,11 @@ function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
           s.count > 0 ? (
             <span
               key={s.key}
-              className={s.bar}
-              style={{ width: `${(s.count / total) * 100}%` }}
+              className={cn(
+                s.bar,
+                !reducedMotion && "transition-[width] duration-700 ease-out"
+              )}
+              style={{ width: filled ? `${(s.count / total) * 100}%` : "0%" }}
             />
           ) : null
         )}
@@ -437,7 +496,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       {/* At a glance: verdict, feedback mix, raw numbers */}
       <Reveal>
       <div className="grid border border-foreground max-lg:divide-y lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x divide-foreground">
-        <div className={`flex flex-col justify-between gap-6 p-6 sm:p-7 ${verdict.wash}`}>
+        <div className={`flex flex-col justify-between gap-6 p-6 sm:p-7 transition-colors duration-500 motion-reduce:transition-none ${verdict.wash}`}>
           <div>
             <p className="caps opacity-70">At a glance</p>
             <p className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
@@ -455,9 +514,7 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
               key={stat.label}
               className={`bg-card px-4 py-4 sm:px-5 ${index % 2 === 0 ? "border-r border-foreground" : ""} ${index < 2 ? "lg:border-b lg:border-foreground" : ""}`}
             >
-              <dd className="text-3xl font-semibold tracking-tight text-brand tabular-nums">
-                {stat.value}
-              </dd>
+              <StatValue value={stat.value} />
               <dt className="mt-1 text-xs font-medium text-muted-foreground">
                 {stat.label}
               </dt>

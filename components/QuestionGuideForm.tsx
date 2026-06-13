@@ -101,7 +101,7 @@ export function QuestionGuideForm({
         <h2 className="caps">Question guide</h2>
       </div>
 
-      <div className="grid gap-6">
+      <div className="stagger-children grid gap-6">
         {/* Upload zone */}
         <div className="grid gap-2">
           <p className="caps text-muted-foreground">Import your script</p>

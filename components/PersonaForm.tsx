@@ -33,7 +33,7 @@ export function PersonaForm({
         </Button>
       </div>
 
-      <div className="grid gap-6">
+      <div className="stagger-children grid gap-6">
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="personaName">Persona name</Label>

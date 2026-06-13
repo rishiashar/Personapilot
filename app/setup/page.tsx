@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Loader2, TriangleAlert, X } from "lucide-react";
+import { Check, FileText, Loader2, TriangleAlert, X } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
@@ -349,7 +349,7 @@ export default function SetupPage() {
                     >
                       <span
                         className={cn(
-                          "flex size-5 items-center justify-center text-[11px] font-semibold",
+                          "flex size-5 items-center justify-center text-[11px] font-semibold transition-colors duration-200",
                           isActive
                             ? "bg-foreground text-background"
                             : isDone
@@ -357,7 +357,11 @@ export default function SetupPage() {
                               : "border border-input text-muted-foreground"
                         )}
                       >
-                        {index + 1}
+                        {isDone ? (
+                          <Check className="size-3" strokeWidth={3} />
+                        ) : (
+                          index + 1
+                        )}
                       </span>
                       {item.label}
                     </button>
@@ -366,16 +370,11 @@ export default function SetupPage() {
               })}
             </ol>
             {/* Progress */}
-            <div className="mt-4 flex gap-1" aria-hidden>
-              {STEP_META.map((item, index) => (
-                <span
-                  key={item.label}
-                  className={cn(
-                    "h-1 flex-1",
-                    index <= step ? "bg-brand" : "bg-border"
-                  )}
-                />
-              ))}
+            <div className="mt-4 h-1 overflow-hidden bg-border" aria-hidden>
+              <span
+                className="block h-full bg-brand transition-[width] duration-500 ease-out motion-reduce:transition-none"
+                style={{ width: `${((step + 1) / STEP_META.length) * 100}%` }}
+              />
             </div>
           </nav>
 
@@ -393,7 +392,7 @@ export default function SetupPage() {
 
           <div
             key={`panel-${step}`}
-            className="animate-rise border border-foreground bg-card p-6 [animation-delay:80ms] sm:p-10"
+            className="border border-foreground bg-card p-6 sm:p-10"
           >
           {step === 0 && (
             <ResearchContextForm

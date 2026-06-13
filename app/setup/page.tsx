@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { FileText, Loader2, TriangleAlert, X } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
@@ -11,6 +11,13 @@ import {
   countQuestions,
 } from "@/components/QuestionGuideForm";
 import { ResearchContextForm } from "@/components/ResearchContextForm";
+import { StudyIntake, type ExtractedStudy } from "@/components/StudyIntake";
+import {
+  AlertDialog,
+  AlertDialogDescription,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   savePersona,
@@ -58,19 +65,110 @@ const STEP_META = [
   },
 ] as const;
 
+interface Prefill {
+  source: string;
+  llmAvailable: boolean;
+}
+
+interface MissingField {
+  label: string;
+  why: string;
+  step: number;
+}
+
+// The fields that make a rehearsal feel real. Missing basics (project name,
+// participant name) hard-block earlier; these only warrant a soft warning.
+function getMissingFields(
+  context: ResearchContext,
+  persona: PersonaDraft,
+  questionCount: number
+): MissingField[] {
+  const fields: MissingField[] = [];
+  if (!context.researchGoal.trim()) {
+    fields.push({
+      label: "Research goal",
+      why: "What this session is meant to uncover",
+      step: 0,
+    });
+  }
+  if (!persona.background.trim()) {
+    fields.push({
+      label: "Participant background",
+      why: "Who they are and the situation they are in",
+      step: 1,
+    });
+  }
+  if (!persona.behaviours.trim()) {
+    fields.push({
+      label: "Behaviours",
+      why: "How they act, so their replies stay in character",
+      step: 1,
+    });
+  }
+  if (!persona.goals.trim()) {
+    fields.push({
+      label: "Goals",
+      why: "What they want, so they push back believably",
+      step: 1,
+    });
+  }
+  if (!persona.frustrations.trim()) {
+    fields.push({
+      label: "Frustrations",
+      why: "What gets in their way, your richest source of insight",
+      step: 1,
+    });
+  }
+  if (questionCount === 0) {
+    fields.push({
+      label: "Question guide",
+      why: "Your questions, to keep the session on track",
+      step: 2,
+    });
+  }
+  return fields;
+}
+
 export default function SetupPage() {
   const router = useRouter();
+  const [phase, setPhase] = useState<"intro" | "wizard">("intro");
   const [context, setContext] = useState<ResearchContext>(EMPTY_CONTEXT);
   const [persona, setPersona] = useState<PersonaDraft>(EMPTY_PERSONA);
   const [questionsText, setQuestionsText] = useState("");
   const [step, setStep] = useState(0);
   const [maxVisited, setMaxVisited] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
+  const [prefill, setPrefill] = useState<Prefill | null>(null);
+  const [warnOpen, setWarnOpen] = useState(false);
   const sampleRef = useRef<SampleStudy | null>(null);
 
   const goTo = (next: number) => {
     setStep(next);
     setMaxVisited((m) => Math.max(m, next));
+    window.scrollTo({ top: 0 });
+  };
+
+  const startManual = () => {
+    setPrefill(null);
+    setPhase("wizard");
+    setStep(0);
+    setMaxVisited(0);
+    window.scrollTo({ top: 0 });
+  };
+
+  const startFromDocument = (study: ExtractedStudy) => {
+    setContext({
+      ...study.context,
+      questionGuide:
+        study.questions.length > 0 ? study.questions : undefined,
+    });
+    setPersona(study.persona);
+    setQuestionsText(study.questions.join("\n"));
+    setPrefill({ source: study.source, llmAvailable: study.llmAvailable });
+    setPhase("wizard");
+    setStep(0);
+    // Everything is prefilled, so let the reviewer jump to any step.
+    setMaxVisited(STEP_META.length - 1);
     window.scrollTo({ top: 0 });
   };
 
@@ -148,6 +246,22 @@ export default function SetupPage() {
   };
 
   const questionCount = countQuestions(questionsText);
+  const missingFields = getMissingFields(context, persona, questionCount);
+
+  const attemptStart = () => {
+    if (isStarting) return;
+    if (missingFields.length > 0) {
+      setWarnOpen(true);
+      return;
+    }
+    void handleStart();
+  };
+
+  const goToFirstMissing = () => {
+    setWarnOpen(false);
+    if (missingFields.length > 0) goTo(missingFields[0].step);
+  };
+
   const meta = STEP_META[step];
 
   const hint =
@@ -161,11 +275,55 @@ export default function SetupPage() {
             : "Questions are optional. You can start without them."
           : "";
 
+  if (phase === "intro") {
+    return (
+      <>
+        <AppHeader step="setup" />
+        <main className="flex-1">
+          <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
+            <StudyIntake
+              onManual={startManual}
+              onExtracted={startFromDocument}
+            />
+          </div>
+        </main>
+      </>
+    );
+  }
+
   return (
     <>
       <AppHeader step="setup" />
       <main className="flex-1">
         <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
+          {prefill ? (
+            <div className="animate-rise mb-8 flex items-start gap-3 border border-foreground bg-wash-blue p-4">
+              <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center border border-brand bg-background text-brand">
+                <FileText className="size-3.5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold tracking-tight">
+                  {prefill.llmAvailable
+                    ? `Prefilled from ${prefill.source}`
+                    : `Questions imported from ${prefill.source}`}
+                </p>
+                <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+                  {prefill.llmAvailable
+                    ? "Review each step and edit anything before you start."
+                    : "AI extraction was unavailable, so we imported your questions only. Fill in the rest below."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPrefill(null)}
+                aria-label="Dismiss"
+                className="-m-1 shrink-0 p-1 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          ) : null}
+
           {/* Stepper */}
           <nav aria-label="Setup steps">
             <ol className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
@@ -277,10 +435,9 @@ export default function SetupPage() {
           <div className="mt-10 flex items-center justify-between gap-4">
             <Button
               variant="ghost"
-              onClick={() => goTo(step - 1)}
-              className={cn(step === 0 && "invisible")}
+              onClick={() => (step === 0 ? setPhase("intro") : goTo(step - 1))}
             >
-              Back
+              {step === 0 ? "Back to start" : "Back"}
             </Button>
             <div className="flex items-center gap-4">
               <p className="hidden text-sm text-muted-foreground sm:block">
@@ -297,7 +454,7 @@ export default function SetupPage() {
               ) : (
                 <Button
                   className="h-11 px-7 text-[15px] hover:bg-brand"
-                  onClick={handleStart}
+                  onClick={attemptStart}
                   disabled={!canStart || isStarting}
                 >
                   {isStarting ? (
@@ -314,6 +471,62 @@ export default function SetupPage() {
           </div>
         </div>
       </main>
+
+      <AlertDialog open={warnOpen} onOpenChange={setWarnOpen}>
+        <AlertDialogPopup>
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center border border-foreground bg-wash-amber text-wash-amber-fg">
+              <TriangleAlert className="size-4.5" />
+            </span>
+            <div className="min-w-0">
+              <AlertDialogTitle>Start without a few key details?</AlertDialogTitle>
+              <AlertDialogDescription className="mt-1.5">
+                These shape how real your participant feels. You can start
+                anyway, but adding them makes the rehearsal sharper.
+              </AlertDialogDescription>
+            </div>
+          </div>
+
+          <ul className="mt-5 grid gap-3 border-t border-border pt-5">
+            {missingFields.map((field) => (
+              <li key={field.label} className="flex items-start gap-2.5">
+                <span
+                  aria-hidden
+                  className="mt-[7px] size-1.5 shrink-0 bg-wash-amber-fg"
+                />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-medium tracking-tight">
+                    {field.label}
+                  </p>
+                  <p className="text-[12px] leading-snug text-muted-foreground">
+                    {field.why}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+            <Button
+              variant="ghost"
+              className="sm:order-1"
+              disabled={isStarting}
+              onClick={() => {
+                setWarnOpen(false);
+                void handleStart();
+              }}
+            >
+              Start anyway
+            </Button>
+            <Button
+              className="h-10 px-5 hover:bg-brand sm:order-2"
+              onClick={goToFirstMissing}
+            >
+              Add them now
+            </Button>
+          </div>
+        </AlertDialogPopup>
+      </AlertDialog>
     </>
   );
 }

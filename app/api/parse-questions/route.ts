@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 
+import {
+  extractDocumentText,
+  isAcceptedDocument,
+  MAX_DOC_BYTES,
+} from "@/lib/documentText";
+
 export const runtime = "nodejs";
-
-// Documents larger than this are almost certainly not interview guides.
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
-
-const ACCEPTED_EXTENSIONS = ["pdf", "docx", "txt", "md"] as const;
-
-function extensionOf(name: string): string {
-  return name.split(".").pop()?.toLowerCase() ?? "";
-}
 
 /**
  * Turn raw document text into one question per line: strips numbering and
@@ -44,15 +41,14 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  if (file.size > MAX_FILE_BYTES) {
+  if (file.size > MAX_DOC_BYTES) {
     return NextResponse.json(
       { error: "File is too large. Keep it under 10 MB." },
       { status: 413 }
     );
   }
 
-  const extension = extensionOf(file.name);
-  if (!ACCEPTED_EXTENSIONS.includes(extension as never)) {
+  if (!isAcceptedDocument(file.name)) {
     return NextResponse.json(
       { error: "Unsupported file type. Use PDF, DOCX, TXT, or Markdown." },
       { status: 415 }
@@ -60,22 +56,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    let text = "";
-    if (extension === "pdf") {
-      const { extractText, getDocumentProxy } = await import("unpdf");
-      const pdf = await getDocumentProxy(new Uint8Array(await file.arrayBuffer()));
-      const result = await extractText(pdf, { mergePages: false });
-      // Page-per-entry keeps line structure better than one merged string.
-      text = (result.text as string[]).join("\n");
-    } else if (extension === "docx") {
-      const mammoth = await import("mammoth");
-      const result = await mammoth.extractRawText({
-        buffer: Buffer.from(await file.arrayBuffer()),
-      });
-      text = result.value;
-    } else {
-      text = await file.text();
-    }
+    const text = await extractDocumentText(file);
 
     const questions = toQuestionLines(text);
     if (questions.length === 0) {

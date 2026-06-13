@@ -9,6 +9,13 @@ export const PERSONA_RESPONSE_MODEL = "gpt-5.4-mini";
 export const SESSION_ANALYSIS_MODEL = "gpt-5.4-mini";
 
 /**
+ * Model that reads an uploaded research brief and extracts the study setup
+ * (research context, participant persona, and question guide). Read
+ * server-side by app/api/extract-study.
+ */
+export const STUDY_EXTRACTION_MODEL = "gpt-5.4-mini";
+
+/**
  * Speech-to-text model for Voice Mode (researcher microphone input). Read
  * server-side by app/api/transcribe. If this model is unavailable on the
  * current OpenAI account, swap it here for another transcription model

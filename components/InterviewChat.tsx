@@ -75,7 +75,7 @@ function MessageBubble({
   return (
     <div
       className={cn(
-        "flex items-end gap-2.5",
+        "animate-message-in flex items-end gap-2.5",
         isResearcher ? "justify-end" : "justify-start"
       )}
     >

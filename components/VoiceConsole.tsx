@@ -140,7 +140,7 @@ export function VoiceConsole({
       {lastHeard || lastResponse ? (
         <div className="divide-y divide-border border-t border-border">
           {lastHeard ? (
-            <div className="px-5 py-4 sm:px-6">
+            <div key={lastHeard} className="animate-message-in px-5 py-4 sm:px-6">
               <p className="text-xs font-semibold text-muted-foreground">
                 You asked
               </p>
@@ -148,7 +148,7 @@ export function VoiceConsole({
             </div>
           ) : null}
           {lastResponse ? (
-            <div className="px-5 py-4 sm:px-6">
+            <div key={lastResponse} className="animate-message-in px-5 py-4 sm:px-6">
               <p className="text-xs font-semibold text-brand">
                 {personaName} replied
               </p>

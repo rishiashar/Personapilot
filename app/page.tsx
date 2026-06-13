@@ -223,10 +223,6 @@ export default function HomePage() {
                   to open the right door. ProbeRoom is the practice space for
                   finding it before you are in the room with a real person.
                 </p>
-                <p className="mt-8 text-[14px] font-medium">
-                  Rishi Ashar
-                  <span className="text-muted-foreground"> · Maker of ProbeRoom</span>
-                </p>
               </div>
               </Reveal>
             </div>

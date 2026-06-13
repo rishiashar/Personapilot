@@ -90,7 +90,10 @@ export default function HomePage() {
           data-hero
           className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 pt-16 pb-16 text-center sm:px-8 sm:pt-24 sm:pb-20"
         >
-          <h1 className="max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
+          <p className="animate-hero-line caps text-muted-foreground">
+            For designers and UX researchers
+          </p>
+          <h1 className="mt-5 max-w-4xl text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-6xl xl:text-7xl">
             <span className="animate-hero-line inline-block">
               Practice your user interviews
             </span>{" "}
@@ -115,9 +118,9 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground [animation-delay:320ms]">
-            ProbeRoom gives you an AI participant to interview out loud. Ask
-            your questions, hear answers in a real voice, and find out which
-            questions work before you sit down with a real person.
+            ProbeRoom gives you an AI research participant to interview out
+            loud. Ask your questions, hear answers in a real voice, and find
+            out which questions work before you sit down with a real user.
           </p>
           <div className="animate-rise mt-10 flex flex-wrap items-center justify-center gap-6 [animation-delay:440ms]">
             <Button
@@ -239,7 +242,7 @@ export default function HomePage() {
               One last question
             </span>
             <p className="mt-5 max-w-3xl text-3xl leading-tight font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
-              Your next real interview
+              Your next research interview
               <br />
               deserves a rehearsal.
             </p>

@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
 import {
@@ -315,7 +314,6 @@ export default function SetupPage() {
           </div>
         </div>
       </main>
-      <AppFooter />
     </>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { SessionSummary } from "@/components/SessionSummary";
@@ -32,7 +31,6 @@ export default function SummaryPage() {
           </div>
         )}
       </main>
-      <AppFooter />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ListChecks } from "lucide-react";
 
 import { InterviewChat } from "@/components/InterviewChat";
 import { ParticipantCard } from "@/components/ParticipantCard";
@@ -76,7 +76,8 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
         </span>
       </div>
       {questions.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center px-6 py-10 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+          <ListChecks className="size-6 text-muted-foreground/40" strokeWidth={1.5} aria-hidden />
           <p className="max-w-[24ch] text-sm leading-relaxed text-muted-foreground">
             No question guide for this session. Ask anything you like.
           </p>
@@ -96,13 +97,13 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
                 <span
                   aria-hidden
                   className={cn(
-                    "mt-1 flex size-3.5 shrink-0 items-center justify-center border text-[9px] font-bold transition-colors",
+                    "mt-0.5 flex size-4 shrink-0 items-center justify-center border transition-colors",
                     isAsked
                       ? "border-brand bg-brand text-brand-foreground"
                       : "border-input bg-card text-transparent group-hover:border-ring"
                   )}
                 >
-                  ✓
+                  <Check className="size-2.5" strokeWidth={3} />
                 </span>
                 <span
                   className={cn(
@@ -360,7 +361,7 @@ export function InterviewRoom({
   return (
     <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6">
       {/* One console frame: three columns divided by rules. */}
-      <div className="grid grid-cols-1 border border-foreground bg-card max-lg:divide-y max-lg:divide-foreground lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-foreground">
+      <div className="animate-rise grid grid-cols-1 border border-foreground bg-card max-lg:divide-y max-lg:divide-foreground lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-foreground">
         {/* Left: question guide gets the room; participant and goal stay
             compact at the bottom so the rail reads as a script, not a dossier. */}
         <aside className="flex flex-col lg:min-h-0">

@@ -1,3 +1,5 @@
+import { MessageSquareText } from "lucide-react";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InterviewMessage } from "@/lib/types";
 import { cn, formatTime } from "@/lib/utils";
@@ -23,7 +25,8 @@ export function TranscriptPanel({
       </div>
       <div className="min-h-0 flex-1">
         {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center px-6 py-10 text-center">
+          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+            <MessageSquareText className="size-6 text-muted-foreground/40" strokeWidth={1.5} aria-hidden />
             <p className="max-w-[26ch] text-sm leading-relaxed text-muted-foreground">
               The transcript builds here as you ask questions.
             </p>
@@ -34,7 +37,7 @@ export function TranscriptPanel({
               {messages.map((message) => {
                 const isResearcher = message.role === "researcher";
                 return (
-                  <div key={message.id} className="px-4 py-3.5">
+                  <div key={message.id} className="animate-message-in px-4 py-3.5">
                     <div className="flex items-baseline justify-between gap-2">
                       <span
                         className={cn(

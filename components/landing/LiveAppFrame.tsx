@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils";
+import { Eyebrow } from "@/components/Eyebrow";
+import { cx } from "@/utils/cx";
 
 /**
  * Embeds a real app screen (one of the /demo/* routes) inside the landing
@@ -24,18 +25,18 @@ export function LiveAppFrame({
 }) {
   return (
     <div
-      className={cn(
-        "pointer-events-none border border-foreground bg-background text-left select-none",
+      className={cx(
+        "pointer-events-none overflow-hidden rounded-2xl border border-border-button-default bg-background-primary-default text-left shadow-lg select-none",
         className,
       )}
       style={{ width: Math.round(frameWidth * scale) }}
     >
-      <div className="flex items-center justify-between border-b border-foreground px-3 py-2">
-        <span className="caps">{label}</span>
+      <div className="flex items-center justify-between border-b border-separator-border px-3 py-2">
+        <Eyebrow>{label}</Eyebrow>
         <span className="flex gap-1">
-          <span className="size-1.5 bg-foreground/20" />
-          <span className="size-1.5 bg-foreground/20" />
-          <span className="size-1.5 bg-foreground" />
+          <span className="size-1.5 rounded-full bg-background-quaternary-default" />
+          <span className="size-1.5 rounded-full bg-background-quaternary-default" />
+          <span className="size-1.5 rounded-full bg-accent-500" />
         </span>
       </div>
       <div
@@ -48,7 +49,7 @@ export function LiveAppFrame({
           aria-hidden
           tabIndex={-1}
           loading="lazy"
-          className="absolute top-0 left-0 origin-top-left border-0 bg-background"
+          className="absolute top-0 left-0 origin-top-left border-0 bg-background-full"
           style={{
             width: frameWidth,
             height: frameHeight,

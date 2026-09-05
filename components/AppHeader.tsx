@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { RiCheckLine } from "@remixicon/react";
 
 import { HeaderCta } from "@/components/landing/HeaderCta";
+import { ThemeToggle } from "@/components/application/theme/theme-toggle";
 import { VoiceMark } from "@/components/Waveform";
-import { cn } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 export type AppStep = "setup" | "interview" | "summary";
 
@@ -23,19 +25,25 @@ function StepIndicator({ current }: { current: AppStep }) {
         return (
           <li key={step.id} className="flex items-center">
             {index > 0 && (
-              <span aria-hidden className="mx-3 h-px w-5 bg-border" />
+              <span aria-hidden className="mx-2.5 h-px w-5 bg-separator-border" />
             )}
             <span
               aria-current={isActive ? "step" : undefined}
-              className={cn(
-                "border-b-2 pb-0.5 text-[13px] font-medium transition-colors",
-                isActive
-                  ? "border-foreground text-foreground"
-                  : isDone
-                    ? "border-transparent text-foreground/60"
-                    : "border-transparent text-muted-foreground/60"
+              className={cx(
+                "flex items-center gap-2 text-body-2-medium transition-colors duration-150",
+                isActive ? "text-text-primary" : "text-text-tertiary",
               )}
             >
+              <span
+                className={cx(
+                  "flex size-5 items-center justify-center rounded-full text-caption-2-semibold tracking-normal",
+                  isActive && "bg-accent-500 text-text-white",
+                  isDone && "bg-accent-100 text-accent-700",
+                  !isActive && !isDone && "bg-background-tertiary-default text-text-tertiary",
+                )}
+              >
+                {isDone ? <RiCheckLine className="size-3" aria-hidden /> : index + 1}
+              </span>
               {step.label}
             </span>
           </li>
@@ -53,16 +61,20 @@ export function AppHeader({
   mode?: string;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
-        <Link href="/" className="group flex items-center gap-2.5">
+    <header className="sticky top-0 z-30 border-b border-separator-border bg-background-full/85 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 py-2.5 sm:px-8">
+        <Link
+          href="/"
+          className="group flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:ring-offset-2"
+        >
           <VoiceMark />
-          <span className="text-[15px] font-semibold tracking-tight">
-            ProbeRoom
-          </span>
+          <span className="text-headline-semibold text-text-primary">ProbeRoom</span>
         </Link>
 
-        {step ? <StepIndicator current={step} /> : <HeaderCta mode={mode} />}
+        <div className="flex items-center gap-4">
+          {step ? <StepIndicator current={step} /> : <HeaderCta mode={mode} />}
+          <ThemeToggle appearance="segmented" />
+        </div>
       </div>
     </header>
   );

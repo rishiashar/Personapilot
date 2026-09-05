@@ -2,9 +2,24 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, FileText, Loader2, TriangleAlert, X } from "lucide-react";
+import {
+  RiAlertLine,
+  RiArrowLeftLine,
+  RiArrowRightLine,
+  RiCheckLine,
+  RiFileTextLine,
+  RiLoader4Line,
+} from "@remixicon/react";
 
+import { Announcement } from "@/components/base/announcement/announcement";
+import { Button } from "@/components/base/buttons/button";
+import {
+  Dialog,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/base/dialog/dialog";
 import { AppHeader } from "@/components/AppHeader";
+import { Eyebrow } from "@/components/Eyebrow";
 import { PersonaForm, type PersonaDraft } from "@/components/PersonaForm";
 import {
   QuestionGuideForm,
@@ -13,20 +28,14 @@ import {
 import { ResearchContextForm } from "@/components/ResearchContextForm";
 import { StudyIntake, type ExtractedStudy } from "@/components/StudyIntake";
 import {
-  AlertDialog,
-  AlertDialogDescription,
-  AlertDialogPopup,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
   savePersona,
   saveResearchContext,
   saveSession,
 } from "@/lib/localStorage";
 import { nextSampleStudy, type SampleStudy } from "@/lib/sampleStudies";
 import type { InterviewSession, Persona, ResearchContext } from "@/lib/types";
-import { cn, createId } from "@/lib/utils";
+import { createId } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 const EMPTY_CONTEXT: ResearchContext = {
   projectName: "",
@@ -81,7 +90,7 @@ interface MissingField {
 function getMissingFields(
   context: ResearchContext,
   persona: PersonaDraft,
-  questionCount: number
+  questionCount: number,
 ): MissingField[] {
   const fields: MissingField[] = [];
   if (!context.researchGoal.trim()) {
@@ -127,6 +136,68 @@ function getMissingFields(
     });
   }
   return fields;
+}
+
+function Stepper({
+  step,
+  maxVisited,
+  onGoTo,
+}: {
+  step: number;
+  maxVisited: number;
+  onGoTo: (index: number) => void;
+}) {
+  return (
+    <nav aria-label="Setup steps" className="flex flex-col items-center gap-4">
+      <ol className="inline-flex flex-wrap items-center justify-center gap-1 rounded-full bg-background-secondary-default p-1">
+        {STEP_META.map((item, index) => {
+          const isActive = index === step;
+          const isDone = index < step;
+          const reachable = index <= maxVisited;
+          return (
+            <li key={item.label}>
+              <button
+                type="button"
+                disabled={!reachable}
+                onClick={() => reachable && onGoTo(index)}
+                aria-current={isActive ? "step" : undefined}
+                className={cx(
+                  "flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-2 text-body-2-medium transition-colors duration-150",
+                  "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+                  isActive
+                    ? "bg-background-primary-default text-text-primary shadow-2xs"
+                    : reachable
+                      ? "cursor-pointer text-text-secondary hover:text-text-primary"
+                      : "cursor-not-allowed text-text-tertiary",
+                )}
+              >
+                <span
+                  className={cx(
+                    "flex size-5 items-center justify-center rounded-full text-caption-2-semibold tracking-normal transition-colors duration-150",
+                    isActive && "bg-accent-500 text-text-white",
+                    isDone && "bg-accent-100 text-accent-700",
+                    !isActive && !isDone && "bg-background-tertiary-default text-text-tertiary",
+                  )}
+                >
+                  {isDone ? <RiCheckLine className="size-3" aria-hidden /> : index + 1}
+                </span>
+                {item.label}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+      <div
+        className="h-1 w-full max-w-md overflow-hidden rounded-full bg-background-tertiary-default"
+        aria-hidden
+      >
+        <span
+          className="block h-full rounded-full bg-accent-500 transition-[width] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+          style={{ width: `${((step + 1) / STEP_META.length) * 100}%` }}
+        />
+      </div>
+    </nav>
+  );
 }
 
 export default function SetupPage() {
@@ -297,154 +368,95 @@ export default function SetupPage() {
       <main className="flex-1">
         <div className="mx-auto w-full max-w-4xl px-5 py-14 sm:px-8 sm:py-16">
           {prefill ? (
-            <div className="animate-rise mb-8 flex items-start gap-3 border border-foreground bg-wash-blue p-4">
-              <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center border border-brand bg-background text-brand">
-                <FileText className="size-3.5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold tracking-tight">
-                  {prefill.llmAvailable
+            <div className="animate-rise mb-8">
+              <Announcement
+                icon={RiFileTextLine}
+                title={
+                  prefill.llmAvailable
                     ? `Prefilled from ${prefill.source}`
-                    : `Questions imported from ${prefill.source}`}
-                </p>
-                <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
-                  {prefill.llmAvailable
+                    : `Questions imported from ${prefill.source}`
+                }
+                description={
+                  prefill.llmAvailable
                     ? "Review each step and edit anything before you start."
-                    : "AI extraction was unavailable, so we imported your questions only. Fill in the rest below."}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPrefill(null)}
-                aria-label="Dismiss"
-                className="-m-1 shrink-0 p-1 text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
+                    : "AI extraction was unavailable, so we imported your questions only. Fill in the rest below."
+                }
+                dismissible
+                onClose={() => setPrefill(null)}
+              />
             </div>
           ) : null}
 
-          {/* Stepper */}
-          <nav aria-label="Setup steps">
-            <ol className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              {STEP_META.map((item, index) => {
-                const isActive = index === step;
-                const isDone = index < step;
-                const reachable = index <= maxVisited;
-                return (
-                  <li key={item.label}>
-                    <button
-                      type="button"
-                      disabled={!reachable}
-                      onClick={() => reachable && goTo(index)}
-                      aria-current={isActive ? "step" : undefined}
-                      className={cn(
-                        "flex items-center gap-2 text-[13px] font-medium transition-colors",
-                        isActive
-                          ? "text-foreground"
-                          : reachable
-                            ? "text-muted-foreground hover:text-foreground"
-                            : "text-muted-foreground/50"
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex size-5 items-center justify-center text-[11px] font-semibold transition-colors duration-200",
-                          isActive
-                            ? "bg-foreground text-background"
-                            : isDone
-                              ? "bg-brand text-brand-foreground"
-                              : "border border-input text-muted-foreground"
-                        )}
-                      >
-                        {isDone ? (
-                          <Check className="size-3" strokeWidth={3} />
-                        ) : (
-                          index + 1
-                        )}
-                      </span>
-                      {item.label}
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-            {/* Progress */}
-            <div className="mt-4 h-1 overflow-hidden bg-border" aria-hidden>
-              <span
-                className="block h-full bg-brand transition-[width] duration-500 ease-out motion-reduce:transition-none"
-                style={{ width: `${((step + 1) / STEP_META.length) * 100}%` }}
-              />
-            </div>
-          </nav>
+          <Stepper step={step} maxVisited={maxVisited} onGoTo={goTo} />
 
           <header key={step} className="animate-rise mx-auto max-w-xl pt-10 pb-10 text-center">
-            <p className="caps text-muted-foreground">
+            <Eyebrow>
               Step {step + 1} of {STEP_META.length}
-            </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-[2.6rem]">
+            </Eyebrow>
+            <h1 className="mt-3 text-display-4-semibold text-balance text-text-primary sm:text-display-3-semibold">
               {meta.title}
             </h1>
-            <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-headline-regular text-text-secondary">
               {meta.description}
             </p>
           </header>
 
           <div
             key={`panel-${step}`}
-            className="border border-foreground bg-card p-6 sm:p-10"
+            className="rounded-3xl border border-border-button-default bg-background-primary-default p-6 sm:p-10"
           >
-          {step === 0 && (
-            <ResearchContextForm
-              value={context}
-              onChange={setContext}
-              onUseSample={() => {
-                const study = nextSampleStudy();
-                sampleRef.current = study;
-                setContext(study.context);
-                setQuestionsText((study.context.questionGuide ?? []).join("\n"));
-              }}
-            />
-          )}
-          {step === 1 && (
-            <PersonaForm
-              value={persona}
-              onChange={setPersona}
-              onUseSample={() => {
-                // Pair the persona with the sampled context when one is in
-                // play; repeated clicks cycle to the next study's persona.
-                const current = sampleRef.current;
-                const study =
-                  current && persona.name !== current.persona.name
-                    ? current
-                    : nextSampleStudy();
-                sampleRef.current = study;
-                setPersona(study.persona);
-              }}
-            />
-          )}
-          {step === 2 && (
-            <QuestionGuideForm
-              value={questionsText}
-              onChange={setQuestionsText}
-            />
-          )}
+            {step === 0 && (
+              <ResearchContextForm
+                value={context}
+                onChange={setContext}
+                onUseSample={() => {
+                  const study = nextSampleStudy();
+                  sampleRef.current = study;
+                  setContext(study.context);
+                  setQuestionsText((study.context.questionGuide ?? []).join("\n"));
+                }}
+              />
+            )}
+            {step === 1 && (
+              <PersonaForm
+                value={persona}
+                onChange={setPersona}
+                onUseSample={() => {
+                  // Pair the persona with the sampled context when one is in
+                  // play; repeated clicks cycle to the next study's persona.
+                  const current = sampleRef.current;
+                  const study =
+                    current && persona.name !== current.persona.name
+                      ? current
+                      : nextSampleStudy();
+                  sampleRef.current = study;
+                  setPersona(study.persona);
+                }}
+              />
+            )}
+            {step === 2 && (
+              <QuestionGuideForm
+                value={questionsText}
+                onChange={setQuestionsText}
+              />
+            )}
           </div>
 
-          <div className="mt-10 flex items-center justify-between gap-4">
+          <div className="mt-8 flex items-center justify-between gap-4">
             <Button
-              variant="ghost"
+              variant="secondary"
+              leadingIcon={RiArrowLeftLine}
               onClick={() => (step === 0 ? setPhase("intro") : goTo(step - 1))}
             >
               {step === 0 ? "Back to start" : "Back"}
             </Button>
             <div className="flex items-center gap-4">
-              <p className="hidden text-sm text-muted-foreground sm:block">
+              <p className="hidden text-body-2-regular text-text-secondary sm:block">
                 {hint}
               </p>
               {step < STEP_META.length - 1 ? (
                 <Button
-                  className="h-11 px-7 hover:bg-brand"
+                  trailingIcon={RiArrowRightLine}
                   disabled={!stepValid}
                   onClick={() => goTo(step + 1)}
                 >
@@ -452,18 +464,11 @@ export default function SetupPage() {
                 </Button>
               ) : (
                 <Button
-                  className="h-11 px-7 text-[15px] hover:bg-brand"
                   onClick={attemptStart}
                   disabled={!canStart || isStarting}
+                  leadingIcon={isStarting ? SpinnerIcon : undefined}
                 >
-                  {isStarting ? (
-                    <>
-                      <Loader2 className="animate-spin" />
-                      Selecting voice…
-                    </>
-                  ) : (
-                    "Start interview session"
-                  )}
+                  {isStarting ? "Selecting voice" : "Start interview session"}
                 </Button>
               )}
             </div>
@@ -471,61 +476,58 @@ export default function SetupPage() {
         </div>
       </main>
 
-      <AlertDialog open={warnOpen} onOpenChange={setWarnOpen}>
-        <AlertDialogPopup>
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center border border-foreground bg-wash-amber text-wash-amber-fg">
-              <TriangleAlert className="size-4.5" />
-            </span>
-            <div className="min-w-0">
-              <AlertDialogTitle>Start without a few key details?</AlertDialogTitle>
-              <AlertDialogDescription className="mt-1.5">
-                These shape how real your participant feels. You can start
-                anyway, but adding them makes the rehearsal sharper.
-              </AlertDialogDescription>
-            </div>
+      <Dialog
+        role="alertdialog"
+        isOpen={warnOpen}
+        onOpenChange={setWarnOpen}
+        aria-label="Start without a few key details?"
+      >
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-2lg bg-wash-amber text-wash-amber-fg">
+            <RiAlertLine className="size-4.5" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <DialogTitle>Start without a few key details?</DialogTitle>
+            <DialogDescription className="mt-1.5">
+              These shape how real your participant feels. You can start
+              anyway, but adding them makes the rehearsal sharper.
+            </DialogDescription>
           </div>
+        </div>
 
-          <ul className="mt-5 grid gap-3 border-t border-border pt-5">
-            {missingFields.map((field) => (
-              <li key={field.label} className="flex items-start gap-2.5">
-                <span
-                  aria-hidden
-                  className="mt-[7px] size-1.5 shrink-0 bg-wash-amber-fg"
-                />
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium tracking-tight">
-                    {field.label}
-                  </p>
-                  <p className="text-[12px] leading-snug text-muted-foreground">
-                    {field.why}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+        <ul className="mt-5 grid gap-3 border-t border-separator-border pt-5">
+          {missingFields.map((field) => (
+            <li key={field.label} className="flex items-start gap-2.5">
+              <span
+                aria-hidden
+                className="mt-[7px] size-1.5 shrink-0 rounded-full bg-wash-amber-fg"
+              />
+              <div className="min-w-0">
+                <p className="text-body-2-medium text-text-primary">{field.label}</p>
+                <p className="text-caption-1-medium text-text-secondary">{field.why}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
 
-          <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-            <Button
-              variant="ghost"
-              className="sm:order-1"
-              disabled={isStarting}
-              onClick={() => {
-                setWarnOpen(false);
-                void handleStart();
-              }}
-            >
-              Start anyway
-            </Button>
-            <Button
-              className="h-10 px-5 hover:bg-brand sm:order-2"
-              onClick={goToFirstMissing}
-            >
-              Add them now
-            </Button>
-          </div>
-        </AlertDialogPopup>
-      </AlertDialog>
+        <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button
+            variant="secondary"
+            disabled={isStarting}
+            onClick={() => {
+              setWarnOpen(false);
+              void handleStart();
+            }}
+          >
+            Start anyway
+          </Button>
+          <Button onClick={goToFirstMissing}>Add them now</Button>
+        </div>
+      </Dialog>
     </>
   );
+}
+
+function SpinnerIcon({ className }: { className?: string }) {
+  return <RiLoader4Line className={cx(className, "animate-spin")} aria-hidden />;
 }

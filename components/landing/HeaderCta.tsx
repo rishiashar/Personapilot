@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { NavButton } from "@/components/NavButton";
+import { cx } from "@/utils/cx";
 
 /**
  * Right side of the landing header. Shows the mode label while the hero is
@@ -27,8 +26,8 @@ export function HeaderCta({ mode }: { mode: string }) {
   return (
     <span className="relative flex h-9 items-center justify-end">
       <span
-        className={cn(
-          "text-[13px] font-medium text-muted-foreground transition-all duration-300",
+        className={cx(
+          "text-body-2-medium text-text-secondary transition-all duration-300",
           pastHero && "pointer-events-none -translate-y-1 opacity-0",
         )}
         aria-hidden={pastHero}
@@ -36,7 +35,7 @@ export function HeaderCta({ mode }: { mode: string }) {
         {mode}
       </span>
       <span
-        className={cn(
+        className={cx(
           "absolute right-0 transition-all duration-300",
           pastHero
             ? "translate-y-0 opacity-100"
@@ -44,14 +43,9 @@ export function HeaderCta({ mode }: { mode: string }) {
         )}
         aria-hidden={!pastHero}
       >
-        <Button
-          size="sm"
-          className="h-9 px-4 text-[13px] hover:bg-brand"
-          nativeButton={false}
-          render={<Link href="/setup" tabIndex={pastHero ? 0 : -1} />}
-        >
+        <NavButton href="/setup" size="small" tabIndex={pastHero ? 0 : -1}>
           Start a rehearsal
-        </Button>
+        </NavButton>
       </span>
     </span>
   );

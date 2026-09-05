@@ -1,18 +1,18 @@
 import type { ReactNode } from "react";
-
-import { cn } from "@/lib/utils";
+import { Chip } from "@/components/base/badges/chip";
+import { cx } from "@/utils/cx";
 
 export type TagTone = "neutral" | "ink" | "green" | "yellow" | "red" | "blue";
 
-// Square chips on pastel washes with deep companion text for legibility.
-const TONES: Record<TagTone, string> = {
-  neutral: "border border-border bg-card text-muted-foreground",
-  ink: "bg-foreground text-background",
-  green: "bg-wash-green text-wash-green-fg",
-  yellow: "bg-wash-amber text-wash-amber-fg",
-  red: "bg-wash-red text-wash-red-fg",
-  blue: "bg-wash-blue text-wash-blue-fg",
-};
+// Product-level judgement tones mapped onto BoardUI's status chip colors.
+const CHIP_COLOR = {
+  neutral: "soft",
+  ink: "gray",
+  green: "lime",
+  yellow: "yellow",
+  red: "rose",
+  blue: "blue",
+} as const;
 
 export function Tag({
   tone = "neutral",
@@ -24,14 +24,12 @@ export function Tag({
   children: ReactNode;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex h-[22px] shrink-0 items-center gap-1.5 px-2 text-[10px] leading-none font-semibold tracking-[0.06em] whitespace-nowrap uppercase",
-        TONES[tone],
-        className
-      )}
+    <Chip
+      variant="caption"
+      color={CHIP_COLOR[tone]}
+      className={cx("shrink-0 gap-1.5", className)}
     >
       {children}
-    </span>
+    </Chip>
   );
 }

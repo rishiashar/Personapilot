@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Mic } from "lucide-react";
+import { RiMicLine } from "@remixicon/react";
 
-import { cn } from "@/lib/utils";
+import { Avatar } from "@/components/base/avatar/avatar";
+import { Eyebrow } from "@/components/Eyebrow";
+import { Tag } from "@/components/Tag";
+import { cx } from "@/utils/cx";
 
 const EXCHANGES = [
   {
@@ -28,14 +31,14 @@ const EXCHANGES = [
   },
 ];
 
-const TONES = {
-  green: "bg-wash-green text-wash-green-fg",
-  amber: "bg-wash-amber text-wash-amber-fg",
+const TAG_TONE = {
+  green: "green",
+  amber: "yellow",
 } as const;
 
 type Phase = "typing" | "thinking" | "answering" | "tagged";
 
-const ENTER = "animate-hero-enter";
+const ENTER = "animate-message-in";
 
 function subscribeReducedMotion(callback: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -121,80 +124,75 @@ export function HeroDemo({ className }: { className?: string }) {
     <div
       ref={rootRef}
       aria-hidden
-      className={cn(
-        "pointer-events-none border border-foreground bg-background text-left shadow-[8px_8px_0_0_var(--foreground)] select-none",
+      className={cx(
+        "pointer-events-none overflow-hidden rounded-2xl border border-border-button-default bg-background-primary-default text-left shadow-lg select-none",
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-foreground px-3 py-2">
-        <span className="caps">Live rehearsal</span>
+      <div className="flex items-center justify-between border-b border-separator-border px-3 py-2">
+        <Eyebrow>Live rehearsal</Eyebrow>
         <span className="flex gap-1">
-          <span className="size-1.5 bg-foreground/20" />
-          <span className="size-1.5 bg-foreground/20" />
-          <span className="size-1.5 bg-foreground" />
+          <span className="size-1.5 rounded-full bg-background-quaternary-default" />
+          <span className="size-1.5 rounded-full bg-background-quaternary-default" />
+          <span className="size-1.5 rounded-full bg-accent-500" />
         </span>
       </div>
-      <div className="flex min-h-[230px] flex-col gap-3 p-4 text-[13px]">
+      <div className="flex min-h-[230px] flex-col gap-3 p-4">
         <div className="flex justify-end">
           <div className="max-w-[85%] space-y-1.5 text-right">
-            <span className="text-[10px] font-medium text-muted-foreground">
-              You · Researcher
+            <span className="text-caption-1-medium text-text-tertiary">
+              You, Researcher
             </span>
-            <p className="border border-foreground bg-foreground px-3 py-2 text-left text-background">
+            <p className="rounded-2xl rounded-br-md bg-accent-500 px-3 py-2 text-left text-body-2-regular text-text-white">
               {shownQuestion}
               {!still && phase === "typing" && (
-                <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-background" />
+                <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-text-white" />
               )}
             </p>
           </div>
         </div>
         {showAnswer && (
-          <div className={cn("flex justify-start", !still && ENTER)}>
+          <div className={cx("flex justify-start", !still && ENTER)}>
             <div className="max-w-[85%] space-y-1.5">
               <span className="flex items-center gap-1.5">
-                <span className="flex size-4 items-center justify-center bg-brand text-[8px] font-semibold text-white">
-                  D
-                </span>
-                <span className="text-[10px] font-medium text-muted-foreground">
-                  Dario · Participant
+                <Avatar size="xs" color="blue" initials="D" />
+                <span className="text-caption-1-medium text-text-tertiary">
+                  Dario, Participant
                 </span>
               </span>
-              <p className="border border-border bg-muted/40 px-3 py-2">
+              <p className="rounded-2xl rounded-bl-md bg-background-secondary-default px-3 py-2 text-body-2-regular text-text-primary">
                 {!still && phase === "thinking" ? (
                   <span className="inline-flex gap-1">
-                    <span className="size-1.5 animate-pulse bg-foreground/50" />
-                    <span className="size-1.5 animate-pulse bg-foreground/50 [animation-delay:150ms]" />
-                    <span className="size-1.5 animate-pulse bg-foreground/50 [animation-delay:300ms]" />
+                    <span className="size-1.5 rounded-full bg-foreground-icon-tertiary animate-pulse" />
+                    <span className="size-1.5 rounded-full bg-foreground-icon-tertiary animate-pulse [animation-delay:150ms]" />
+                    <span className="size-1.5 rounded-full bg-foreground-icon-tertiary animate-pulse [animation-delay:300ms]" />
                   </span>
                 ) : (
                   shownAnswer
                 )}
               </p>
               {showTag && (
-                <span
-                  className={cn(
-                    "inline-block px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.06em] uppercase",
-                    TONES[exchange.tone],
-                    !still && ENTER,
-                  )}
+                <Tag
+                  tone={TAG_TONE[exchange.tone]}
+                  className={cx(!still && ENTER)}
                 >
                   {exchange.tag}
-                </span>
+                </Tag>
               )}
             </div>
           </div>
         )}
       </div>
-      <div className="flex items-center gap-3 border-t border-foreground px-3 py-2.5">
-        <span className="flex size-7 items-center justify-center bg-foreground text-background">
-          <Mic className="size-3.5" />
+      <div className="flex items-center gap-3 border-t border-separator-border px-3 py-2.5">
+        <span className="flex size-8 items-center justify-center rounded-full bg-button-primary text-text-white">
+          <RiMicLine className="size-4" />
         </span>
         <span className="flex h-6 flex-1 items-center gap-[3px] overflow-hidden">
           {Array.from({ length: 36 }, (_, i) => (
             <span
               key={i}
-              className={cn(
-                "w-[3px] bg-brand transition-transform duration-300",
+              className={cx(
+                "w-[3px] rounded-full bg-accent-500 transition-transform duration-300",
                 speaking && visible && "animate-wavebar",
               )}
               style={{
@@ -205,9 +203,9 @@ export function HeroDemo({ className }: { className?: string }) {
             />
           ))}
         </span>
-        <span className="caps text-muted-foreground">
+        <Eyebrow className="text-text-tertiary">
           {speaking ? "Dario is speaking..." : "Listening"}
-        </span>
+        </Eyebrow>
       </div>
     </div>
   );

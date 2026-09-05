@@ -1,10 +1,3 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 /** Generate a reasonably unique id without external dependencies. */
 export function createId(prefix = "id"): string {
   return `${prefix}_${Date.now().toString(36)}_${Math.random()

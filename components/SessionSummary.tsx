@@ -1,16 +1,34 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import type { Key } from "react-aria-components";
+import {
+  RiChat3Line,
+  RiLoader4Line,
+  RiQuestionAnswerLine,
+  RiRefreshLine,
+  RiSparklingLine,
+  RiThumbUpLine,
+} from "@remixicon/react";
 
+import { Chip } from "@/components/base/badges/chip";
+import { Button } from "@/components/base/buttons/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@/components/base/table/table";
+import { Tab, TabList, TabPanel, Tabs } from "@/components/base/tabs/tabs";
+import { Eyebrow } from "@/components/Eyebrow";
+import { NavButton } from "@/components/NavButton";
 import { ParticipantCard } from "@/components/ParticipantCard";
 import { Reveal, useReducedMotion } from "@/components/landing/Reveal";
 import { Tag, type TagTone } from "@/components/Tag";
-import { Button } from "@/components/ui/button";
 import { buildSessionAnalysis } from "@/lib/mockResponses";
 import { getSessionAnalysis, saveSessionAnalysis } from "@/lib/localStorage";
-import { cn } from "@/lib/utils";
 import type {
   AnswerKind,
   ExchangeInsight,
@@ -18,59 +36,14 @@ import type {
   InterviewSession,
   SessionAnalysis,
 } from "@/lib/types";
+import { cx } from "@/utils/cx";
 
-function AnalysisSection({
-  title,
-  tag,
-  tagTone,
-  items,
-  accent = false,
-}: {
-  title: string;
-  tag: string;
-  tagTone: TagTone;
-  items: string[];
-  accent?: boolean;
-}) {
-  return (
-    <section id={sectionId(title)} className="scroll-mt-24 border-t border-foreground pt-5 pb-2">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-semibold tracking-tight">{title}</h3>
-        <Tag tone={tagTone}>
-          {tag} · {items.length}
-        </Tag>
-      </div>
-      {items.length > 0 ? (
-        <ol className="mt-4 space-y-3">
-          {items.map((item, index) => (
-            <li
-              key={index}
-              className={`grid grid-cols-[24px_minmax(0,1fr)] gap-2 text-sm leading-relaxed ${accent ? "border-l-2 border-brand pl-3" : ""}`}
-            >
-              <span className="pt-px font-mono text-xs text-muted-foreground/80">
-                {index + 1}
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Nothing flagged here for this session.
-        </p>
-      )}
-    </section>
-  );
-}
-
-function sectionId(title: string): string {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-}
+type IconComponent = typeof RiChat3Line;
 
 // Counts a number up to its target the first time it mounts, and again from the
 // old value to the new one whenever the analysis changes, so the result stats
 // read as freshly computed. Jumps straight to the value under reduced motion.
-function useCountUp(target: number, durationMs = 600): number {
+function useCountFrom(target: number, durationMs = 600): number {
   const reducedMotion = useReducedMotion();
   const [display, setDisplay] = useState(0);
   const fromRef = useRef(0);
@@ -103,12 +76,28 @@ function useCountUp(target: number, durationMs = 600): number {
   return display;
 }
 
-function StatValue({ value }: { value: number }) {
-  const display = useCountUp(value);
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconComponent;
+  label: string;
+  value: number;
+}) {
+  const display = useCountFrom(value);
   return (
-    <dd className="text-3xl font-semibold tracking-tight text-brand tabular-nums">
-      {display}
-    </dd>
+    <div className="flex min-w-0 flex-col justify-between gap-4 p-5">
+      <span className="flex w-fit items-center rounded-md bg-background-secondary-default p-1.5">
+        <Icon className="size-5 shrink-0 text-foreground-icon-primary" aria-hidden />
+      </span>
+      <div className="flex flex-col gap-0.5">
+        <dd className="font-mono text-title-1-medium text-text-primary tabular-nums">
+          {display}
+        </dd>
+        <dt className="text-body-2-medium text-text-secondary">{label}</dt>
+      </div>
+    </div>
   );
 }
 
@@ -149,43 +138,80 @@ function getVerdict(analysis: SessionAnalysis): Verdict {
   };
 }
 
-const GLANCE_SEGMENTS = [
+type SectionKey =
+  | "strongQuestions"
+  | "weakQuestions"
+  | "missedFollowUps"
+  | "suggestedImprovements"
+  | "nextInterviewTips";
+
+const SECTIONS: {
+  key: SectionKey;
+  label: string;
+  short: string;
+  tone: TagTone;
+  bar: string;
+  accent?: boolean;
+}[] = [
   {
     key: "strongQuestions",
-    label: "Strong",
-    title: "Strong questions",
+    label: "Strong questions",
+    short: "Strong",
+    tone: "green",
     bar: "bg-wash-green-fg",
-    chip: "bg-wash-green text-wash-green-fg",
   },
   {
     key: "weakQuestions",
-    label: "Needs work",
-    title: "Weak questions",
+    label: "Weak questions",
+    short: "Needs work",
+    tone: "yellow",
     bar: "bg-wash-amber-fg",
-    chip: "bg-wash-amber text-wash-amber-fg",
   },
   {
     key: "missedFollowUps",
-    label: "Missed",
-    title: "Missed follow-ups",
+    label: "Missed follow-ups",
+    short: "Missed",
+    tone: "red",
     bar: "bg-wash-red-fg",
-    chip: "bg-wash-red text-wash-red-fg",
   },
   {
     key: "suggestedImprovements",
-    label: "Rewrites",
-    title: "Suggested improvements",
+    label: "Suggested improvements",
+    short: "Rewrites",
+    tone: "blue",
     bar: "bg-wash-blue-fg",
-    chip: "bg-wash-blue text-wash-blue-fg",
+    accent: true,
   },
-] as const;
+  {
+    key: "nextInterviewTips",
+    label: "Next interview tips",
+    short: "Next time",
+    tone: "neutral",
+    bar: "bg-chart-neutral",
+  },
+];
 
-// Glanceable breakdown: a proportional bar of the feedback mix plus jump
-// links into each section.
-function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
+const CHIP_COLOR: Record<TagTone, "lime" | "yellow" | "rose" | "blue" | "soft" | "gray"> = {
+  green: "lime",
+  yellow: "yellow",
+  red: "rose",
+  blue: "blue",
+  neutral: "soft",
+  ink: "gray",
+};
+
+// Glanceable breakdown: a proportional bar of the feedback mix plus chips that
+// jump to each section's tab.
+function GlanceBar({
+  analysis,
+  onSelect,
+}: {
+  analysis: SessionAnalysis;
+  onSelect: (key: SectionKey) => void;
+}) {
   const reducedMotion = useReducedMotion();
   const [grown, setGrown] = useState(false);
-  const counts = GLANCE_SEGMENTS.map((s) => ({
+  const counts = SECTIONS.filter((s) => s.key !== "nextInterviewTips").map((s) => ({
     ...s,
     count: analysis[s.key].length,
   }));
@@ -202,30 +228,38 @@ function GlanceBar({ analysis }: { analysis: SessionAnalysis }) {
 
   return (
     <div>
-      <div className="flex h-2.5 w-full overflow-hidden border border-foreground" aria-hidden>
+      <div
+        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-background-primary-default/60"
+        aria-hidden
+      >
         {counts.map((s) =>
           s.count > 0 ? (
             <span
               key={s.key}
-              className={cn(
+              className={cx(
                 s.bar,
-                !reducedMotion && "transition-[width] duration-700 ease-out"
+                "rounded-full",
+                !reducedMotion &&
+                  "transition-[width] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
               )}
               style={{ width: filled ? `${(s.count / total) * 100}%` : "0%" }}
             />
-          ) : null
+          ) : null,
         )}
       </div>
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {counts.map((s) => (
-          <a
+          <button
             key={s.key}
-            href={`#${sectionId(s.title)}`}
-            className={`inline-flex h-[22px] items-center gap-1.5 px-2 text-[10px] leading-none font-semibold tracking-[0.06em] uppercase ${s.chip}`}
+            type="button"
+            onClick={() => onSelect(s.key)}
+            className="cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
           >
-            {s.label}
-            <span className="font-mono tabular-nums">{s.count}</span>
-          </a>
+            <Chip variant="caption" color={CHIP_COLOR[s.tone]} className="gap-1.5">
+              {s.short}
+              <span className="font-mono tabular-nums">{s.count}</span>
+            </Chip>
+          </button>
         ))}
       </div>
     </div>
@@ -252,46 +286,88 @@ const ALIGNMENT_LABEL: Record<GoalAlignment, { label: string; tone: TagTone }> =
 // question is actually producing the information the study is after.
 function ExchangeBreakdown({ exchanges }: { exchanges: ExchangeInsight[] }) {
   return (
-    <section id="question-by-question" className="scroll-mt-24">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-base font-semibold tracking-tight">
-          Question by question
-        </h2>
-        <p className="text-xs text-muted-foreground">
+    <section className="overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5 pb-4">
+        <h2 className="text-title-2-medium text-text-primary">Question by question</h2>
+        <p className="text-body-2-regular text-text-secondary">
           What each question got you, and whether it serves your goal.
         </p>
       </div>
-      <ol className="mt-4 divide-y divide-border border border-foreground bg-card">
-        {exchanges.map((exchange, index) => {
-          const kind = ANSWER_KIND_LABEL[exchange.answerKind];
-          const alignment = ALIGNMENT_LABEL[exchange.alignment];
-          return (
-            <li
-              key={index}
-              className="grid grid-cols-[24px_minmax(0,1fr)] gap-2 px-4 py-3.5 sm:px-5"
-            >
-              <span className="pt-px font-mono text-xs text-muted-foreground/80">
-                {index + 1}
-              </span>
-              <div className="min-w-0 space-y-1.5">
-                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
-                  <p className="min-w-0 text-sm leading-relaxed font-medium">
-                    {exchange.question}
-                  </p>
-                  <span className="flex shrink-0 gap-1.5">
-                    <Tag tone={kind.tone}>{kind.label}</Tag>
-                    <Tag tone={alignment.tone}>{alignment.label}</Tag>
+      <Table aria-label="Question by question breakdown" size="sm">
+        <TableHeader>
+          <TableColumn id="index" className="w-10">
+            #
+          </TableColumn>
+          <TableColumn id="question" isRowHeader className="min-w-[16rem]">
+            Question
+          </TableColumn>
+          <TableColumn id="kind">Answer type</TableColumn>
+          <TableColumn id="alignment">Goal fit</TableColumn>
+          <TableColumn id="learned" className="min-w-[16rem]">
+            What you learned
+          </TableColumn>
+        </TableHeader>
+        <TableBody>
+          {exchanges.map((exchange, index) => {
+            const kind = ANSWER_KIND_LABEL[exchange.answerKind];
+            const alignment = ALIGNMENT_LABEL[exchange.alignment];
+            return (
+              <TableRow key={index} id={index}>
+                <TableCell>
+                  <span className="font-mono text-caption-1-medium text-text-tertiary tabular-nums">
+                    {index + 1}
                   </span>
-                </div>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {exchange.whatYouLearned}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
+                </TableCell>
+                <TableCell>
+                  <span className="text-body-2-medium whitespace-normal text-text-primary">
+                    {exchange.question}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Tag tone={kind.tone}>{kind.label}</Tag>
+                </TableCell>
+                <TableCell>
+                  <Tag tone={alignment.tone}>{alignment.label}</Tag>
+                </TableCell>
+                <TableCell>
+                  <span className="text-body-2-regular whitespace-normal text-text-secondary">
+                    {exchange.whatYouLearned}
+                  </span>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </section>
+  );
+}
+
+function FeedbackList({ items, accent }: { items: string[]; accent?: boolean }) {
+  if (items.length === 0) {
+    return (
+      <p className="py-6 text-body-regular text-text-secondary">
+        Nothing flagged here for this session.
+      </p>
+    );
+  }
+  return (
+    <ol className="divide-y divide-separator-border">
+      {items.map((item, index) => (
+        <li
+          key={index}
+          className={cx(
+            "grid grid-cols-[28px_minmax(0,1fr)] gap-2 py-3.5",
+            accent && "border-l-2 border-accent-500 pl-3",
+          )}
+        >
+          <span className="pt-0.5 font-mono text-caption-1-medium text-text-tertiary tabular-nums">
+            {index + 1}
+          </span>
+          <span className="text-body-regular text-text-primary">{item}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -305,10 +381,10 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
   // component only renders after the store has hydrated).
   const saved = useMemo(
     () => getSessionAnalysis(session.id, session.messages.length),
-    [session.id, session.messages.length]
+    [session.id, session.messages.length],
   );
   const [analysis, setAnalysis] = useState<SessionAnalysis>(
-    saved ?? placeholder
+    saved ?? placeholder,
   );
   const [isAiGenerated, setIsAiGenerated] = useState(saved !== null);
 
@@ -320,6 +396,8 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
     saved === null;
   const [isAnalyzing, setIsAnalyzing] = useState(shouldAutoRun);
   const [error, setError] = useState<string | null>(null);
+  const [section, setSection] = useState<Key>("strongQuestions");
+  const sectionsRef = useRef<HTMLDivElement>(null);
 
   const runAnalysis = useCallback(async () => {
     try {
@@ -373,155 +451,143 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
   }, [runAnalysis, shouldAutoRun]);
 
   const researcherCount = session.messages.filter(
-    (m) => m.role === "researcher"
+    (m) => m.role === "researcher",
   ).length;
   const participantCount = session.messages.filter(
-    (m) => m.role === "participant"
+    (m) => m.role === "participant",
   ).length;
   const isActive = session.status === "active";
 
-  const stats: { label: string; value: number }[] = [
-    { label: "Questions asked", value: researcherCount },
-    { label: "Responses", value: participantCount },
-    { label: "Strong questions", value: analysis.strongQuestions.length },
+  const stats: { label: string; value: number; icon: IconComponent }[] = [
+    { label: "Questions asked", value: researcherCount, icon: RiQuestionAnswerLine },
+    { label: "Responses", value: participantCount, icon: RiChat3Line },
+    { label: "Strong questions", value: analysis.strongQuestions.length, icon: RiThumbUpLine },
     {
       label: "Suggested rewrites",
       value: analysis.suggestedImprovements.length,
+      icon: RiSparklingLine,
     },
   ];
 
   const verdict = getVerdict(analysis);
 
+  const jumpToSection = (key: SectionKey) => {
+    setSection(key);
+    sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-5 py-12 sm:px-8 sm:py-14">
       <div className="animate-rise mx-auto flex max-w-2xl flex-col items-center text-center">
-        <div>
-          <p className="caps text-muted-foreground">Summary</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] sm:text-[2.6rem]">
-            Session{" "}
-            <span className="relative inline-block whitespace-nowrap text-brand">
-              summary
-              <svg
-                aria-hidden
-                viewBox="0 0 230 12"
-                preserveAspectRatio="none"
-                className="absolute right-0 -bottom-1 left-0 h-[0.12em] w-full"
-              >
-                <path
-                  d="M4 9 C 60 3, 160 2.5, 226 6.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  pathLength="1"
-                  className="animate-underline-draw"
-                />
-              </svg>
-            </span>
-          </h1>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-            <Tag tone={isActive ? "ink" : "neutral"}>
-              {isActive ? "Active session" : "Completed"}
-            </Tag>
-            <Tag
-              tone={isAnalyzing ? "neutral" : isAiGenerated ? "green" : "yellow"}
+        <Eyebrow>Summary</Eyebrow>
+        <h1 className="mt-3 text-display-4-semibold text-text-primary sm:text-display-3-semibold">
+          Session{" "}
+          <span className="relative inline-block whitespace-nowrap text-accent-600">
+            summary
+            <svg
+              aria-hidden
+              viewBox="0 0 230 12"
+              preserveAspectRatio="none"
+              className="absolute right-0 -bottom-1 left-0 h-[0.12em] w-full"
             >
-              {isAnalyzing
-                ? "Analyzing"
-                : isAiGenerated
-                  ? "AI analysis"
-                  : "Baseline feedback"}
-            </Tag>
-          </div>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-            {isAnalyzing ? (
-              "Analyzing your interview transcript…"
-            ) : (
-              <>
-                {isAiGenerated
-                  ? "AI-generated coaching for "
-                  : "Baseline feedback for "}
-                <span className="font-medium text-foreground">
-                  {session.researchContext.projectName || "your rehearsal"}
-                </span>
-                {isAiGenerated
-                  ? "."
-                  : ". Generate AI analysis for transcript-specific coaching."}
-              </>
-            )}
-          </p>
+              <path
+                d="M4 9 C 60 3, 160 2.5, 226 6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="5"
+                strokeLinecap="round"
+                pathLength="1"
+                className="animate-underline-draw"
+              />
+            </svg>
+          </span>
+        </h1>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+          <Tag tone={isActive ? "ink" : "neutral"}>
+            {isActive ? "Active session" : "Completed"}
+          </Tag>
+          <Tag tone={isAnalyzing ? "neutral" : isAiGenerated ? "green" : "yellow"}>
+            {isAnalyzing
+              ? "Analyzing"
+              : isAiGenerated
+                ? "AI analysis"
+                : "Baseline feedback"}
+          </Tag>
         </div>
+        <p className="mx-auto mt-3 max-w-md text-body-regular text-text-secondary">
+          {isAnalyzing ? (
+            "Analyzing your interview transcript."
+          ) : (
+            <>
+              {isAiGenerated ? "AI-generated coaching for " : "Baseline feedback for "}
+              <span className="text-body-medium text-text-primary">
+                {session.researchContext.projectName || "your rehearsal"}
+              </span>
+              {isAiGenerated
+                ? "."
+                : ". Generate AI analysis for transcript-specific coaching."}
+            </>
+          )}
+        </p>
         <div className="mt-7 flex flex-wrap justify-center gap-2">
           <Button
-            className="hover:bg-brand"
             onClick={generateAnalysis}
             disabled={isAnalyzing}
+            leadingIcon={isAnalyzing ? SpinnerIcon : isAiGenerated ? RiRefreshLine : RiSparklingLine}
           >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="animate-spin" />
-                Analyzing interview…
-              </>
-            ) : isAiGenerated ? (
-              "Regenerate analysis"
-            ) : (
-              "Generate analysis"
-            )}
+            {isAnalyzing
+              ? "Analyzing interview"
+              : isAiGenerated
+                ? "Regenerate analysis"
+                : "Generate analysis"}
           </Button>
           {isActive ? (
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/interview" />}
-            >
+            <NavButton variant="secondary" href="/interview">
               Back to interview
-            </Button>
+            </NavButton>
           ) : null}
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/setup" />}
-          >
+          <NavButton variant="secondary" href="/setup">
             New rehearsal
-          </Button>
+          </NavButton>
         </div>
       </div>
 
       {error ? (
-        <p className="text-center text-sm text-muted-foreground" role="status">
+        <p className="text-center text-body-2-regular text-text-secondary" role="status">
           {error}
         </p>
       ) : null}
 
       {/* At a glance: verdict, feedback mix, raw numbers */}
       <Reveal>
-      <div className="grid border border-foreground max-lg:divide-y lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x divide-foreground">
-        <div className={`flex flex-col justify-between gap-6 p-6 sm:p-7 transition-colors duration-500 motion-reduce:transition-none ${verdict.wash}`}>
-          <div>
-            <p className="caps opacity-70">At a glance</p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
-              {verdict.label}
-            </p>
-            <p className="mt-3 max-w-md text-sm leading-relaxed">
-              {verdict.takeaway}
-            </p>
-          </div>
-          <GlanceBar analysis={analysis} />
-        </div>
-        <dl className="grid grid-cols-2 max-lg:divide-y divide-foreground">
-          {stats.map((stat, index) => (
-            <div
-              key={stat.label}
-              className={`bg-card px-4 py-4 sm:px-5 ${index % 2 === 0 ? "border-r border-foreground" : ""} ${index < 2 ? "lg:border-b lg:border-foreground" : ""}`}
-            >
-              <StatValue value={stat.value} />
-              <dt className="mt-1 text-xs font-medium text-muted-foreground">
-                {stat.label}
-              </dt>
+        <div className="grid overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default divide-separator-border max-lg:divide-y lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x">
+          <div
+            className={cx(
+              "flex flex-col justify-between gap-6 p-6 transition-colors duration-300 motion-reduce:transition-none sm:p-7",
+              verdict.wash,
+            )}
+          >
+            <div>
+              <Eyebrow className="text-current opacity-70">At a glance</Eyebrow>
+              <p className="mt-3 text-display-4-semibold">{verdict.label}</p>
+              <p className="mt-3 max-w-md text-body-regular">{verdict.takeaway}</p>
             </div>
-          ))}
-        </dl>
-      </div>
+            <GlanceBar analysis={analysis} onSelect={jumpToSection} />
+          </div>
+          <dl className="grid grid-cols-2 divide-separator-border">
+            {stats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className={cx(
+                  index % 2 === 0 && "border-r border-separator-border",
+                  index < 2 && "border-b border-separator-border",
+                )}
+              >
+                <StatTile icon={stat.icon} label={stat.label} value={stat.value} />
+              </div>
+            ))}
+          </dl>
+        </div>
       </Reveal>
 
       {analysis.exchanges && analysis.exchanges.length > 0 ? (
@@ -531,49 +597,44 @@ export function SessionSummary({ session }: { session: InterviewSession }) {
       ) : null}
 
       <Reveal>
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-8">
-          <AnalysisSection
-            title="Strong questions"
-            tag="Strong"
-            tagTone="green"
-            items={analysis.strongQuestions}
-          />
-          <AnalysisSection
-            title="Weak questions"
-            tag="Needs work"
-            tagTone="yellow"
-            items={analysis.weakQuestions}
-          />
-          <AnalysisSection
-            title="Missed follow-ups"
-            tag="Follow-up"
-            tagTone="red"
-            items={analysis.missedFollowUps}
-          />
-          <AnalysisSection
-            title="Suggested improvements"
-            tag="Rewrite"
-            tagTone="blue"
-            items={analysis.suggestedImprovements}
-            accent
-          />
-          <AnalysisSection
-            title="Next interview tips"
-            tag="Next time"
-            tagTone="neutral"
-            items={analysis.nextInterviewTips}
-          />
-        </div>
+        <div
+          ref={sectionsRef}
+          className="grid scroll-mt-24 grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]"
+        >
+          <section className="rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:p-6">
+            <h2 className="text-title-2-medium text-text-primary">Coaching notes</h2>
+            <Tabs
+              selectedKey={section}
+              onSelectionChange={setSection}
+              className="mt-4"
+            >
+              <TabList aria-label="Feedback sections" className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {SECTIONS.map((s) => (
+                  <Tab key={s.key} id={s.key} count={analysis[s.key].length}>
+                    {s.label}
+                  </Tab>
+                ))}
+              </TabList>
+              {SECTIONS.map((s) => (
+                <TabPanel key={s.key} id={s.key}>
+                  <FeedbackList items={analysis[s.key]} accent={s.accent} />
+                </TabPanel>
+              ))}
+            </Tabs>
+          </section>
 
-        <div>
-          <ParticipantCard
-            persona={session.persona}
-            className="border border-foreground"
-          />
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <ParticipantCard
+              persona={session.persona}
+              className="rounded-3xl border border-border-button-default"
+            />
+          </div>
         </div>
-      </div>
       </Reveal>
     </div>
   );
+}
+
+function SpinnerIcon({ className }: { className?: string }) {
+  return <RiLoader4Line className={cx(className, "animate-spin")} aria-hidden />;
 }

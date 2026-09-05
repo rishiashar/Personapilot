@@ -1,47 +1,65 @@
 # ProbeRoom design language
 
-Distilled from the landing page. Every screen in the rehearsal flow follows
-these rules.
+Distilled from the BoardUI conversion. Every screen in the rehearsal flow
+follows these rules.
 
 ## Foundations
 
-- **Radius 0.** No rounded corners anywhere.
-- **Black strokes.** Primary frames and panel dividers use `border-foreground`
-  (full black). Hairlines inside a frame (rows, form rules) use
-  `border-border`.
-- **One accent.** Brand blue (`brand`) is the only accent color. It marks
-  progress, the active voice, and hover states on primary buttons
-  (`hover:bg-brand`).
-- **Pastel washes for state.** `wash-green` / `wash-amber` / `wash-red` /
-  `wash-blue` communicate judgement (strong / mixed / needs work / info).
-  Never decorative.
+- **Semantic tokens only.** Every color rides a BoardUI token: `text-text-primary`
+  / `-secondary` / `-tertiary`, `bg-background-full` / `-primary-default` /
+  `-secondary-default`, `border-border-button-default`. No raw palette classes
+  (`text-gray-500`, `bg-white`), no hex or oklch literals, no `dark:` prefixes.
+- **Dark mode is a class, not a fork.** The header toggle flips the `.dark`
+  class on `<html>`; tokens carry the theme from there. If a token pair reads
+  wrong in dark mode, pick a different token, never a literal override.
+- **One accent, re-tinted.** The `accent-50` through `accent-950` ramp is
+  retuned to ProbeRoom blue (hue 262, chroma held under 0.18). It is the only
+  color used for CTAs, selection, focus rings, and links.
+- **Pastel washes mark judgement only.** `wash-green` / `wash-amber` /
+  `wash-red` / `wash-blue` with their `-fg` companions communicate verdicts
+  (strong, mixed, needs work, info). Never used decoratively.
+- **The spectrum stays reserved.** The eight `spectrum` tokens belong to the
+  voice waveform and the footer wordmark sweep, and appear nowhere else.
 - **No em or en dashes** in copy. Use commas, colons, or "to".
 
 ## Type
 
-- **Caps labels.** Section and panel eyebrows use `.caps` (mono, uppercase,
-  tracked out). Panel headers are caps, never sentence case.
-- **Title moments.** Page-level headers are centered: caps eyebrow, then a
-  large tight heading (`tracking-[-0.02em]`), then a short muted description.
-  Body content below stays left-aligned for readability.
-- **Numbers are mono.** Counters, timestamps, and stats use
+- **Caps labels via `Eyebrow`.** Every uppercase section or panel label uses
+  the `Eyebrow` component, never a hand-rolled tracking and uppercase stack.
+- **A scale, not a size.** Page titles use `display-3` or `display-4`, section
+  headers use `title-2`, lead copy uses `headline`, everyday UI text uses
+  `body`, and meta text uses `caption`. Pick the composite utility for the
+  role, never stack size, weight, and leading by hand.
+- **Numbers are mono.** Counters, timestamps, and stats add
   `font-mono tabular-nums`.
 
 ## Layout
 
-- **Centered bookends, left-aligned reading.** Hero-style headers and closing
-  actions center; forms, lists, and paragraphs keep a hard left edge.
-- **Panels share a header band.** Inside a console frame, every panel header
-  is the same fixed height (`h-12`), vertically centered, with a
-  `border-border` rule below. Caps title on the left, mono meta on the right.
-- **Frames do the cropping.** Content can bleed off a card's bottom-right;
-  the card edge is the crop.
+- **Rounded geometry, by scale.** Cards are `rounded-3xl` with
+  `border-border-button-default`, inner panels are `rounded-2xl`, controls are
+  `rounded-2lg`, and chips are `rounded-full`.
+- **Hairlines are `border-separator-border`.** Every rule inside a frame,
+  between rows, or under a header uses this token, never the card border
+  token.
+- **Centered bookends, left-aligned reading.** Page-level headers center;
+  forms, lists, and paragraphs keep a hard left edge.
+- **Console panels share a header band.** Inside a console frame, every panel
+  header sits in the same 48px band.
 
 ## Motion
 
-- **Rise on entry.** Page headers stagger in with `animate-rise`; below-fold
-  sections use `<Reveal>`.
-- **Hard shadow on hover.** Interactive cards lift with
-  `hover:shadow-[8px_8px_0_0_var(--foreground)]`.
-- **Reduced motion respected.** Every animation has a
-  `motion-reduce` / `prefers-reduced-motion` fallback.
+- **Entrances condense into place.** Fade in, scale up slightly, and lose
+  2px of blur, over 300 to 400ms with an ease-out curve.
+- **Hover is quick.** Color and background transitions on hover run at 150ms.
+- **Press darkens, it never scales.** A pressed control steps one token
+  darker; it does not shrink or grow.
+- **Exits are faster than entrances.** Leaving the screen should never feel
+  slower than arriving on it.
+- **`prefers-reduced-motion` is always respected.** Every animation utility
+  has a reduced-motion fallback, no exceptions.
+- **Use the shared utilities.** `animate-rise` for page blocks, `<Reveal>` for
+  below-fold sections, `animate-message-in` for new transcript rows,
+  `stagger-children` for cascading form rows.
+
+BoardUI itself is documented at boardui.com. Its components are installed,
+not hand-built: add one with `npx boardui@latest add <name>`.

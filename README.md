@@ -12,7 +12,7 @@ The goal is not to replace real users or generate final research insights from A
 
 - [Next.js](https://nextjs.org) 16 (App Router) + TypeScript
 - [Tailwind CSS](https://tailwindcss.com) v4
-- [shadcn/ui](https://ui.shadcn.com) component library
+- BoardUI design system (React Aria Components + Tailwind CSS v4, components installed as source under components/base and components/application)
 - [OpenAI API](https://platform.openai.com) — persona responses, session analysis, voice transcription
 - [ElevenLabs API](https://elevenlabs.io) — participant text-to-speech with automatic voice selection
 - `localStorage` for MVP persistence (no database, no authentication)
@@ -95,7 +95,11 @@ components/
   AppHeader.tsx         ParticipantCard.tsx    TranscriptPanel.tsx
   PersonaForm.tsx       InterviewRoom.tsx      SessionSummary.tsx
   ResearchContextForm.tsx  InterviewChat.tsx   EmptyState.tsx
-  VoiceConsole.tsx      ui/                    # shadcn/ui components
+  VoiceConsole.tsx      base/                  # BoardUI components
+                        application/           # BoardUI components
+
+styles/                # BoardUI tokens and type scale
+utils/cx.ts
 
 lib/
   types.ts              # Persona, ResearchContext, InterviewMessage, InterviewSession, SessionAnalysis

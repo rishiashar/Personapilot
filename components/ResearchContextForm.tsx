@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RiShuffleLine } from "@remixicon/react";
+
+import { Button } from "@/components/base/buttons/button";
+import { Input } from "@/components/base/input/input";
+import { TextArea } from "@/components/base/input/textarea";
+import { Eyebrow } from "@/components/Eyebrow";
 import type { ResearchContext } from "@/lib/types";
 
 export function ResearchContextForm({
@@ -17,13 +19,17 @@ export function ResearchContextForm({
     onChange({ ...value, [key]: fieldValue });
 
   return (
-    <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
+    <section className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)] md:gap-12">
       <div>
-        <h2 className="caps">Research context</h2>
+        <Eyebrow>Research context</Eyebrow>
+        <p className="mt-2 text-body-regular text-text-secondary">
+          What you are studying and what you want to learn.
+        </p>
         <Button
           type="button"
-          variant="outline"
-          size="sm"
+          variant="secondary"
+          size="small"
+          leadingIcon={RiShuffleLine}
           className="mt-4"
           onClick={onUseSample}
         >
@@ -31,56 +37,44 @@ export function ResearchContextForm({
         </Button>
       </div>
 
-      <div className="stagger-children grid gap-6">
-        <div className="grid gap-2">
-          <Label htmlFor="projectName">Project name</Label>
+      <div className="stagger-children grid gap-5">
+        <Input
+          label="Project name"
+          isRequired
+          placeholder="e.g. Freelancer project management study"
+          value={value.projectName}
+          onChange={(fieldValue) => set("projectName", fieldValue)}
+        />
+
+        <TextArea
+          label="Research goal"
+          rows={3}
+          placeholder="What is the core question this research should answer?"
+          value={value.researchGoal}
+          onChange={(fieldValue) => set("researchGoal", fieldValue)}
+        />
+
+        <TextArea
+          label="Product context"
+          rows={3}
+          placeholder="Describe the product or experience participants will react to."
+          value={value.productContext}
+          onChange={(fieldValue) => set("productContext", fieldValue)}
+        />
+
+        <div className="grid gap-5 sm:grid-cols-2">
           <Input
-            id="projectName"
-            placeholder="e.g. Freelancer project management study"
-            value={value.projectName}
-            onChange={(e) => set("projectName", e.target.value)}
+            label="Target audience"
+            placeholder="e.g. Freelance designers and developers"
+            value={value.targetAudience}
+            onChange={(fieldValue) => set("targetAudience", fieldValue)}
           />
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="researchGoal">Research goal</Label>
-          <Textarea
-            id="researchGoal"
-            placeholder="What is the core question this research should answer?"
-            value={value.researchGoal}
-            onChange={(e) => set("researchGoal", e.target.value)}
+          <Input
+            label="Key learning goals"
+            placeholder="e.g. Understand how freelancers track projects"
+            value={value.keyLearningGoals}
+            onChange={(fieldValue) => set("keyLearningGoals", fieldValue)}
           />
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="productContext">Product context</Label>
-          <Textarea
-            id="productContext"
-            placeholder="Describe the product or experience participants will react to."
-            value={value.productContext}
-            onChange={(e) => set("productContext", e.target.value)}
-          />
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="targetAudience">Target audience</Label>
-            <Input
-              id="targetAudience"
-              placeholder="e.g. Freelance designers and developers"
-              value={value.targetAudience}
-              onChange={(e) => set("targetAudience", e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="keyLearningGoals">Key learning goals</Label>
-            <Input
-              id="keyLearningGoals"
-              placeholder="e.g. Understand how freelancers track projects"
-              value={value.keyLearningGoals}
-              onChange={(e) => set("keyLearningGoals", e.target.value)}
-            />
-          </div>
         </div>
       </div>
     </section>

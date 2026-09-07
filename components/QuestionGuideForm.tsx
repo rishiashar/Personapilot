@@ -1,11 +1,16 @@
 "use client";
 
 import { useRef, useState, type DragEvent } from "react";
-import { FileText, Loader2, Upload } from "lucide-react";
+import {
+  RiFileTextLine,
+  RiLoader4Line,
+  RiUploadCloud2Line,
+} from "@remixicon/react";
 
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { Divider } from "@/components/base/divider/divider";
+import { TextArea } from "@/components/base/input/textarea";
+import { Eyebrow } from "@/components/Eyebrow";
+import { cx } from "@/utils/cx";
 
 export function countQuestions(text: string): number {
   return text.split("\n").filter((line) => line.trim().length > 0).length;
@@ -96,15 +101,18 @@ export function QuestionGuideForm({
   const total = countQuestions(value);
 
   return (
-    <section className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-14">
+    <section className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)] md:gap-12">
       <div>
-        <h2 className="caps">Question guide</h2>
+        <Eyebrow>Question guide</Eyebrow>
+        <p className="mt-2 text-body-regular text-text-secondary">
+          Optional. Shown beside the interview room so you can read while you talk.
+        </p>
       </div>
 
-      <div className="stagger-children grid gap-6">
+      <div className="stagger-children grid gap-5">
         {/* Upload zone */}
         <div className="grid gap-2">
-          <p className="caps text-muted-foreground">Import your script</p>
+          <Eyebrow>Import your script</Eyebrow>
           <button
             type="button"
             disabled={isImporting}
@@ -114,50 +122,42 @@ export function QuestionGuideForm({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
             aria-label="Upload a question document"
-            className={cn(
-              "flex w-full cursor-pointer flex-col items-center justify-center gap-3 border-2 border-dashed px-6 py-10 text-center transition-colors",
+            className={cx(
+              "flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors duration-150",
               isDragging
-                ? "border-brand bg-wash-blue"
-                : "border-border bg-card hover:border-foreground hover:bg-muted/50",
+                ? "border-accent-500 bg-accent-50"
+                : "border-border-button-default bg-background-secondary-default hover:border-border-button-hover",
               isImporting && "cursor-wait opacity-80"
             )}
           >
-            <span
-              className={cn(
-                "flex size-11 items-center justify-center border",
-                isDragging
-                  ? "border-brand bg-background text-brand"
-                  : "border-foreground bg-background"
-              )}
-            >
+            <span className="flex size-11 items-center justify-center rounded-full bg-file-upload-icon-background text-file-upload-icon-foreground">
               {isImporting ? (
-                <Loader2 className="size-5 animate-spin" />
+                <RiLoader4Line className="size-5 animate-spin" />
               ) : (
-                <Upload className="size-5" />
+                <RiUploadCloud2Line className="size-5" />
               )}
             </span>
-            <span className="text-sm font-semibold tracking-tight">
+            <span className="text-body-medium text-text-primary">
               {isImporting
-                ? "Reading your document…"
+                ? "Reading your document"
                 : isDragging
                   ? "Drop it here"
                   : "Drag and drop your question document"}
             </span>
-            <span className="text-xs text-muted-foreground">
-              or <span className="font-medium text-foreground underline underline-offset-2">browse files</span>
-              {" · "}PDF, Word (.docx), text, or Markdown
+            <span className="text-caption-1-medium text-text-secondary">
+              or browse files. PDF, Word (.docx), text, or Markdown
             </span>
           </button>
           {importError ? (
-            <p role="status" className="text-xs text-destructive">
+            <p role="status" className="text-caption-1-medium text-text-error-primary">
               {importError}
             </p>
           ) : importedFile ? (
             <p
               role="status"
-              className="flex items-center gap-1.5 text-xs text-wash-green-fg"
+              className="flex items-center gap-1.5 text-caption-1-medium text-state-success-text"
             >
-              <FileText className="size-3.5" />
+              <RiFileTextLine className="size-3.5" />
               {importedFile}
             </p>
           ) : null}
@@ -174,30 +174,27 @@ export function QuestionGuideForm({
           />
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3" aria-hidden>
-          <span className="h-px flex-1 bg-border" />
-          <span className="caps text-muted-foreground">or type them</span>
-          <span className="h-px flex-1 bg-border" />
-        </div>
+        <Divider>or type them</Divider>
 
         {/* Manual entry */}
         <div className="grid gap-2">
           <div className="flex items-baseline justify-between">
-            <Label htmlFor="questionGuide">Questions, one per line</Label>
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+            <span className="text-body-medium text-text-primary">
+              Questions, one per line
+            </span>
+            <span className="font-mono text-caption-1-medium tabular-nums text-text-tertiary">
               {total} {total === 1 ? "question" : "questions"}
             </span>
           </div>
-          <Textarea
-            id="questionGuide"
+          <TextArea
+            aria-label="Questions, one per line"
             rows={10}
-            className="min-h-56"
+            fieldClassName="min-h-56"
             placeholder={
               "Walk me through your typical Monday morning.\nTell me about the last time that workflow broke down."
             }
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(fieldValue) => onChange(fieldValue)}
           />
         </div>
       </div>

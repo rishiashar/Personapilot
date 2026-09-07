@@ -1,13 +1,13 @@
 import { Reveal } from "@/components/landing/Reveal";
 
 const SPECTRUM_GRADIENT =
-  "linear-gradient(90deg, #FFA0B4, #FFC280, #FFE47C, #A4E29A, #80D3F7, #AAB4FF, #D3A6FF, #FFA2DB, #FFA0B4)";
+  "linear-gradient(90deg, var(--color-spectrum-1), var(--color-spectrum-2), var(--color-spectrum-3), var(--color-spectrum-4), var(--color-spectrum-5), var(--color-spectrum-6), var(--color-spectrum-7), var(--color-spectrum-8), var(--color-spectrum-1))";
 
 export function AppFooter() {
   return (
-    <footer className="overflow-hidden bg-foreground pt-10 text-background">
+    <footer className="overflow-hidden border-t border-separator-border bg-background-secondary-default pt-10">
       <Reveal>
-        <p className="group relative -mb-[0.28em] text-center text-[clamp(4.5rem,16vw,15rem)] leading-none font-semibold tracking-[-0.045em] whitespace-nowrap select-none">
+        <p className="group relative -mb-[0.28em] text-center text-[clamp(4.5rem,16vw,15rem)] leading-none font-semibold tracking-[-0.045em] whitespace-nowrap text-text-primary select-none">
           ProbeRoom
           <span
             aria-hidden

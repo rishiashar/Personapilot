@@ -2,22 +2,27 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import {
-  ArrowRight,
-  FileUp,
-  ListChecks,
-  Loader2,
-  PenLine,
-  Sparkles,
-  Target,
-  Upload,
-  UserRound,
-} from "lucide-react";
+  RiArrowLeftLine,
+  RiArrowRightLine,
+  RiEditLine,
+  RiFileUploadLine,
+  RiFocus3Line,
+  RiListCheck2,
+  RiSparklingLine,
+  RiUploadCloud2Line,
+  RiUserLine,
+} from "@remixicon/react";
 
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
+import { Chip } from "@/components/base/badges/chip";
+import { Button } from "@/components/base/buttons/button";
+import { LinkButton } from "@/components/base/buttons/link-button";
+import { Divider } from "@/components/base/divider/divider";
+import { TextArea } from "@/components/base/input/textarea";
+import { Eyebrow } from "@/components/Eyebrow";
 import type { PersonaDraft } from "@/components/PersonaForm";
 import type { ResearchContext } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx", ".txt", ".md"];
 
@@ -26,19 +31,19 @@ const EXTRACT_PREVIEW = [
     label: "Research context",
     hint: "Goal, product, and who you are studying",
     tone: "bg-wash-blue text-wash-blue-fg",
-    icon: <Target className="size-4" />,
+    icon: RiFocus3Line,
   },
   {
     label: "Participant persona",
     hint: "Background, goals, frustrations, and voice",
     tone: "bg-wash-amber text-wash-amber-fg",
-    icon: <UserRound className="size-4" />,
+    icon: RiUserLine,
   },
   {
     label: "Question guide",
     hint: "Your discussion questions, in order",
     tone: "bg-wash-green text-wash-green-fg",
-    icon: <ListChecks className="size-4" />,
+    icon: RiListCheck2,
   },
 ] as const;
 
@@ -107,6 +112,30 @@ export function StudyIntake({
   );
 }
 
+function PageHeader({
+  eyebrow,
+  title,
+  description,
+  className,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  className?: string;
+}) {
+  return (
+    <header className={cx("text-center", className)}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h1 className="mt-3 text-display-4-semibold text-balance text-text-primary sm:text-display-3-semibold">
+        {title}
+      </h1>
+      <p className="mx-auto mt-4 max-w-lg text-headline-regular text-text-secondary">
+        {description}
+      </p>
+    </header>
+  );
+}
+
 function IntakeChooser({
   onManual,
   onDocument,
@@ -116,20 +145,15 @@ function IntakeChooser({
 }) {
   return (
     <div className="animate-rise mx-auto max-w-2xl">
-      <header className="text-center">
-        <p className="caps text-muted-foreground">New study</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-[2.6rem]">
-          How do you want to start?
-        </h1>
-        <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-          Bring a research brief and we will fill everything in, or set it up
-          step by step.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="New study"
+        title="How do you want to start?"
+        description="Bring a research brief and we will fill everything in, or set it up step by step."
+      />
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <ChoiceCard
-          icon={<FileUp className="size-5" />}
+          icon={RiFileUploadLine}
           tag="Fastest"
           title="Start from a document"
           description="Upload a brief or discussion guide. We read it and fill in your context, participant, and questions."
@@ -137,7 +161,7 @@ function IntakeChooser({
           onClick={onDocument}
         />
         <ChoiceCard
-          icon={<PenLine className="size-5" />}
+          icon={RiEditLine}
           title="Set up manually"
           description="Fill in your research context, participant, and question guide one step at a time."
           cta="Start from scratch"
@@ -149,14 +173,14 @@ function IntakeChooser({
 }
 
 function ChoiceCard({
-  icon,
+  icon: Icon,
   tag,
   title,
   description,
   cta,
   onClick,
 }: {
-  icon: React.ReactNode;
+  icon: typeof RiEditLine;
   tag?: string;
   title: string;
   description: string;
@@ -167,27 +191,34 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className="group flex flex-col gap-5 border border-foreground bg-card p-7 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className={cx(
+        "group flex cursor-pointer flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-6 text-left",
+        "transition-[background-color,border-color,box-shadow] duration-150 ease",
+        "hover:border-border-button-hover hover:bg-background-primary-hover hover:shadow-card",
+        "active:bg-background-primary-active",
+        "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:ring-offset-2",
+      )}
     >
       <div className="flex items-start justify-between">
-        <span className="flex size-11 items-center justify-center border border-foreground bg-background transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
-          {icon}
+        <span className="flex size-11 items-center justify-center rounded-2lg bg-accent-50 text-accent-600">
+          <Icon className="size-5" aria-hidden />
         </span>
         {tag ? (
-          <span className="caps border border-brand bg-wash-blue px-2 py-1 text-brand">
+          <Chip variant="caption" color="blue">
             {tag}
-          </span>
+          </Chip>
         ) : null}
       </div>
-      <div className="grid gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {description}
-        </p>
+      <div className="grid gap-1.5">
+        <h2 className="text-title-3-semibold text-text-primary">{title}</h2>
+        <p className="text-body-regular text-text-secondary">{description}</p>
       </div>
-      <span className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground">
+      <span className="mt-auto inline-flex items-center gap-1 text-body-medium text-accent-600">
         {cta}
-        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+        <RiArrowRightLine
+          className="size-4 transition-transform duration-150 group-hover:translate-x-0.5"
+          aria-hidden
+        />
       </span>
     </button>
   );
@@ -244,7 +275,7 @@ function DocumentIntake({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: pasted }),
       },
-      "Pasted text"
+      "Pasted text",
     );
   };
 
@@ -272,35 +303,24 @@ function DocumentIntake({
 
   return (
     <div className="animate-rise mx-auto max-w-4xl">
-      <header className="text-center">
-        <p className="caps text-muted-foreground">From a document</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-[2.6rem]">
-          Bring your study
-        </h1>
-        <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          Drop in a research brief or discussion guide. We read it and fill in
-          your study for you to review.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="From a document"
+        title="Bring your study"
+        description="Drop in a research brief or discussion guide. We read it and fill in your study for you to review."
+      />
 
-      <div className="mt-10 border border-foreground bg-card shadow-[8px_8px_0_0_var(--foreground)]">
+      <div className="mt-10 overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default shadow-lg">
         {isReading ? (
           <div
             role="status"
             className="flex flex-col items-center justify-center gap-5 px-6 py-24 text-center"
           >
-            <span className="relative flex size-14 items-center justify-center border border-foreground bg-background">
-              <span
-                aria-hidden
-                className="absolute inset-0 animate-pulse bg-wash-blue"
-              />
-              <Loader2 className="relative size-6 animate-spin text-brand" />
-            </span>
+            <AgentThinking variant="infinity" tone="accent" label="Reading your brief" />
             <div>
-              <p className="text-[15px] font-semibold tracking-tight">
-                Reading your brief and filling in your study
+              <p className="text-headline-medium text-text-primary">
+                Filling in your study
               </p>
-              <p className="mt-1 text-[13px] text-muted-foreground">
+              <p className="mt-1 text-body-2-regular text-text-secondary">
                 Pulling out your context, participant, and questions. This takes
                 a few seconds.
               </p>
@@ -308,9 +328,7 @@ function DocumentIntake({
           </div>
         ) : (
           <div className="lg:grid lg:grid-cols-[1.4fr_1fr]">
-            {/* Action side */}
             <div className="grid gap-6 p-6 sm:p-8">
-              {/* Upload zone */}
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
@@ -319,42 +337,38 @@ function DocumentIntake({
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 aria-label="Upload a research document"
-                className={cn(
-                  "group/drop flex w-full cursor-pointer flex-col items-center justify-center gap-3.5 border-2 border-dashed px-6 py-11 text-center transition-colors",
+                className={cx(
+                  "group/drop flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-11 text-center transition-colors duration-150",
+                  "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
                   isDragging
-                    ? "border-brand bg-wash-blue"
-                    : "border-input bg-gradient-to-br from-wash-blue/40 via-card to-card hover:border-foreground hover:from-wash-blue/70"
+                    ? "border-accent-500 bg-accent-50"
+                    : "border-border-button-default bg-background-secondary-default hover:border-border-button-hover",
                 )}
               >
                 <span
-                  className={cn(
-                    "flex size-12 items-center justify-center border border-foreground transition-colors",
+                  className={cx(
+                    "flex size-12 items-center justify-center rounded-full transition-colors duration-150",
                     isDragging
-                      ? "bg-brand text-brand-foreground"
-                      : "bg-background group-hover/drop:bg-brand group-hover/drop:text-brand-foreground"
+                      ? "bg-accent-500 text-text-white"
+                      : "bg-file-upload-icon-background text-file-upload-icon-foreground group-hover/drop:text-file-upload-icon-foreground-hover",
                   )}
                 >
-                  <Upload className="size-5" />
+                  <RiUploadCloud2Line className="size-6" aria-hidden />
                 </span>
-                <span className="text-[15px] font-semibold tracking-tight">
-                  {isDragging
-                    ? "Drop it here"
-                    : "Drag and drop your document"}
+                <span className="text-headline-medium text-text-primary">
+                  {isDragging ? "Drop it here" : "Drag and drop your document"}
                 </span>
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-body-2-regular text-text-secondary">
                   or{" "}
-                  <span className="font-medium text-foreground underline underline-offset-2">
+                  <span className="text-body-2-medium text-text-primary underline underline-offset-2">
                     browse files
                   </span>
                 </span>
                 <span className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
                   {["PDF", "DOCX", "TXT", "MD"].map((ext) => (
-                    <span
-                      key={ext}
-                      className="caps border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground"
-                    >
+                    <Chip key={ext} variant="caption" color="soft">
                       {ext}
-                    </span>
+                    </Chip>
                   ))}
                 </span>
               </button>
@@ -371,69 +385,56 @@ function DocumentIntake({
                 }}
               />
 
-              {/* Divider */}
-              <div className="flex items-center gap-3" aria-hidden>
-                <span className="h-px flex-1 bg-border" />
-                <span className="caps text-muted-foreground">or paste it</span>
-                <span className="h-px flex-1 bg-border" />
-              </div>
+              <Divider>or paste it</Divider>
 
-              {/* Paste */}
               <div className="grid gap-3">
-                <Textarea
+                <TextArea
                   rows={4}
-                  className="min-h-28 resize-none"
+                  fieldClassName="min-h-28 resize-none"
                   placeholder="Paste your research brief, study plan, or discussion guide here."
                   value={pasted}
-                  onChange={(e) => setPasted(e.target.value)}
+                  onChange={setPasted}
                   aria-label="Paste your research brief"
                 />
                 <div className="flex justify-end">
                   <Button
-                    type="button"
-                    className="h-10 px-5 hover:bg-brand"
+                    leadingIcon={RiSparklingLine}
                     disabled={pasted.trim().length < 20}
                     onClick={handlePaste}
                   >
-                    <Sparkles className="size-4" />
                     Extract study
                   </Button>
                 </div>
               </div>
 
               {error ? (
-                <p role="status" className="text-sm text-destructive">
+                <p role="status" className="text-body-2-medium text-text-error-primary">
                   {error}
                 </p>
               ) : null}
             </div>
 
-            {/* Preview side */}
-            <aside className="relative flex flex-col gap-6 border-foreground bg-gradient-to-br from-wash-blue via-background to-background p-7 max-lg:border-t lg:border-l sm:p-8">
-              <p className="caps text-muted-foreground">What we pull out</p>
+            <aside className="flex flex-col gap-6 border-separator-border bg-background-secondary-default p-7 max-lg:border-t sm:p-8 lg:border-l">
+              <Eyebrow>What we pull out</Eyebrow>
               <ul className="grid gap-5">
-                {EXTRACT_PREVIEW.map((item) => (
-                  <li key={item.label} className="flex items-start gap-3">
+                {EXTRACT_PREVIEW.map(({ label, hint, tone, icon: Icon }) => (
+                  <li key={label} className="flex items-start gap-3">
                     <span
-                      className={cn(
-                        "flex size-9 shrink-0 items-center justify-center border border-foreground",
-                        item.tone
+                      className={cx(
+                        "flex size-9 shrink-0 items-center justify-center rounded-2lg",
+                        tone,
                       )}
                     >
-                      {item.icon}
+                      <Icon className="size-4" aria-hidden />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold tracking-tight">
-                        {item.label}
-                      </p>
-                      <p className="text-[13px] leading-snug text-muted-foreground">
-                        {item.hint}
-                      </p>
+                      <p className="text-body-medium text-text-primary">{label}</p>
+                      <p className="text-body-2-regular text-text-secondary">{hint}</p>
                     </div>
                   </li>
                 ))}
               </ul>
-              <p className="mt-auto border-t border-border/70 pt-4 text-[13px] leading-relaxed text-muted-foreground">
+              <p className="mt-auto border-t border-separator-border pt-4 text-body-2-regular text-text-secondary">
                 Anything the document does not mention stays blank. You review
                 and edit every field before the session starts.
               </p>
@@ -443,9 +444,14 @@ function DocumentIntake({
       </div>
 
       <div className="mt-8 flex items-center justify-center">
-        <Button variant="ghost" onClick={onBack} disabled={isReading}>
+        <LinkButton
+          variant="secondary"
+          leadingIcon={RiArrowLeftLine}
+          onClick={onBack}
+          disabled={isReading}
+        >
           Back to start
-        </Button>
+        </LinkButton>
       </div>
     </div>
   );

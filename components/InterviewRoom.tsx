@@ -2,20 +2,48 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, ListChecks } from "lucide-react";
+import {
+  RiArrowDownSLine,
+  RiKeyboardLine,
+  RiListCheck2,
+  RiMicLine,
+} from "@remixicon/react";
 
+import { Badge } from "@/components/base/badges/badge";
+import { Button } from "@/components/base/buttons/button";
+import { Checkbox } from "@/components/base/checkbox/checkbox";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/base/segmented-control/segmented-control";
+import { Eyebrow } from "@/components/Eyebrow";
 import { InterviewChat } from "@/components/InterviewChat";
 import { ParticipantCard } from "@/components/ParticipantCard";
 import { Tag } from "@/components/Tag";
 import { TranscriptPanel } from "@/components/TranscriptPanel";
 import { VoiceConsole, type VoicePhase } from "@/components/VoiceConsole";
-import { Button } from "@/components/ui/button";
 import { saveSession } from "@/lib/localStorage";
 import { generateMockResponse } from "@/lib/mockResponses";
 import type { InterviewMessage, InterviewSession } from "@/lib/types";
 import { useParticipantVoice } from "@/lib/useParticipantVoice";
 import { useVoiceRecorder } from "@/lib/useVoiceRecorder";
-import { cn, createId } from "@/lib/utils";
+import { createId } from "@/lib/utils";
+import { cx } from "@/utils/cx";
+
+function PanelHeader({
+  title,
+  children,
+}: {
+  title: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-h-12 items-center justify-between gap-2 border-b border-separator-border px-4">
+      <Eyebrow>{title}</Eyebrow>
+      {children}
+    </div>
+  );
+}
 
 function RailSection({
   title,
@@ -31,21 +59,22 @@ function RailSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-t border-border">
+    <div className="border-t border-separator-border">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex min-h-12 w-full items-center justify-between gap-2 px-4 py-2 text-left transition-colors hover:bg-muted/60"
+        className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-2 px-4 py-2 text-left transition-colors duration-150 hover:bg-background-primary-hover focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none"
       >
-        <h2 className="caps">{title}</h2>
+        <Eyebrow>{title}</Eyebrow>
         <span className="flex items-center gap-2">
           {meta}
-          <ChevronDown
-            className={cn(
-              "size-3.5 text-muted-foreground transition-transform",
-              open && "rotate-180"
+          <RiArrowDownSLine
+            className={cx(
+              "size-4 text-foreground-icon-secondary transition-transform duration-200",
+              open && "rotate-180",
             )}
+            aria-hidden
           />
         </span>
       </button>
@@ -59,63 +88,54 @@ function QuestionGuidePanel({ questions }: { questions: string[] }) {
   // design: it's a reading aid during the session, not part of the record.
   const [asked, setAsked] = useState<Set<number>>(new Set());
 
-  const toggle = (index: number) =>
+  const toggle = (index: number, selected: boolean) =>
     setAsked((prev) => {
       const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
+      if (selected) next.add(index);
+      else next.delete(index);
       return next;
     });
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex min-h-12 items-center justify-between gap-2 border-b border-border px-4 py-2">
-        <h2 className="caps">Questions</h2>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+      <PanelHeader title="Questions">
+        <Badge color={asked.size > 0 ? "primary" : "neutral"}>
           {asked.size}/{questions.length}
-        </span>
-      </div>
+        </Badge>
+      </PanelHeader>
       {questions.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
-          <ListChecks className="size-6 text-muted-foreground/40" strokeWidth={1.5} aria-hidden />
-          <p className="max-w-[24ch] text-sm leading-relaxed text-muted-foreground">
+          <RiListCheck2 className="size-6 text-foreground-icon-tertiary" aria-hidden />
+          <p className="max-w-[24ch] text-body-regular text-text-secondary">
             No question guide for this session. Ask anything you like.
           </p>
         </div>
       ) : (
-        <ol className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
-        {questions.map((question, index) => {
-          const isAsked = asked.has(index);
-          return (
-            <li key={index}>
-              <button
-                type="button"
-                onClick={() => toggle(index)}
-                aria-pressed={isAsked}
-                className="group flex w-full items-start gap-2.5 px-4 py-2.5 text-left text-sm leading-relaxed transition-colors hover:bg-muted/60"
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "mt-0.5 flex size-4 shrink-0 items-center justify-center border transition-colors",
-                    isAsked
-                      ? "border-brand bg-brand text-brand-foreground"
-                      : "border-input bg-card text-transparent group-hover:border-ring"
-                  )}
+        <ol className="min-h-0 flex-1 divide-y divide-separator-border overflow-y-auto">
+          {questions.map((question, index) => {
+            const isAsked = asked.has(index);
+            return (
+              <li key={index}>
+                <Checkbox
+                  size="sm"
+                  isSelected={isAsked}
+                  onChange={(selected) => toggle(index, selected)}
+                  className="w-full items-start px-4 py-2.5 transition-colors duration-150 hover:bg-background-primary-hover"
                 >
-                  <Check className="size-2.5" strokeWidth={3} />
-                </span>
-                <span
-                  className={cn(
-                    isAsked && "text-muted-foreground line-through decoration-border"
-                  )}
-                >
-                  {question}
-                </span>
-              </button>
-            </li>
-          );
-        })}
+                  <span
+                    className={cx(
+                      "text-body-2-regular",
+                      isAsked
+                        ? "text-text-tertiary line-through"
+                        : "text-text-primary",
+                    )}
+                  >
+                    {question}
+                  </span>
+                </Checkbox>
+              </li>
+            );
+          })}
         </ol>
       )}
     </div>
@@ -134,7 +154,7 @@ export function InterviewRoom({
   // Tracks the source of the latest participant reply so the header badge
   // reflects reality: null until the first reply, then "live" or "mock".
   const [responseMode, setResponseMode] = useState<"live" | "mock" | null>(
-    null
+    null,
   );
   // Voice Mode is the primary interaction; text is a fallback under a toggle.
   const [mode, setMode] = useState<"voice" | "text">("voice");
@@ -156,7 +176,7 @@ export function InterviewRoom({
 
   const handleSend = async (
     text: string,
-    opts?: { voiceMode?: boolean }
+    opts?: { voiceMode?: boolean },
   ) => {
     if (isCompleted || isGeneratingResponse) return;
     setError(null);
@@ -176,7 +196,7 @@ export function InterviewRoom({
 
     // Seed for the deterministic mock fallback.
     const turn = session.messages.filter(
-      (m) => m.role === "participant"
+      (m) => m.role === "participant",
     ).length;
 
     const controller = new AbortController();
@@ -208,7 +228,7 @@ export function InterviewRoom({
       setResponseMode(usedFallback ? "mock" : "live");
       if (usedFallback) {
         setError(
-          "Showing a sample response. Add an OpenAI API key for live answers."
+          "Showing a sample response. Add an OpenAI API key for live answers.",
         );
       }
     } catch {
@@ -220,7 +240,7 @@ export function InterviewRoom({
       responseText = generateMockResponse(text, turn);
       setResponseMode("mock");
       setError(
-        "Couldn't reach the AI participant, so this is a sample response."
+        "Couldn't reach the AI participant, so this is a sample response.",
       );
     } finally {
       abortRef.current = null;
@@ -286,7 +306,7 @@ export function InterviewRoom({
           ? "Microphone access was blocked. Allow mic access, or use text instead."
           : failure === "unsupported"
             ? "Voice recording isn't supported in this browser. Use text instead."
-            : "Couldn't start recording. Try again, or use text instead."
+            : "Couldn't start recording. Try again, or use text instead.",
       );
     }
   };
@@ -316,7 +336,7 @@ export function InterviewRoom({
       void voice.generateAndPlay(
         lastParticipant.id,
         lastParticipant.text,
-        persona.voiceId
+        persona.voiceId,
       );
     }
   };
@@ -360,8 +380,8 @@ export function InterviewRoom({
 
   return (
     <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6">
-      {/* One console frame: three columns divided by rules. */}
-      <div className="animate-rise grid grid-cols-1 border border-foreground bg-card max-lg:divide-y max-lg:divide-foreground lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-foreground">
+      {/* One console frame: three columns divided by hairlines. */}
+      <div className="animate-rise grid grid-cols-1 overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default shadow-card max-lg:divide-y max-lg:divide-separator-border lg:h-[calc(100dvh-8.25rem)] lg:grid-cols-[300px_minmax(0,1fr)_320px] lg:divide-x lg:divide-separator-border">
         {/* Left: question guide gets the room; participant and goal stay
             compact at the bottom so the rail reads as a script, not a dossier. */}
         <aside className="flex flex-col lg:min-h-0">
@@ -375,17 +395,17 @@ export function InterviewRoom({
               <ParticipantCard persona={persona} collapsible />
             </RailSection>
             <RailSection title="Research goal">
-              <div className="space-y-3 px-4 pb-4 text-sm">
-                <p className="leading-relaxed">
+              <div className="space-y-3 px-4 pb-4">
+                <p className="text-body-regular text-text-primary">
                   {researchContext.researchGoal ||
                     "No research goal provided yet."}
                 </p>
                 {researchContext.projectName ? (
-                  <div className="space-y-1 border-t border-border pt-3">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Project
+                  <div className="space-y-1 border-t border-separator-border pt-3">
+                    <p className="text-caption-1-medium text-text-tertiary">Project</p>
+                    <p className="text-body-regular text-text-primary">
+                      {researchContext.projectName}
                     </p>
-                    <p>{researchContext.projectName}</p>
                   </div>
                 ) : null}
               </div>
@@ -395,8 +415,8 @@ export function InterviewRoom({
 
         {/* Center: voice-first interview (text fallback under a toggle) */}
         <section className="flex min-h-[60vh] flex-col lg:min-h-0">
-          <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2 sm:px-5">
-            <h2 className="caps">Interview</h2>
+          <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-separator-border px-4 sm:px-5">
+            <Eyebrow>Interview</Eyebrow>
             <div className="flex flex-wrap items-center gap-1.5">
               <Tag
                 tone={
@@ -444,16 +464,28 @@ export function InterviewRoom({
               />
             )}
           </div>
-          <div className="flex justify-center border-t border-border py-1.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMode((m) => (m === "voice" ? "text" : "voice"))}
+          <div className="flex justify-center border-t border-separator-border py-2">
+            <SegmentedControl
+              aria-label="Interview mode"
+              selectedKeys={[mode]}
+              onSelectionChange={(keys) => {
+                const next = [...keys][0];
+                if (next === "voice" || next === "text") setMode(next);
+              }}
             >
-              {mode === "voice" ? "Switch to text" : "Switch to voice"}
-            </Button>
+              <SegmentedControlItem id="voice">
+                <span className="flex items-center gap-1.5">
+                  <RiMicLine className="size-4" aria-hidden />
+                  Voice
+                </span>
+              </SegmentedControlItem>
+              <SegmentedControlItem id="text">
+                <span className="flex items-center gap-1.5">
+                  <RiKeyboardLine className="size-4" aria-hidden />
+                  Text
+                </span>
+              </SegmentedControlItem>
+            </SegmentedControl>
           </div>
         </section>
 
@@ -465,11 +497,10 @@ export function InterviewRoom({
               personaName={persona.name}
             />
           </div>
-          <div className="border-t border-border p-3">
+          <div className="border-t border-separator-border p-3">
             <Button
-              variant={isCompleted ? "outline" : "destructive"}
-              size="lg"
-              className="h-11 w-full"
+              variant={isCompleted ? "secondary" : "danger"}
+              className="w-full"
               onClick={
                 isCompleted ? () => router.push("/summary") : handleEndSession
               }

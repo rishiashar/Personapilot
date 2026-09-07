@@ -1,37 +1,25 @@
-import { cn } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
-const PASTEL_SPECTRUM = [
-  [255, 160, 180],
-  [255, 194, 128],
-  [255, 228, 124],
-  [164, 226, 154],
-  [128, 211, 247],
-  [170, 180, 255],
-  [211, 166, 255],
-  [255, 162, 219],
-] as const;
+const SPECTRUM_STOPS = 8;
 
 // Deterministic bar heights so server and client render identically.
 export function barHeight(i: number, max: number) {
   return Math.round(
     0.28 * max +
       0.5 * max * Math.abs(Math.sin(i * 0.82)) +
-      0.22 * max * Math.abs(Math.sin(i * 0.31))
+      0.22 * max * Math.abs(Math.sin(i * 0.31)),
   );
 }
 
+// Blends between neighbouring spectrum tokens so the bars sweep the pastel
+// rainbow without any literal color leaving the stylesheet.
 export function barColor(i: number, count: number) {
   const phase = i / Math.max(count - 1, 1);
-  const scaled = phase * (PASTEL_SPECTRUM.length - 1);
-  const leftIndex = Math.floor(scaled);
-  const rightIndex = Math.min(leftIndex + 1, PASTEL_SPECTRUM.length - 1);
-  const mix = scaled - leftIndex;
-  const left = PASTEL_SPECTRUM[leftIndex];
-  const right = PASTEL_SPECTRUM[rightIndex];
-  const [r, g, b] = left.map((channel, channelIndex) =>
-    Math.round(channel + (right[channelIndex] - channel) * mix)
-  );
-  return `rgb(${r} ${g} ${b})`;
+  const scaled = phase * (SPECTRUM_STOPS - 1);
+  const left = Math.floor(scaled) + 1;
+  const right = Math.min(left + 1, SPECTRUM_STOPS);
+  const mix = Math.round((scaled - Math.floor(scaled)) * 100);
+  return `color-mix(in oklab, var(--color-spectrum-${left}) ${100 - mix}%, var(--color-spectrum-${right}))`;
 }
 
 export function Waveform({
@@ -48,12 +36,15 @@ export function Waveform({
   return (
     <div
       aria-hidden
-      className={cn("flex items-center justify-between", className)}
+      className={cx("flex items-center justify-between", className)}
     >
       {Array.from({ length: count }, (_, i) => (
         <span
           key={i}
-          className={cn("w-[3px] bg-current", animated && "animate-wavebar")}
+          className={cx(
+            "w-[3px] rounded-full bg-current",
+            animated && "animate-wavebar",
+          )}
           style={{
             color: barColor(i, count),
             height: barHeight(i, maxHeight),
@@ -65,31 +56,30 @@ export function Waveform({
   );
 }
 
-// The ProbeRoom mark: voice bars flanking two door panels.
-// When rendered inside a `group` parent, hovering swings the door panels
-// open and the voice bars pulse in brand blue.
+// The ProbeRoom mark: voice bars flanking two door panels. Inside a `group`
+// parent, hovering swings the doors open and pulses the bars in the accent.
 export function VoiceMark({ className }: { className?: string }) {
   return (
     <svg
       aria-hidden
       viewBox="-22 0 733 557"
-      className={cn("h-[18px] w-auto text-foreground", className)}
+      className={cx("h-[18px] w-auto text-text-primary", className)}
       fill="currentColor"
     >
-      <g className="transition-colors duration-300 group-hover:text-brand">
-        <rect x="0" y="207" width="42" height="146" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar" />
-        <rect x="90" y="105" width="42" height="348" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:180ms]" />
-        <rect x="557" y="105" width="42" height="348" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:360ms]" />
-        <rect x="647" y="207" width="42" height="146" rx="21" fill="currentColor" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:540ms]" />
+      <g className="transition-colors duration-150 group-hover:text-accent-500">
+        <rect x="0" y="207" width="42" height="146" rx="21" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar" />
+        <rect x="90" y="105" width="42" height="348" rx="21" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:180ms]" />
+        <rect x="557" y="105" width="42" height="348" rx="21" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:360ms]" />
+        <rect x="647" y="207" width="42" height="146" rx="21" className="origin-center [transform-box:fill-box] group-hover:animate-wavebar [animation-delay:540ms]" />
       </g>
-      <g fill="currentColor" stroke="currentColor" strokeWidth="44" strokeLinejoin="round">
+      <g stroke="currentColor" strokeWidth="44" strokeLinejoin="round">
         <path
           d="M220 36 L288 87 L288 468 L220 519 Z"
-          className="transition-transform duration-500 ease-out group-hover:-translate-x-[28px]"
+          className="transition-transform duration-300 ease-out group-hover:-translate-x-[28px]"
         />
         <path
           d="M469 36 L401 87 L401 468 L469 519 Z"
-          className="transition-transform duration-500 ease-out group-hover:translate-x-[28px]"
+          className="transition-transform duration-300 ease-out group-hover:translate-x-[28px]"
         />
       </g>
     </svg>

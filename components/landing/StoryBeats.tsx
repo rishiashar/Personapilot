@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import rough from "roughjs";
 
-import { cn } from "@/lib/utils";
+import { Eyebrow } from "@/components/Eyebrow";
+import { cx } from "@/utils/cx";
 
 function useEntered(threshold = 0.3) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -84,7 +85,7 @@ function SketchScene({ entered }: { entered: boolean }) {
       rc.path("M114 302 C114 248, 190 248, 190 302", ink),
       rc.rectangle(196, 266, 58, 36, {
         ...ink,
-        fill: "var(--background)",
+        fill: "var(--color-background-primary-default)",
         fillStyle: "solid",
       }),
       rc.line(206, 277, 244, 277, { ...ink, strokeWidth: 1.4 }),
@@ -118,7 +119,7 @@ function SketchScene({ entered }: { entered: boolean }) {
     const rewrite = add(0, [
       rc.line(114, 132, 218, 132, { ...ink, strokeWidth: 3.4, seed: 9 }),
     ]);
-    rewrite.setAttribute("class", "text-brand");
+    rewrite.setAttribute("class", "text-accent-500");
     drawablesRef.current = [
       { node: strike, delay: 1100 },
       { node: rewrite, delay: 1500 },
@@ -165,7 +166,7 @@ function SketchScene({ entered }: { entered: boolean }) {
     });
     barsRef.current = bars;
     const barsGroup = add(2200, bars);
-    barsGroup.setAttribute("class", "text-brand");
+    barsGroup.setAttribute("class", "text-accent-500");
   }, []);
 
   useEffect(() => {
@@ -193,7 +194,7 @@ function SketchScene({ entered }: { entered: boolean }) {
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="w-full text-foreground select-none"
+      className="w-full text-text-primary select-none"
     />
   );
 }
@@ -214,18 +215,16 @@ function InsightPull({ entered }: { entered: boolean }) {
   return (
     <div
       aria-hidden
-      className="mt-5 border border-foreground bg-background p-5 shadow-[6px_6px_0_0_var(--foreground)] select-none sm:p-6"
+      className="mt-5 rounded-3xl border border-border-button-default bg-background-primary-default p-5 shadow-card select-none sm:p-6"
     >
-      <p className="caps text-muted-foreground">
-        Same participant · After the rewrite
-      </p>
-      <p className="mt-3 text-[15px] leading-relaxed sm:text-base">
+      <Eyebrow>Same participant · After the rewrite</Eyebrow>
+      <p className="mt-3 text-headline-regular text-text-primary">
         &ldquo;Honestly?{" "}
-        <span className="px-0.5" style={highlight(2600)}>
+        <span className="rounded-sm px-0.5" style={highlight(2600)}>
           During convocation season.
         </span>{" "}
         The rest of the year it feels like{" "}
-        <span className="px-0.5" style={highlight(3000)}>
+        <span className="rounded-sm px-0.5" style={highlight(3000)}>
           a place I commute to, not a place I belong to
         </span>
         .&rdquo;
@@ -245,31 +244,33 @@ export function StoryBeats({ className }: { className?: string }) {
   return (
     <div
       ref={ref}
-      className={cn(
+      className={cx(
         "grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16",
         className,
       )}
     >
-      <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:text-[16px]">
-        <p className="caps text-brand">University of Toronto · Capstone</p>
-        <p>
+      <div className="space-y-4">
+        <Eyebrow className="text-accent-600">
+          University of Toronto, Capstone
+        </Eyebrow>
+        <p className="text-headline-regular text-text-secondary">
           During my capstone project at the University of Toronto, my team
           was researching why students were not using UofT Mobile, an app
           that put the university&apos;s links and tools in one place. We
           asked the obvious questions. Which links do you open? How often?
           What tasks are you trying to finish?
         </p>
-        <p>
+        <p className="text-headline-regular text-text-secondary">
           The answers were fine. They were also stuck at the surface. They
           told us how students used the app, but never why they would come
           back to it. So we changed the questions. Instead of asking about
           links, we asked:{" "}
-          <span className="font-medium text-foreground">
+          <span className="text-headline-medium text-text-primary">
             what does UofT mean to you? When do you feel connected to it? Do
             you feel like you belong here?
           </span>
         </p>
-        <p>
+        <p className="text-headline-regular text-text-secondary">
           The whole conversation changed. Tasks became feelings, app usage
           became student identity, and suddenly we were learning things worth
           acting on. Same study, same students. Only the questions were

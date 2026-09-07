@@ -1,17 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { RiArrowDownSLine } from "@remixicon/react";
 
+import { Avatar } from "@/components/base/avatar/avatar";
+import { LinkButton } from "@/components/base/buttons/link-button";
 import { Tag } from "@/components/Tag";
 import type { Persona } from "@/lib/types";
-import { cn, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-1 border-t border-border pt-3">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="text-sm leading-relaxed">{value || "Not provided"}</p>
+    <div className="space-y-1 border-t border-separator-border pt-3">
+      <p className="text-caption-1-medium text-text-tertiary">{label}</p>
+      <p className="text-body-regular text-text-primary">
+        {value || "Not provided"}
+      </p>
     </div>
   );
 }
@@ -25,16 +30,16 @@ function PersonaDetails({ persona }: { persona: Persona }) {
       <DetailRow label="Frustrations" value={persona.frustrations} />
       <DetailRow label="Voice style" value={persona.voiceStyle} />
       {persona.voiceId && (
-        <div className="space-y-1 border-t border-border pt-3">
-          <p className="text-xs font-medium text-muted-foreground">Voice</p>
-          <p className="text-sm leading-relaxed">
+        <div className="space-y-1 border-t border-separator-border pt-3">
+          <p className="text-caption-1-medium text-text-tertiary">Voice</p>
+          <p className="text-body-regular text-text-primary">
             {persona.voiceSource === "elevenlabs_search"
               ? "Auto-selected"
               : "Default voice"}
             {persona.voiceName ? ` · ${persona.voiceName}` : ""}
           </p>
           {persona.voiceSelectionReason && (
-            <p className="text-xs leading-relaxed text-muted-foreground">
+            <p className="text-caption-1-medium text-text-tertiary">
               {persona.voiceSelectionReason}
             </p>
           )}
@@ -59,16 +64,14 @@ export function ParticipantCard({
   const [expanded, setExpanded] = useState(!collapsible);
 
   return (
-    <div className={cn("bg-card p-4", className)}>
+    <div className={cx("rounded-2xl p-4", className)}>
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center bg-foreground text-[13px] font-semibold text-background">
-          {getInitials(persona.name)}
-        </span>
+        <Avatar size="lg" color="blue" initials={getInitials(persona.name)} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-semibold tracking-tight">
+          <p className="truncate text-headline-medium text-text-primary">
             {persona.name}
           </p>
-          <p className="truncate text-sm text-muted-foreground">
+          <p className="truncate text-body-2-medium text-text-secondary">
             {persona.role}
           </p>
         </div>
@@ -79,20 +82,22 @@ export function ParticipantCard({
       </div>
       {expanded && <PersonaDetails persona={persona} />}
       {collapsible && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-expanded={expanded}
-          className={cn(
-            "flex w-full items-center justify-between gap-2 border-t border-border pt-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground",
+        <div
+          className={cx(
+            "border-t border-separator-border pt-3",
             expanded && "mt-3"
           )}
         >
-          {expanded ? "Hide full profile" : "Full profile"}
-          <ChevronDown
-            className={cn("size-3.5 transition-transform", expanded && "rotate-180")}
-          />
-        </button>
+          <LinkButton
+            variant="secondary"
+            size="xs"
+            trailingIcon={RiArrowDownSLine}
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Hide full profile" : "Full profile"}
+          </LinkButton>
+        </div>
       )}
     </div>
   );

@@ -1,40 +1,50 @@
-import Link from "next/link";
+import type { ComponentType } from "react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { NavButton } from "@/components/NavButton";
+import { cx } from "@/utils/cx";
+
+type IconComponent = ComponentType<{
+  className?: string;
+  "aria-hidden"?: boolean | "true" | "false";
+}>;
 
 export interface EmptyStateAction {
   label: string;
   href: string;
-  variant?: "default" | "outline" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost";
 }
 
 export function EmptyState({
   title,
   description,
+  icon: Icon,
   primaryAction,
   secondaryAction,
   className,
 }: {
   title: string;
   description?: string;
+  icon?: IconComponent;
   primaryAction?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
   className?: string;
 }) {
   return (
     <div
-      className={cn(
-        "flex flex-col items-center gap-5 border border-foreground bg-card px-6 py-16 text-center",
+      className={cx(
+        "flex flex-col items-center gap-5 rounded-3xl border border-border-button-default bg-background-primary-default px-6 py-14 text-center",
         className
       )}
     >
+      {Icon ? (
+        <span className="flex size-12 items-center justify-center rounded-full bg-background-secondary-default text-foreground-icon-secondary">
+          <Icon className="size-6" aria-hidden />
+        </span>
+      ) : null}
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight text-balance">
-          {title}
-        </h2>
+        <h2 className="text-title-2-medium text-text-primary">{title}</h2>
         {description ? (
-          <p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto max-w-sm text-body-regular text-text-secondary">
             {description}
           </p>
         ) : null}
@@ -42,25 +52,20 @@ export function EmptyState({
       {(primaryAction || secondaryAction) && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
           {primaryAction ? (
-            <Button
-              size="lg"
-              className="hover:bg-brand"
-              nativeButton={false}
-              variant={primaryAction.variant ?? "default"}
-              render={<Link href={primaryAction.href} />}
+            <NavButton
+              href={primaryAction.href}
+              variant={primaryAction.variant ?? "primary"}
             >
               {primaryAction.label}
-            </Button>
+            </NavButton>
           ) : null}
           {secondaryAction ? (
-            <Button
-              size="lg"
-              nativeButton={false}
-              variant={secondaryAction.variant ?? "outline"}
-              render={<Link href={secondaryAction.href} />}
+            <NavButton
+              href={secondaryAction.href}
+              variant={secondaryAction.variant ?? "secondary"}
             >
               {secondaryAction.label}
-            </Button>
+            </NavButton>
           ) : null}
         </div>
       )}

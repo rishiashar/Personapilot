@@ -1,17 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  RiArrowUpLine,
+  RiLoader4Line,
+  RiVolumeUpLine,
+} from "@remixicon/react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
+import { ComposerLoader } from "@/components/application/composer-loader/composer-loader";
+import { Avatar } from "@/components/base/avatar/avatar";
+import { LinkButton } from "@/components/base/buttons/link-button";
 import type { InterviewMessage } from "@/lib/types";
 import {
   useParticipantVoice,
   type VoiceState,
 } from "@/lib/useParticipantVoice";
-import { cn, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 function VoiceControl({
   state,
@@ -22,8 +28,8 @@ function VoiceControl({
 }) {
   if (state.status === "loading") {
     return (
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Loader2 className="size-3 animate-spin" />
+      <span className="flex items-center gap-1.5 text-caption-1-medium text-text-secondary">
+        <RiLoader4Line className="size-3.5 animate-spin" aria-hidden />
         Generating voice…
       </span>
     );
@@ -31,7 +37,7 @@ function VoiceControl({
 
   if (state.status === "error") {
     return (
-      <span className="text-xs text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-caption-1-medium text-text-secondary">
         Voice unavailable. Showing the text response.
       </span>
     );
@@ -39,23 +45,14 @@ function VoiceControl({
 
   const isReady = state.status === "ready";
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      className="h-6 px-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+    <LinkButton
+      variant="secondary"
+      size="xs"
+      leadingIcon={RiVolumeUpLine}
       onClick={onPlay}
     >
       {isReady ? "Replay audio" : "Play audio"}
-    </Button>
-  );
-}
-
-function PersonaMark({ initials }: { initials: string }) {
-  return (
-    <span className="flex size-7 shrink-0 items-center justify-center bg-foreground text-[10px] font-semibold text-background">
-      {initials}
-    </span>
+    </LinkButton>
   );
 }
 
@@ -72,31 +69,24 @@ function MessageBubble({
 }) {
   const isResearcher = message.role === "researcher";
 
-  return (
-    <div
-      className={cn(
-        "animate-message-in flex items-end gap-2.5",
-        isResearcher ? "justify-end" : "justify-start"
-      )}
-    >
-      {!isResearcher && <PersonaMark initials={personaInitials} />}
-      <div
-        className={cn(
-          "flex max-w-[78%] flex-col gap-1",
-          isResearcher ? "items-end" : "items-start"
-        )}
-      >
-        <div
-          className={cn(
-            "rounded-[10px] px-3.5 py-2.5 text-sm leading-relaxed",
-            isResearcher
-              ? "rounded-br-[2px] bg-foreground text-background"
-              : "rounded-bl-[2px] bg-muted text-foreground"
-          )}
-        >
+  if (isResearcher) {
+    return (
+      <div className="animate-message-in flex justify-end">
+        <div className="max-w-[78%] rounded-2xl rounded-br-md bg-accent-500 px-3.5 py-2.5 text-body-regular text-text-white">
           {message.text}
         </div>
-        {!isResearcher && voiceState && onPlayVoice ? (
+      </div>
+    );
+  }
+
+  return (
+    <div className="animate-message-in flex items-end gap-2.5">
+      <Avatar size="sm" color="blue" initials={personaInitials} />
+      <div className="flex flex-col items-start gap-1">
+        <div className="max-w-[78%] rounded-2xl rounded-bl-md bg-background-secondary-default px-3.5 py-2.5 text-body-regular text-text-primary">
+          {message.text}
+        </div>
+        {voiceState && onPlayVoice ? (
           <VoiceControl state={voiceState} onPlay={onPlayVoice} />
         ) : null}
       </div>
@@ -156,15 +146,13 @@ export function InterviewChat({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <ScrollArea className="min-h-0 flex-1">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-4 px-4 py-5 sm:px-6">
           {messages.length === 0 && !isGenerating ? (
-            <div className="mx-auto max-w-sm px-5 py-10 text-center">
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Ask your first interview question below. {personaName} will
-                answer in character so you can rehearse your phrasing.
-              </p>
-            </div>
+            <p className="mx-auto max-w-sm px-5 py-10 text-center text-body-regular text-text-secondary">
+              Ask your first interview question below. {personaName} will
+              answer in character so you can rehearse your phrasing.
+            </p>
           ) : null}
 
           {messages.map((message) => (
@@ -187,59 +175,65 @@ export function InterviewChat({
 
           {isGenerating ? (
             <div className="flex items-end gap-2.5">
-              <PersonaMark initials={personaInitials} />
-              <div className="flex items-center gap-2 rounded-[10px] rounded-bl-[2px] bg-muted px-3.5 py-3">
-                <span className="flex items-center gap-1">
-                  <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.2s]" />
-                  <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.1s]" />
-                  <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60" />
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {personaName} is thinking…
-                </span>
-              </div>
+              <Avatar size="sm" color="blue" initials={personaInitials} />
+              <AgentThinking
+                variant="wave"
+                label={`${personaName} is thinking`}
+                showTimer={false}
+              />
             </div>
           ) : null}
 
           <div ref={endRef} />
         </div>
-      </ScrollArea>
+      </div>
 
-      <div className="border-t border-border p-3 sm:p-4">
+      <div className="border-t border-separator-border p-3 sm:p-4">
         {error ? (
-          <p role="status" className="mb-2 text-xs text-muted-foreground">
+          <p
+            role="status"
+            className="mb-2 text-caption-1-medium text-text-secondary"
+          >
             {error}
           </p>
         ) : null}
-        <form
-          className="flex items-center gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-        >
-          <Input
-            value={draft}
-            disabled={disabled || isGenerating}
-            placeholder={
-              disabled
-                ? "This session has ended."
-                : isGenerating
-                  ? `${personaName} is thinking…`
-                  : "Type an interview question…"
-            }
-            onChange={(e) => setDraft(e.target.value)}
-            aria-label="Interview question"
-          />
-          <Button
-            type="submit"
-            size="lg"
-            className="hover:bg-brand"
-            disabled={disabled || isGenerating || draft.trim().length === 0}
+        <ComposerLoader active={isGenerating}>
+          <form
+            className={cx(
+              "flex h-[52px] w-full items-center gap-2.5 rounded-full p-2 pl-4",
+              isGenerating
+                ? "bg-transparent"
+                : "border border-border-button-default bg-background-primary-default shadow-xs"
+            )}
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
           >
-            Send
-          </Button>
-        </form>
+            <input
+              value={draft}
+              disabled={disabled || isGenerating}
+              placeholder={
+                disabled
+                  ? "This session has ended."
+                  : isGenerating
+                    ? `${personaName} is thinking…`
+                    : "Type an interview question…"
+              }
+              onChange={(e) => setDraft(e.target.value)}
+              aria-label="Interview question"
+              className="h-5 min-w-0 flex-1 bg-transparent text-body-regular text-text-primary caret-text-primary outline-none placeholder:text-text-tertiary"
+            />
+            <button
+              type="submit"
+              disabled={disabled || isGenerating || draft.trim().length === 0}
+              aria-label="Send question"
+              className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-button-primary text-text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RiArrowUpLine className="size-5" aria-hidden />
+            </button>
+          </form>
+        </ComposerLoader>
       </div>
     </div>
   );

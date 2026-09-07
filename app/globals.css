@@ -1,169 +1,104 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+/* ProbeRoom global stylesheet.
+ *
+ * BoardUI owns the foundations (tokens, type scale, base resets, component
+ * animations) in styles/. This file layers the ProbeRoom identity on top:
+ * the brand-tinted accent ramp, the pastel verdict washes, the spectrum used
+ * by the voice waveform, and the handful of entrance animations the product
+ * relies on. Every color here is a token; components never use literals. */
+@import "../styles/globals.css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-instrument-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-instrument-sans);
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-/* Pastel washes with deep companion text: soft surfaces, legible signals. */
+/* ---------------------------------------------------------------------------
+ * Accent ramp: ProbeRoom blue
+ *
+ * BoardUI re-tints every CTA, selection state, focus ring, and link through
+ * these eleven steps. The ramp is built around the softened azure the brand
+ * already used (hue 262, chroma held under 0.18) so primary buttons read as
+ * ProbeRoom rather than stock BoardUI blue. Literal OKLCH values on purpose:
+ * Tailwind only preserves what it can see statically.
+ * ------------------------------------------------------------------------- */
 @theme {
-  --color-wash-blue: oklch(0.93 0.045 258);
-  --color-wash-blue-fg: oklch(0.43 0.14 260);
-  --color-wash-green: oklch(0.94 0.05 152);
-  --color-wash-green-fg: oklch(0.42 0.1 152);
-  --color-wash-amber: oklch(0.95 0.06 88);
-  --color-wash-amber-fg: oklch(0.5 0.1 75);
-  --color-wash-red: oklch(0.93 0.04 25);
-  --color-wash-red-fg: oklch(0.48 0.15 26);
+  --color-accent-50: oklch(0.975 0.012 262);
+  --color-accent-100: oklch(0.94 0.028 262);
+  --color-accent-200: oklch(0.89 0.055 262);
+  --color-accent-300: oklch(0.82 0.095 262);
+  --color-accent-400: oklch(0.7 0.14 262);
+  --color-accent-500: oklch(0.58 0.17 262);
+  --color-accent-600: oklch(0.52 0.175 262);
+  --color-accent-700: oklch(0.46 0.165 262);
+  --color-accent-800: oklch(0.4 0.14 262);
+  --color-accent-900: oklch(0.35 0.11 262);
+  --color-accent-950: oklch(0.27 0.075 262);
+
+  /* The pastel spectrum behind the voice waveform and the footer wordmark
+   * sweep. Decorative brand color, not UI state, so it stays constant across
+   * themes. */
+  --color-spectrum-1: #ffa0b4;
+  --color-spectrum-2: #ffc280;
+  --color-spectrum-3: #ffe47c;
+  --color-spectrum-4: #a4e29a;
+  --color-spectrum-5: #80d3f7;
+  --color-spectrum-6: #aab4ff;
+  --color-spectrum-7: #d3a6ff;
+  --color-spectrum-8: #ffa2db;
 }
 
+/* ---------------------------------------------------------------------------
+ * Verdict washes
+ *
+ * Large tinted surfaces that communicate judgement (strong / mixed / needs
+ * work / info). They follow BoardUI's status chip recipe (light 100/800, dark
+ * 950 at 60% over 300) so the verdict card flips with the theme.
+ * ------------------------------------------------------------------------- */
 :root {
-  /* Neutral foundation, one brand color, square geometry. */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.185 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.185 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.185 0 0);
-  --primary: oklch(0.185 0 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.962 0 0);
-  --secondary-foreground: oklch(0.185 0 0);
-  --muted: oklch(0.962 0 0);
-  --muted-foreground: oklch(0.47 0 0);
-  --accent: oklch(0.962 0 0);
-  --accent-foreground: oklch(0.185 0 0);
-  --destructive: oklch(0.6 0.21 26);
-  --border: oklch(0.885 0 0);
-  --input: oklch(0.83 0 0);
-  --ring: var(--brand);
-  --brand: oklch(0.56 0.17 262);
-  --brand-foreground: oklch(1 0 0);
-  --chart-1: oklch(0.25 0 0);
-  --chart-2: oklch(0.42 0 0);
-  --chart-3: oklch(0.56 0 0);
-  --chart-4: oklch(0.7 0 0);
-  --chart-5: oklch(0.83 0 0);
-  --radius: 0rem;
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.185 0 0);
-  --sidebar-primary: oklch(0.185 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.962 0 0);
-  --sidebar-accent-foreground: oklch(0.185 0 0);
-  --sidebar-border: oklch(0.885 0 0);
-  --sidebar-ring: var(--brand);
+  --color-wash-blue: var(--color-blue-100);
+  --color-wash-blue-fg: var(--color-blue-800);
+  --color-wash-green: var(--color-lime-100);
+  --color-wash-green-fg: var(--color-lime-800);
+  --color-wash-amber: var(--color-yellow-100);
+  --color-wash-amber-fg: var(--color-yellow-800);
+  --color-wash-red: var(--color-rose-100);
+  --color-wash-red-fg: var(--color-rose-800);
 }
 
 .dark {
-  --background: oklch(0.16 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.2 0 0);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.97 0 0);
-  --primary-foreground: oklch(0.2 0 0);
-  --secondary: oklch(0.27 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.27 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.27 0 0);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.65 0.19 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 18%);
-  --ring: var(--brand);
-  --brand: oklch(0.62 0.22 264);
-  --brand-foreground: oklch(1 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.2 0 0);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.97 0 0);
-  --sidebar-primary-foreground: oklch(0.2 0 0);
-  --sidebar-accent: oklch(0.27 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: var(--brand);
+  --color-wash-blue: color-mix(in srgb, var(--color-blue-950) 60%, transparent);
+  --color-wash-blue-fg: var(--color-blue-300);
+  --color-wash-green: color-mix(in srgb, var(--color-lime-950) 60%, transparent);
+  --color-wash-green-fg: var(--color-lime-300);
+  --color-wash-amber: color-mix(in srgb, var(--color-yellow-950) 60%, transparent);
+  --color-wash-amber-fg: var(--color-yellow-300);
+  --color-wash-red: color-mix(in srgb, var(--color-rose-950) 60%, transparent);
+  --color-wash-red-fg: var(--color-rose-300);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  ::selection {
-    background: var(--brand);
-    color: var(--brand-foreground);
-  }
+@theme inline {
+  --color-wash-blue: var(--color-wash-blue);
+  --color-wash-blue-fg: var(--color-wash-blue-fg);
+  --color-wash-green: var(--color-wash-green);
+  --color-wash-green-fg: var(--color-wash-green-fg);
+  --color-wash-amber: var(--color-wash-amber);
+  --color-wash-amber-fg: var(--color-wash-amber-fg);
+  --color-wash-red: var(--color-wash-red);
+  --color-wash-red-fg: var(--color-wash-red-fg);
 }
 
-@layer components {
-  /* Structural label: short, bold, black. Used for panel and section heads. */
-  .caps {
-    font-size: 11px;
-    line-height: 1.5;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
+/* Smooth anchor scrolling on the landing page. */
+html {
+  scroll-behavior: smooth;
 }
 
+::selection {
+  background: var(--color-accent-500);
+  color: var(--color-text-white);
+}
+
+/* ---------------------------------------------------------------------------
+ * ProbeRoom motion
+ *
+ * Follows the BoardUI language: entrances condense into place (fade + slight
+ * scale + small blur), ease-out, 300 to 400ms. The hero reveal is the one
+ * deliberately slower, decorative exception.
+ * ------------------------------------------------------------------------- */
 @keyframes wavebar {
   0%,
   100% {
@@ -174,14 +109,29 @@
   }
 }
 
-@keyframes hero-enter {
+@keyframes condense-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px) scale(0.98);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-line {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -194,30 +144,6 @@
   }
 }
 
-@keyframes hero-line {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes spectrum-sweep {
   from {
     background-position: 0% center;
@@ -227,14 +153,16 @@
   }
 }
 
-@keyframes row-in {
+@keyframes message-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(4px);
+    filter: blur(2px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -243,20 +171,14 @@
     animation: wavebar 1.5s ease-in-out infinite;
   }
 
-  .animate-hero-enter {
-    animation: hero-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
+  /* Page-level entrance for headers and console frames. */
   .animate-rise {
-    animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: condense-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  /* Landing hero lines: the decorative, slower reveal. */
   .animate-hero-line {
-    animation: hero-line 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .animate-spectrum-sweep {
-    animation: spectrum-sweep 3s linear infinite;
+    animation: hero-line 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .animate-underline-draw {
@@ -265,33 +187,42 @@
     animation: underline-draw 600ms cubic-bezier(0.22, 1, 0.36, 1) 500ms both;
   }
 
-  /* Cascade direct children in on mount. Subtle and quick, for form rows. */
+  .animate-spectrum-sweep {
+    animation: spectrum-sweep 3s linear infinite;
+  }
+
+  /* Transcript and message entrance: a new line settles in as it is added. */
+  .animate-message-in {
+    animation: message-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Cascade direct children in on mount. Quick and subtle, for form rows. */
   .stagger-children > * {
-    animation: row-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: condense-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .stagger-children > *:nth-child(1) {
-    animation-delay: 40ms;
+    animation-delay: 30ms;
   }
   .stagger-children > *:nth-child(2) {
-    animation-delay: 95ms;
+    animation-delay: 75ms;
   }
   .stagger-children > *:nth-child(3) {
-    animation-delay: 150ms;
+    animation-delay: 120ms;
   }
   .stagger-children > *:nth-child(4) {
-    animation-delay: 205ms;
+    animation-delay: 165ms;
   }
   .stagger-children > *:nth-child(5) {
-    animation-delay: 260ms;
+    animation-delay: 210ms;
   }
   .stagger-children > *:nth-child(6) {
-    animation-delay: 315ms;
+    animation-delay: 255ms;
   }
   .stagger-children > *:nth-child(7) {
-    animation-delay: 370ms;
+    animation-delay: 300ms;
   }
   .stagger-children > *:nth-child(n + 8) {
-    animation-delay: 425ms;
+    animation-delay: 345ms;
   }
 }
 
@@ -301,10 +232,10 @@
   }
 
   .animate-wavebar,
-  .animate-hero-enter,
   .animate-rise,
   .animate-hero-line,
   .animate-spectrum-sweep,
+  .animate-message-in,
   .stagger-children > * {
     animation: none;
   }
@@ -312,29 +243,5 @@
   .animate-underline-draw {
     animation: none;
     stroke-dashoffset: 0;
-  }
-}
-
-/* Transcript / message entrance: a new line settles in as it is added. */
-@keyframes message-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@layer utilities {
-  .animate-message-in {
-    animation: message-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-message-in {
-    animation: none;
   }
 }

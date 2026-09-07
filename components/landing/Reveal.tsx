@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import { cn } from "@/lib/utils";
+import { cx } from "@/utils/cx";
 
 function subscribeReducedMotion(callback: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -19,8 +19,9 @@ export function useReducedMotion() {
 }
 
 /**
- * Wrapper that fades and slides its children up the first time they scroll
- * into view. Renders visible immediately for reduced motion or no JS.
+ * Condenses its children into place (fade, slight scale, small blur) the
+ * first time they scroll into view. Renders visible immediately for reduced
+ * motion or no JS.
  */
 export function Reveal({
   children,
@@ -54,11 +55,11 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={cn(
-        "transition-[opacity,transform] duration-700 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+      className={cx(
+        "transform-gpu transition-[opacity,transform,filter] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
         entered || reducedMotion
-          ? "translate-y-0 opacity-100"
-          : "translate-y-6 opacity-0",
+          ? "translate-y-0 scale-100 opacity-100 blur-0"
+          : "translate-y-3 scale-[0.98] opacity-0 blur-[2px]",
         className,
       )}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
